@@ -53,16 +53,16 @@ http://你的电脑局域网IP:8790/
   - `SUB2API_MODEL=gpt-5.2`
   - `ALLOWED_ORIGINS=*` 初期先用星号 测通后可改成你的 Vercel 域名
 
-部署完成后记录 Render 地址，例如：
+部署完成后记录 Render 地址，本项目当前使用：
 
 ```text
-https://intuitive-tarot-api.onrender.com
+https://intuitive-tarot-production.onrender.com
 ```
 
 健康检查：
 
 ```text
-https://intuitive-tarot-api.onrender.com/health
+https://intuitive-tarot-production.onrender.com/health
 ```
 
 看到 `hasApiKey: true` 说明后端可用。
@@ -91,17 +91,19 @@ https://你的项目.vercel.app/index.html
 
 ### 3. 连接 Vercel 前端到 Render 后端
 
-正式页默认会请求同域 `/v1/messages`。
+正式页默认会请求本项目 Render 后端：
 
-如果前端在 Vercel 后端在 Render，需要在浏览器控制台执行一次：
+```text
+https://intuitive-tarot-production.onrender.com/v1/messages
+```
+
+如果以后要临时切换其他后端，可以在浏览器控制台执行：
 
 ```js
 setApiOrigin('https://你的-render-后端.onrender.com')
 ```
 
-页面会自动刷新，之后 AI 解读会请求 Render 后端。
-
-如果以后要换后端地址，再执行一次新的 `setApiOrigin(...)` 即可。
+页面会自动刷新，之后 AI 解读会请求新的后端地址。
 
 ## 安全原则
 
