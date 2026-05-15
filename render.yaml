@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: intuitive-tarot-api
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: SUB2API_BASE_URL
+        value: https://api.yksa.uk/v1
+      - key: SUB2API_MODEL
+        value: gpt-5.2
+      - key: ALLOWED_ORIGINS
+        value: '*'
+      - key: SUB2API_API_KEY
+        sync: false
