@@ -21,13 +21,15 @@ test('production HTML has visible ethics and decision-boundary disclaimer', () =
   ], 'disclaimer');
 });
 
-test('browser code keeps provider key private and supports deployed backend origin override', () => {
+test('browser code keeps provider key private and defaults Vercel frontend to deployed Render backend', () => {
   assert.ok(!html.includes('sk-ant-'), 'HTML must not contain Anthropic secret key');
   assert.ok(!html.includes('sk-a'), 'HTML must not contain Sub2API/OpenAI-compatible secret key');
   assert.ok(!html.includes('Authorization'), 'HTML must not set Authorization in browser');
   assert.ok(!html.includes('x-api-key'), 'HTML must not set x-api-key in browser');
   assertIncludesAll(html, [
     '/v1/messages',
+    'https://intuitive-tarot-production.onrender.com',
+    'DEFAULT_TAROT_API_ORIGIN',
     'TAROT_API_ORIGIN',
     'localStorage.getItem',
     'setApiOrigin'
