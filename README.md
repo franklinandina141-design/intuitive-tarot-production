@@ -1,31 +1,40 @@
 # AI Tarot Reading Web App
 
-一个可在线访问的 AI 塔罗解读网站。用户可以输入自己的问题，抽取塔罗牌，并获得由大模型生成的个性化塔罗解读。
+![AI Tarot Reading Web App landing preview](assets/landing-preview.jpg)
 
-在线体验：
+An AI-powered tarot reading web application that combines real Rider Waite Smith tarot imagery, user questions, and OpenAI-compatible language model interpretation into a polished web experience.
 
-- 首页：https://intuitive-tarot-live.vercel.app/
-- 正式占卜页：https://intuitive-tarot-live.vercel.app/index.html
+The project includes a static frontend deployed on Vercel, a Node.js backend deployed on Render, server-side API key protection, access-code based demo control, and per-IP daily rate limiting for safer public sharing.
 
-## 项目简介
+## Live Demo
 
-本项目是一个完整上线的 AI Web 应用，包含静态前端页面、Node.js 后端代理、AI 模型调用、真实塔罗牌图展示和线上部署。
+- Landing page: https://intuitive-tarot-demo-2.vercel.app/landing.html
+- Reading app: https://intuitive-tarot-demo-2.vercel.app/index.html
+- Repository: https://github.com/franklinandina141-design/intuitive-tarot-production
 
-项目目标不是简单生成随机文案，而是尝试把传统塔罗牌阵、用户问题、牌面含义和 AI 文本生成结合起来，让用户获得更自然、更有上下文的解读体验。
+> Public demo access is intentionally limited. The demo uses an access code and allows only a small number of readings per IP per day to prevent uncontrolled API usage.
 
-## 核心功能
+## Overview
 
-- 塔罗网站入口介绍页
-- 正式抽牌与 AI 解读页面
-- 用户可输入自己的问题
-- 随机抽取塔罗牌并展示真实牌图
-- 根据牌阵、牌面和用户问题生成个性化解读
-- 前端默认连接线上 Render 后端
-- 后端代理调用 OpenAI-compatible API
-- API Key 只保存在后端环境变量中，不暴露给浏览器
-- 支持手机浏览器访问
+This project is designed as a complete AI web application rather than a simple static mockup. Users can enter a personal question, draw tarot cards, view real card imagery, and receive a contextual AI-generated interpretation.
 
-## 技术栈
+The goal is not to make absolute predictions or replace professional advice. Instead, the app frames tarot as a reflective experience: a structured way to explore emotions, choices, and personal clarity with the help of AI-generated language.
+
+## Key Features
+
+- AI-assisted tarot interpretation based on user questions and drawn cards
+- Real tarot card image display with fallback handling
+- Polished landing page and interactive reading page
+- Custom branded access-code modal for public demo control
+- Server-side access-code validation
+- Per-IP daily rate limiting for cost protection
+- Node.js backend proxy for OpenAI-compatible chat completions
+- API keys stored only in backend environment variables
+- Vercel static frontend deployment
+- Render backend deployment
+- Production-readiness tests for security and deployment assumptions
+
+## Tech Stack
 
 - HTML
 - CSS
@@ -36,139 +45,157 @@
 - GitHub
 - OpenAI-compatible API
 
-## 项目结构
+## Architecture
+
+```text
+Browser
+  ↓
+Vercel static frontend
+  ↓
+Render Node.js backend proxy
+  ↓
+OpenAI-compatible model API
+```
+
+The browser never receives the model provider API key. All sensitive model calls are routed through the backend proxy.
+
+## Project Structure
 
 ```text
 .
+├── assets/
+│   └── landing-preview.jpg
 ├── public/
-│   ├── landing.html      # 网站入口介绍页
-│   └── index.html        # 正式抽牌与 AI 解读页
+│   ├── landing.html      # Landing and product introduction page
+│   └── index.html        # Interactive tarot reading app
 ├── server/
-│   └── server.mjs        # Node.js 后端代理
+│   └── server.mjs        # Node.js backend proxy
 ├── tests/
 │   └── production-readiness.test.mjs
 ├── package.json
-├── render.yaml           # Render 后端部署配置
-├── vercel.json           # Vercel 静态前端部署配置
+├── render.yaml           # Render backend deployment config
+├── vercel.json           # Vercel static frontend deployment config
 └── README.md
 ```
 
-## 线上部署
+## Deployment
 
-### 前端
+### Frontend
 
-前端部署在 Vercel：
+The frontend is deployed on Vercel as a static site.
+
+Current live frontend:
 
 ```text
-https://intuitive-tarot-live.vercel.app/
+https://intuitive-tarot-demo-2.vercel.app/
 ```
 
-Vercel 配置：
+Vercel settings:
 
-- Framework Preset：Other
-- Build Command：`echo 'Static tarot frontend'`
-- Output Directory：`public`
+- Framework Preset: `Other`
+- Build Command: `echo 'Static tarot frontend'`
+- Output Directory: `public`
 
-### 后端
+### Backend
 
-后端部署在 Render：
+The backend is deployed on Render.
 
 ```text
 https://intuitive-tarot-production.onrender.com
 ```
 
-健康检查：
+Health check:
 
 ```text
 https://intuitive-tarot-production.onrender.com/health
 ```
 
-正式页默认请求：
+Chat endpoint used by the frontend:
 
 ```text
 https://intuitive-tarot-production.onrender.com/v1/messages
 ```
 
-## 环境变量
+## Environment Variables
 
-后端需要配置以下环境变量：
+The backend requires these environment variables:
 
 ```bash
 HOST=0.0.0.0
-SUB2API_API_KEY=你的 Sub2API Key
+SUB2API_API_KEY=your_provider_api_key
 SUB2API_BASE_URL=https://api.yksa.uk/v1
 SUB2API_MODEL=gpt-5.2
-ACCESS_CODE=你的私密体验码
+ACCESS_CODE=your_private_demo_access_code
 RATE_LIMIT_MAX_PER_DAY=3
 ALLOWED_ORIGINS=*
 ```
 
-安全说明：
+Security notes:
 
-- 不要把真实 API Key 写入前端文件
-- 不要提交 `.env` 文件到 GitHub
-- API Key 只应放在 Render 的环境变量中
-- 体验码 `ACCESS_CODE` 也只应放在 Render 环境变量中，不要写死在前端
-- 在线 Demo 已开启体验码和 IP 每日限流，用于控制公开访问时的 API 消耗
-- 浏览器只请求自己的后端代理，由后端再调用模型服务
+- Do not put real API keys in frontend files.
+- Do not commit `.env` files to GitHub.
+- Keep `SUB2API_API_KEY` only in Render environment variables.
+- Keep `ACCESS_CODE` only in Render environment variables.
+- The public demo is protected by both an access code and per-IP daily rate limiting.
+- The browser calls the project backend only; the backend calls the model provider.
 
-## 本地运行
+## Local Development
 
 ```bash
 npm install
-export SUB2API_API_KEY='你的 Sub2API Key'
+export SUB2API_API_KEY='your_provider_api_key'
 HOST=0.0.0.0 PORT=8790 npm start
 ```
 
-电脑浏览器访问：
+Open locally:
 
 ```text
 http://127.0.0.1:8790/
 ```
 
-同一 Wi-Fi 下手机访问：
+Access from a phone on the same Wi-Fi:
 
 ```text
-http://你的电脑局域网IP:8790/
+http://your-local-network-ip:8790/
 ```
 
-## 测试
+## Testing
 
 ```bash
 npm test
 npm run check
 ```
 
-当前检查覆盖：
+Current checks cover:
 
-- 前端不暴露 provider API Key
-- 前端默认连接 Render 后端
-- 塔罗牌图源与 fallback 逻辑存在
-- 不包含不需要的反馈表单和语气切换模块
-- 后端代理使用 OpenAI-compatible chat completions
-- 后端强制使用配置的模型
-- 在线 Demo 访问码和 IP 每日 3 次限流保护存在
-- 本地网络访问配置可用
+- Frontend does not expose provider API keys
+- Frontend defaults to the deployed Render backend
+- Tarot image source and fallback logic exist
+- Unwanted feedback and tone-switch modules remain absent
+- Backend proxies OpenAI-compatible chat completions
+- Backend enforces the configured model instead of trusting the browser
+- Public demo access code and per-IP daily limit exist
+- Branded access-code modal exists instead of a native browser prompt
+- Local network access configuration is supported
 
-## 项目亮点
+## Product Highlights
 
-- 完成了从本地开发到线上部署的完整闭环
-- 前后端分离，前端部署在 Vercel，后端部署在 Render
-- 使用后端代理保护 API Key，避免密钥暴露到浏览器
-- 使用体验码和 IP 每日限流控制公开 Demo 的 API 消耗
-- 支持真实用户通过手机或电脑访问
-- 通过自动化测试检查生产可用性和关键安全点
-- 结合 AI 文本生成与塔罗牌业务场景，形成可展示的 AI 应用作品
+- Complete path from local development to public deployment
+- Frontend and backend deployed separately using Vercel and Render
+- Backend proxy protects provider API keys from browser exposure
+- Access-code and daily rate-limit controls reduce public demo API cost risk
+- Realistic portfolio-ready AI application with both UX and deployment considerations
+- Automated tests cover key production safety assumptions
 
-## 后续优化方向
+## Future Improvements
 
-- 增加更多牌阵类型
-- 增强不同问题类型下的解读差异
-- 优化移动端视觉细节
-- 增加多语言支持
-- 增加分享卡片或结果截图功能
-- 增加基础访问统计与错误监控
+- Add more tarot spreads and reading modes
+- Improve interpretation variety for different question types
+- Add multilingual reading support
+- Add shareable result cards or downloadable reading images
+- Add basic analytics and error monitoring
+- Replace in-memory demo rate limiting with a persistent store for larger-scale usage
 
-## 免责声明
+## Disclaimer
 
-本项目生成的塔罗解读仅供娱乐、自我觉察和灵感参考，不构成医疗、法律、财务或心理专业建议。用户仍需根据自己的现实情况做出判断。
+This project is for entertainment, self-reflection, and creative exploration only. It does not provide medical, legal, financial, or psychological advice. Users should make decisions based on their own real-world context and professional guidance when needed.
