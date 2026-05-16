@@ -1070,6 +1070,19 @@ const TAROT_MESSAGES_URL=(()=>{
   return 'http://127.0.0.1:8787/v1/messages';
 })();
 
+function getAccessCode(){
+  const storageKey='TAROT_ACCESS_CODE';
+  try{
+    const saved=localStorage.getItem(storageKey);
+    if(saved) return saved.trim();
+  }catch(_){}
+  const code=prompt('请输入体验码');
+  if(!code) return '';
+  const trimmed=String(code).trim();
+  try{localStorage.setItem(storageKey,trimmed);}catch(_){}
+  return trimmed;
+}
+
 async function generateReading(){
   const out=document.getElementById('rOutput');
   const btnGen=document.getElementById('btnGen');
@@ -1081,6 +1094,13 @@ async function generateReading(){
   }));
   const cardLines = cards.map(c=>`${c.pos}：${c.zh}（${c.en}）· ${c.rev?'逆位':'正位'}`).join('\n');
   const q = userQuestion || '請為我綜合解讀這三張牌的整體訊息';
+  const accessCode=getAccessCode();
+  if(!accessCode){
+    out.style.display='block';
+    out.className='r-output';
+    out.innerHTML='<div class="r-error"><strong>需要体验码</strong><br>请输入体验码后再生成解读</div>';
+    return;
+  }
   const userPrompt = `用戶問題：${q}\n\n抽到的牌：\n${cardLines}`;
 
   btnGen.disabled=true; btnGen.textContent='Reading…';
@@ -1098,6 +1118,7 @@ async function generateReading(){
         model:'claude-3-5-sonnet-20241022',
         max_tokens:1400,
         stream:true,
+        access_code:accessCode,
         system:SYSTEM_PROMPT,
         messages:[{role:'user',content:userPrompt}],
       }),
@@ -1176,7 +1197,12 @@ async function generateReading(){
   }catch(e){
     out.className='r-output';
     let msg=e.message||String(e);
-    if(/invalid api key|401/i.test(msg)){
+    if(/访问码不正确|401/i.test(msg)){
+      try{localStorage.removeItem('TAROT_ACCESS_CODE');}catch(_){}
+      msg='体验码不正确 请重新输入或联系网站作者获取';
+    }else if(/体验次数已用完|429/i.test(msg)){
+      msg='今天体验次数有点多啦 请稍后再试';
+    }else if(/invalid api key/i.test(msg)){
       msg='API Key 無效或已作廢。請檢查 Render 後端的 SUB2API_API_KEY 環境變量 本地測試時請在終端 export SUB2API_API_KEY=你的鑰匙 後重新啟動 npm start';
     }
     out.innerHTML=`<div class="r-error"><strong>解讀失敗</strong><br>${msg}</div>`;

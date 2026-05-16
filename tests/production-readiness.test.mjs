@@ -152,6 +152,31 @@ test('server ignores browser Anthropic model and always uses configured Sub2API 
   assert.ok(!server.includes('payload.model || SUB2API_MODEL'), 'server must not pass browser Anthropic model upstream');
 });
 
+test('server protects public demo usage with access code and rate limiting', () => {
+  assertIncludesAll(server, [
+    'process.env.ACCESS_CODE',
+    'RATE_LIMIT_MAX_PER_HOUR',
+    'RATE_LIMIT_WINDOW_MS',
+    'validateAccessCode',
+    'checkRateLimit',
+    'getClientIp',
+    'access_code',
+    '访问码不正确',
+    '体验次数已用完'
+  ], 'public demo protection');
+});
+
+test('frontend sends access code to backend without hardcoding the production code', () => {
+  assertIncludesAll(html, [
+    'TAROT_ACCESS_CODE',
+    'getAccessCode',
+    'localStorage.setItem',
+    'access_code',
+    '请输入体验码'
+  ], 'frontend access code flow');
+  assert.ok(!html.includes('tarot2026'), 'production access code must not be hardcoded in HTML');
+});
+
 test('server can be exposed to phone on local network by configuring HOST', () => {
   assert.ok(server.includes("process.env.HOST"), 'server should support HOST env var');
   assert.ok(server.includes("0.0.0.0"), 'server should document/listen on 0.0.0.0 for LAN access');

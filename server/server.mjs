@@ -24,6 +24,10 @@ const HOST = process.env.HOST || '127.0.0.1';
 const SUB2API_BASE_URL = (process.env.SUB2API_BASE_URL || 'https://api.yksa.uk/v1').replace(/\/$/, '');
 const SUB2API_MODEL = process.env.SUB2API_MODEL || 'gpt-5.2';
 const SUB2API_API_KEY = (process.env.SUB2API_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+const ACCESS_CODE = (process.env.ACCESS_CODE || '').trim().replace(/^["']|["']$/g, '');
+const RATE_LIMIT_MAX_PER_HOUR = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_HOUR) || 5);
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const rateLimitBuckets = new Map();
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*')
   .split(',')
   .map((origin) => origin.trim())
@@ -52,6 +56,37 @@ function setCommonHeaders(req, res) {
 function sendJson(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(body));
+}
+
+function getClientIp(req) {
+  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return forwarded || req.socket?.remoteAddress || 'unknown';
+}
+
+function validateAccessCode(payload = {}) {
+  if (!ACCESS_CODE) return true;
+  const submitted = String(payload.access_code || payload.accessCode || '').trim();
+  return submitted && submitted === ACCESS_CODE;
+}
+
+function checkRateLimit(req) {
+  const now = Date.now();
+  const ip = getClientIp(req);
+  const bucket = rateLimitBuckets.get(ip) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  if (now > bucket.resetAt) {
+    bucket.count = 0;
+    bucket.resetAt = now + RATE_LIMIT_WINDOW_MS;
+  }
+  bucket.count += 1;
+  rateLimitBuckets.set(ip, bucket);
+  for (const [key, value] of rateLimitBuckets) {
+    if (now > value.resetAt + RATE_LIMIT_WINDOW_MS) rateLimitBuckets.delete(key);
+  }
+  return {
+    allowed: bucket.count <= RATE_LIMIT_MAX_PER_HOUR,
+    remaining: Math.max(0, RATE_LIMIT_MAX_PER_HOUR - bucket.count),
+    resetAt: bucket.resetAt,
+  };
 }
 
 function sendPublicHtml(res, fileName = DEFAULT_HTML_FILE, headOnly = false) {
@@ -186,6 +221,22 @@ function proxySub2API(req, res) {
         incoming = JSON.parse(body.toString('utf8') || '{}');
       } catch {
         sendJson(res, 400, { error: { message: 'Invalid JSON body' } });
+        return;
+      }
+
+      if (!validateAccessCode(incoming)) {
+        sendJson(res, 401, { error: { message: '访问码不正确 请联系网站作者获取体验码' } });
+        return;
+      }
+
+      const rateLimit = checkRateLimit(req);
+      if (!rateLimit.allowed) {
+        sendJson(res, 429, {
+          error: {
+            message: '体验次数已用完 请稍后再试',
+            resetAt: rateLimit.resetAt,
+          },
+        });
         return;
       }
 

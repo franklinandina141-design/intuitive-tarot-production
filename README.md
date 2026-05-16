@@ -98,6 +98,8 @@ HOST=0.0.0.0
 SUB2API_API_KEY=你的 Sub2API Key
 SUB2API_BASE_URL=https://api.yksa.uk/v1
 SUB2API_MODEL=gpt-5.2
+ACCESS_CODE=你的私密体验码
+RATE_LIMIT_MAX_PER_HOUR=5
 ALLOWED_ORIGINS=*
 ```
 
@@ -106,6 +108,8 @@ ALLOWED_ORIGINS=*
 - 不要把真实 API Key 写入前端文件
 - 不要提交 `.env` 文件到 GitHub
 - API Key 只应放在 Render 的环境变量中
+- 体验码 `ACCESS_CODE` 也只应放在 Render 环境变量中，不要写死在前端
+- 在线 Demo 已开启体验码和 IP 限流，用于控制公开访问时的 API 消耗
 - 浏览器只请求自己的后端代理，由后端再调用模型服务
 
 ## 本地运行
@@ -143,6 +147,7 @@ npm run check
 - 不包含不需要的反馈表单和语气切换模块
 - 后端代理使用 OpenAI-compatible chat completions
 - 后端强制使用配置的模型
+- 在线 Demo 访问码和 IP 限流保护存在
 - 本地网络访问配置可用
 
 ## 项目亮点
@@ -150,6 +155,7 @@ npm run check
 - 完成了从本地开发到线上部署的完整闭环
 - 前后端分离，前端部署在 Vercel，后端部署在 Render
 - 使用后端代理保护 API Key，避免密钥暴露到浏览器
+- 使用体验码和 IP 限流控制公开 Demo 的 API 消耗
 - 支持真实用户通过手机或电脑访问
 - 通过自动化测试检查生产可用性和关键安全点
 - 结合 AI 文本生成与塔罗牌业务场景，形成可展示的 AI 应用作品
