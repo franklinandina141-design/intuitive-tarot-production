@@ -14,6 +14,32 @@ The project includes a static frontend deployed on Vercel, a Node.js backend dep
 
 > Public demo access is intentionally limited. The demo uses an access code and allows only a small number of readings per IP per day to prevent uncontrolled API usage.
 
+## Screenshot Gallery
+
+### Landing Experience
+
+The landing page introduces the product with a calm, editorial visual language before guiding users into the formal reading flow.
+
+![Landing hero section](assets/landing-preview.jpg)
+
+![Landing story section](assets/landing-story-preview.jpg)
+
+![Landing call to action](assets/landing-cta-preview.jpg)
+
+### Reading Experience
+
+The reading interface uses a darker ceremonial style, encouraging users to enter a real question, draw cards, and receive a guided AI interpretation.
+
+![Reading app home](assets/app-home-preview.jpg)
+
+![Card selection interface](assets/card-selection-preview.jpg)
+
+### Public Demo Protection
+
+The public demo includes a custom access-code modal and daily rate limiting to reduce uncontrolled API consumption while keeping the project shareable.
+
+![Access code modal](assets/access-modal-preview.jpg)
+
 ## Overview
 
 This project is designed as a complete AI web application rather than a simple static mockup. Users can enter a personal question, draw tarot cards, view real card imagery, and receive a contextual AI-generated interpretation.
