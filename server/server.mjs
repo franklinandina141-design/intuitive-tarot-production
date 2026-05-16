@@ -25,8 +25,8 @@ const SUB2API_BASE_URL = (process.env.SUB2API_BASE_URL || 'https://api.yksa.uk/v
 const SUB2API_MODEL = process.env.SUB2API_MODEL || 'gpt-5.2';
 const SUB2API_API_KEY = (process.env.SUB2API_API_KEY || '').trim().replace(/^["']|["']$/g, '');
 const ACCESS_CODE = (process.env.ACCESS_CODE || '').trim().replace(/^["']|["']$/g, '');
-const RATE_LIMIT_MAX_PER_HOUR = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_HOUR) || 5);
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const RATE_LIMIT_MAX_PER_DAY = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_DAY) || 3);
+const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 const rateLimitBuckets = new Map();
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*')
   .split(',')
@@ -83,8 +83,8 @@ function checkRateLimit(req) {
     if (now > value.resetAt + RATE_LIMIT_WINDOW_MS) rateLimitBuckets.delete(key);
   }
   return {
-    allowed: bucket.count <= RATE_LIMIT_MAX_PER_HOUR,
-    remaining: Math.max(0, RATE_LIMIT_MAX_PER_HOUR - bucket.count),
+    allowed: bucket.count <= RATE_LIMIT_MAX_PER_DAY,
+    remaining: Math.max(0, RATE_LIMIT_MAX_PER_DAY - bucket.count),
     resetAt: bucket.resetAt,
   };
 }

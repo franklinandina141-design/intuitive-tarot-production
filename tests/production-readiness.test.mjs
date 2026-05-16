@@ -155,7 +155,7 @@ test('server ignores browser Anthropic model and always uses configured Sub2API 
 test('server protects public demo usage with access code and rate limiting', () => {
   assertIncludesAll(server, [
     'process.env.ACCESS_CODE',
-    'RATE_LIMIT_MAX_PER_HOUR',
+    'RATE_LIMIT_MAX_PER_DAY',
     'RATE_LIMIT_WINDOW_MS',
     'validateAccessCode',
     'checkRateLimit',
