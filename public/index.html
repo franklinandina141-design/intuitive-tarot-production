@@ -464,11 +464,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   color:var(--ink-faint);font-size:12px;line-height:1.7;text-align:center;
   background:rgba(255,255,255,.025);
 }
-.reading-language{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 auto 18px;color:var(--ink-dim);font-family:'Cinzel',serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fu 1s ease 1.08s both}.language-options{display:inline-flex;gap:6px;padding:4px;border:1px solid rgba(201,168,76,.22);border-radius:999px;background:rgba(255,255,255,.035)}.language-btn{min-height:34px;padding:0 13px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;cursor:pointer;transition:.22s ease}.language-btn:hover,.language-btn.active{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.12);box-shadow:0 0 18px rgba(201,168,76,.08)}
+.reading-language{position:fixed;top:24px;right:26px;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:nowrap;color:var(--ink-dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fu 1s ease .65s both}.language-options{display:inline-flex;gap:5px;padding:4px;border:1px solid rgba(201,168,76,.22);border-radius:999px;background:rgba(10,7,1,.58);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}.language-btn{min-height:32px;padding:0 11px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;cursor:pointer;transition:.22s ease}.language-btn:hover,.language-btn.active{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.13);box-shadow:0 0 18px rgba(201,168,76,.08)}@media(max-width:720px){.reading-language{top:16px;right:16px;left:auto;font-size:0}.language-options{padding:3px;gap:4px}.language-btn{min-height:30px;padding:0 10px;font-size:10px}}
 
 </style>
 </head>
 <body>
+
+<div class="reading-language" aria-label="Reading Language">
+  <span>Reading Language</span>
+  <div class="language-options">
+    <button class="language-btn" type="button" data-lang="zh" onclick="setReadingLanguage('zh')">中文</button>
+    <button class="language-btn" type="button" data-lang="en" onclick="setReadingLanguage('en')">English</button>
+  </div>
+</div>
 
 <div class="ly-v"></div><div class="ly-g"></div>
 <div class="fo"></div><div class="fi"></div>
@@ -533,14 +541,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
 
     <div class="cover-rule cover-rule2">
       <div class="cover-rule-line"></div><div class="cover-rule-dot"></div><div class="cover-rule-line"></div>
-    </div>
-
-    <div class="reading-language" aria-label="Reading Language">
-      <span>Reading Language</span>
-      <div class="language-options">
-        <button class="language-btn" type="button" data-lang="zh" onclick="setReadingLanguage('zh')">中文</button>
-        <button class="language-btn" type="button" data-lang="en" onclick="setReadingLanguage('en')">English</button>
-      </div>
     </div>
 
     <div class="cover-q-wrap">
