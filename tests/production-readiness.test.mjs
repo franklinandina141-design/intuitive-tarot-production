@@ -169,12 +169,26 @@ test('server protects public demo usage with access code and rate limiting', () 
 test('frontend sends access code to backend without hardcoding the production code', () => {
   assertIncludesAll(html, [
     'TAROT_ACCESS_CODE',
-    'getAccessCode',
+    'requestAccessCode',
     'localStorage.setItem',
     'access_code',
     '请输入体验码'
   ], 'frontend access code flow');
   assert.ok(!html.includes('tarot2026'), 'production access code must not be hardcoded in HTML');
+});
+
+test('frontend uses a branded access-code modal instead of native prompt', () => {
+  assertIncludesAll(html, [
+    'access-modal',
+    'access-card',
+    'Enter the Inner Circle',
+    '每个网络每天可体验 3 次',
+    'requestAccessCode',
+    'accessInput',
+    'accessSubmit',
+    'aria-modal="true"'
+  ], 'branded access modal');
+  assert.ok(!html.includes("prompt('请输入体验码')"), 'frontend should not use native browser prompt for access code');
 });
 
 test('server can be exposed to phone on local network by configuring HOST', () => {
