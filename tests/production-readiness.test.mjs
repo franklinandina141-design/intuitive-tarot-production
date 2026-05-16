@@ -58,6 +58,35 @@ test('professional prompt forbids template sameness and absolute advice', () => 
   ], 'professional prompt');
 });
 
+test('frontend supports bilingual reading language selection and sends language to backend', () => {
+  assertIncludesAll(html, [
+    'reading-language',
+    'Reading Language',
+    'data-lang="zh"',
+    'data-lang="en"',
+    'TAROT_READING_LANGUAGE',
+    'getReadingLanguage',
+    'setReadingLanguage',
+    'language:readingLanguage'
+  ], 'bilingual reading language selection');
+});
+
+test('prompt contains separate professional English tarot reader instructions instead of translating Chinese', () => {
+  assertIncludesAll(html, [
+    'ENGLISH_SYSTEM_PROMPT',
+    'Write directly in polished natural English',
+    'Do not translate from Chinese',
+    'calm professional tarot reader',
+    'Rider-Waite-Smith',
+    'Opening Insight',
+    'Card-by-Card Reading',
+    'Pattern Between the Cards',
+    'Grounded Guidance',
+    'Closing Reflection',
+    'buildSystemPrompt(readingLanguage)'
+  ], 'professional English tarot prompt');
+});
+
 test('removed unwanted UX remains absent: feedback panel and tone switch', () => {
   const forbidden = ['feedback-panel', 'tone-pill', 'bindToneModeUI', 'bindFeedbackUI', '讀後回饋', '解讀語氣'];
   for (const term of forbidden) {
