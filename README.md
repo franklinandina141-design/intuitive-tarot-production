@@ -1,6 +1,6 @@
 # AI Tarot Reading Web App
 
-![AI Tarot Reading Web App landing preview](assets/landing-preview.jpg)
+![AI Tarot Reading Web App home preview](assets/app-home-preview.jpg)
 
 An AI-powered tarot reading web application that combines real Rider Waite Smith tarot imagery, user questions, and OpenAI-compatible language model interpretation into a polished web experience.
 
