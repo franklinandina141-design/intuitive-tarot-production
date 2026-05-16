@@ -74,9 +74,10 @@ test('server serves landing page and landing HTML contains simplified punctuatio
     "sendPublicHtml(res, 'landing.html'",
   ], 'landing route');
   assertIncludesAll(landing, [
-    'AI 辅助塔罗解读',
-    '不是替你做决定',
-    '进入正式占卜',
+    'AI Assisted Tarot Reading',
+    'A softer way',
+    'to read within',
+    'Start the Reading',
     'spiritual-tarot-art',
     'tarot-gallery',
     'gallery-card side-card',
@@ -93,7 +94,7 @@ test('server serves landing page and landing HTML contains simplified punctuatio
   ], 'landing content');
   const landingImageCount = (landing.match(/Special:FilePath\/RWS%20Tarot%20/g) || []).length;
   assert.ok(landingImageCount >= 4, `Landing should stack several tarot cards visually, found ${landingImageCount}`);
-  const removedLandingTerms = ['今日适合问', '我现在真正需要面对的是什么', 'floating-note', '塔罗牌图案', 'RWS Tarot 18 Moon.jpg', 'The Moon', '三步完成一次完整解读', '为什么选择这个工具', '使用流程清晰', '少一点文字', '多一点灵性图像', '让阅读先变得舒服', '月光静心', '日光盛放', '四叶草呼吸', '适合关系与情绪', '适合行动与成长', '适合选择与转念', '先安放内在感受', '看见可用的力量', '把焦虑慢慢放下', 'healing-visual-card', 'moon-ritual-visual', 'sun-bloom-visual', 'clover-breath-visual', '真实牌图  柔和光感  安静解读', '真实牌图', '柔和光感', '安静解读', 'visual-poem', 'RWS Tarot 17 Star.jpg', 'RWS Tarot 14 Temperance.jpg', 'RWS Tarot 19 Sun.jpg', '星星牌', '节制牌', '太阳牌', '雏菊日光牌组'];
+  const removedLandingTerms = ['今日适合问', '我现在真正需要面对的是什么', 'floating-note', '塔罗牌图案', 'RWS Tarot 18 Moon.jpg', 'The Moon', '三步完成一次完整解读', '为什么选择这个工具', '使用流程清晰', '少一点文字', '多一点灵性图像', '让阅读先变得舒服', '月光静心', '日光盛放', '四叶草呼吸', '适合关系与情绪', '适合行动与成长', '适合选择与转念', '先安放内在感受', '看见可用的力量', '把焦虑慢慢放下', 'healing-visual-card', 'moon-ritual-visual', 'sun-bloom-visual', 'clover-breath-visual', '真实牌图  柔和光感  安静解读', '真实牌图', '柔和光感', '安静解读', 'visual-poem', 'RWS Tarot 17 Star.jpg', 'RWS Tarot 14 Temperance.jpg', 'RWS Tarot 19 Sun.jpg', '星星牌', '节制牌', '太阳牌', '雏菊日光牌组', '进入正式占卜', 'AI 辅助塔罗解读'];
   for (const term of removedLandingTerms) {
     assert.ok(!landing.includes(term), `Removed landing template should not appear: ${term}`);
   }
@@ -172,7 +173,7 @@ test('frontend sends access code to backend without hardcoding the production co
     'requestAccessCode',
     'localStorage.setItem',
     'access_code',
-    '请输入体验码'
+    'Enter your private access code to begin'
   ], 'frontend access code flow');
   assert.ok(!html.includes('tarot2026'), 'production access code must not be hardcoded in HTML');
 });
@@ -182,7 +183,7 @@ test('frontend uses a branded access-code modal instead of native prompt', () =>
     'access-modal',
     'access-card',
     'Enter the Inner Circle',
-    '每个网络每天可体验 3 次',
+    '3 readings per network each day',
     'requestAccessCode',
     'accessInput',
     'accessSubmit',
