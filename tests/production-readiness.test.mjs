@@ -168,8 +168,23 @@ test('mobile draw screen uses larger tappable tarot cards and compact vertical s
     'mobileCenterScale',
     'stageVisualCenterY',
     'selectedCenterTop',
-    '@media(max-width:720px){#s1'
+    '#s1{height:100svh'
   ], 'mobile draw layout');
+});
+
+test('mobile experience has premium tarot app layout treatments across cover draw and reading screens', () => {
+  assertIncludesAll(html, [
+    'mobile-premium-tarot-shell',
+    'mobile-cover-oracle-card',
+    'mobile-ritual-meta',
+    'mobile-reading-panel',
+    'mobile-card-spread-scroll',
+    'mobile-sticky-actions',
+    '100svh',
+    'env(safe-area-inset-top)',
+    'env(safe-area-inset-bottom)',
+    'text-wrap:pretty'
+  ], 'mobile premium tarot layout');
 });
 
 test('server proxies to Sub2API OpenAI-compatible chat completions and supports Vercel CORS', () => {
