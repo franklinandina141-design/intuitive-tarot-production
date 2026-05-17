@@ -58,19 +58,24 @@ test('professional prompt forbids template sameness and absolute advice', () => 
   ], 'professional prompt');
 });
 
-test('reading output uses comfortable paragraph reveal and broader tarot lens', () => {
+test('reading output uses stable appended paragraph reveal and broader conversational tarot lens', () => {
   assertIncludesAll(html, [
     'renderReadingTextComfortably',
+    'appendStableReadingBlock',
+    'renderedBlocks',
+    'holdingBuffer',
     'reading-reveal',
-    'paragraphBuffer',
-    'sentenceBuffer',
     '呈現方式必須像一份完整的專業塔羅諮詢報告',
     '不要只局限在單張牌義或單一問題答案',
     '從整體能量、內在狀態、外部互動、時間節奏與可選路徑去解讀',
+    '最後給建議時要像面對面聊天',
+    '不要用生硬的條列式命令',
     'zoom out from individual card meanings',
     'broader energetic pattern',
-    'inner state, external dynamics, timing, and possible paths'
+    'inner state, external dynamics, timing, and possible paths',
+    'When giving final guidance, sound conversational'
   ], 'comfortable reading reveal and broader lens');
+  assert.ok(!html.includes('textEl.innerHTML=blocks.map'), 'streaming reveal must not rewrite the whole reading on every update');
 });
 
 test('frontend supports bilingual reading language selection and sends language to backend', () => {
