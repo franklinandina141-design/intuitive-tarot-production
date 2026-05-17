@@ -409,7 +409,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   gap:14px;color:var(--gold-dim);font-style:italic;
   font-family:'IM Fell English',serif;font-size:15px;
 }
-/* 流式打字机 — 段落感 */
+.reading-reveal{animation:readingReveal .34s ease both;}
+.r-text p{margin:0 0 1.05em;}
+.r-text p:last-child{margin-bottom:0;}
+@keyframes readingReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* 流式阅读 — 段落块渐显，比逐字打字更舒服 */
 .r-text{
   font-family:'IM Fell English',serif;
   font-size:clamp(14px,1.85vw,17.5px);
@@ -1093,6 +1097,9 @@ const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的�
 鐵律（絕對禁止違反）：
 - 必須嚴格使用下方提供的 Rider-Waite 標準牌義，不得自行添加或修改意義。
 - 每次解讀必須根據這三張牌的獨特組合重新組織故事，嚴禁使用任何固定模板句子。
+- 呈現方式必須像一份完整的專業塔羅諮詢報告，不是只回答一句問題。
+- 不要只局限在單張牌義或單一問題答案；要把牌陣放到更大的生命情境與心理脈絡裡理解。
+- 從整體能量、內在狀態、外部互動、時間節奏與可選路徑去解讀。
 - 語氣必須像親切的朋友聊天，用最簡單的大白話，句子短而清楚。
 - 絕對不可使用重複的安全句型（如「先把現實穩住」「慢慢來就可以」等）。
 - 避免命令式語氣，不替用戶做決定；所有建議都要用「傾向、可能、可以觀察、如果你願意」這類非強迫表達。
@@ -1105,9 +1112,11 @@ const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的�
 每次解讀時請嚴格按照以下內部流程（不要在輸出中提到）：
 1. 理解用戶問題的核心情緒與需求。
 2. 分析這三張牌的具體意義，並自然連結成前因後果的故事。
-3. 清楚說明目前真實情況。
-4. 給出2-3個實際、可立即執行的建議。
-5. 用一句溫和的話結尾，並提醒「選擇權仍然在用戶手上」。
+3. 先拉高視角觀察整體主題：這組牌反映的是哪一種生命階段、情緒模式、關係動力或行動節奏。
+4. 再回到牌面細節，說明過去、現在、未來之間的能量流動與轉折。
+5. 清楚說明目前真實情況、潛在盲點、外部互動與可選路徑。
+6. 給出2-3個實際、可立即執行的建議。
+7. 用一句溫和的話結尾，並提醒「選擇權仍然在用戶手上」。
 
 輸出要求：
 - 只輸出純文字、自然流暢的敘事，絕不使用標題、條列、JSON 或 Markdown。
@@ -1128,6 +1137,9 @@ Professional reading rules:
 - Write directly in polished natural English. Do not translate from Chinese.
 - Interpret each card according to its Rider-Waite-Smith meaning, orientation, and spread position.
 - Connect the three cards into one coherent reading rather than listing generic meanings.
+- Do not stay confined to literal single-card meanings or a narrow answer to one question.
+- First zoom out from individual card meanings and name the broader energetic pattern of the spread.
+- Include inner state, external dynamics, timing, and possible paths before giving grounded guidance.
 - Avoid template sameness. The reading must be shaped by the user's question and this exact card combination.
 - Use conditional language such as may, suggests, points to, invites you to notice, and one grounded option could be.
 - Do not make decisions for the user. Keep personal agency explicit.
@@ -1288,11 +1300,8 @@ async function generateReading(){
     }
 
     out.className='r-output';
-    out.innerHTML='<p class="r-text" id="rText"></p>';
+    out.innerHTML='<div class="r-text" id="rText"></div>';
     const textEl=document.getElementById('rText');
-    const cursor=document.createElement('span');
-    cursor.className='cursor';
-    textEl.appendChild(cursor);
 
     const reader=resp.body.getReader();
     const decoder=new TextDecoder();
@@ -1309,19 +1318,41 @@ async function generateReading(){
       return '';
     }
 
-    // 丝滑流式：用 rAF 批量渲染，避免每个 token 都触发重排
-    let rafId=null;
-    let pendingText='';
-    function flushText(){
-      if(pendingText){
-        full+=pendingText; pendingText='';
-        textEl.textContent=full;
-        textEl.appendChild(cursor);
-        // 自动滚动到底部
-        const s2=document.getElementById('s2');
-        s2.scrollTop=s2.scrollHeight;
+    // 舒适流式：先收集文本，再按段落/句子块渐显，避免一个字一个字跳动
+    let paragraphBuffer='';
+    let sentenceBuffer='';
+    let renderedLength=0;
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function splitReadableBlocks(text, force=false){
+      const normalized=String(text||'').replace(/\r\n/g,'\n');
+      const blocks=[];
+      let start=0;
+      const re=force?/\n{2,}|(?<=[。！？.!?])\s+|(?<=[。！？])/g:/\n{2,}|(?<=[。！？.!?])\s+/g;
+      let match;
+      while((match=re.exec(normalized))){
+        const end=match.index+match[0].length;
+        const block=normalized.slice(start,end).trim();
+        if(block) blocks.push(block);
+        start=end;
       }
-      rafId=null;
+      const tail=normalized.slice(start).trim();
+      if(force&&tail) blocks.push(tail);
+      return blocks;
+    }
+    function renderReadingTextComfortably(text, force=false){
+      const available=String(text||'').slice(renderedLength);
+      paragraphBuffer+=available;
+      sentenceBuffer+=available;
+      renderedLength=String(text||'').length;
+      const blocks=splitReadableBlocks(paragraphBuffer, force);
+      if(!blocks.length) return;
+      if(!force&&paragraphBuffer.trim().length<90&&!/[。！？.!?]\s+$/.test(paragraphBuffer)) return;
+      textEl.innerHTML=blocks.map(b=>`<p class="reading-reveal">${escapeHtml(b)}</p>`).join('');
+      if(force){paragraphBuffer='';sentenceBuffer='';}
+      const s2=document.getElementById('s2');
+      s2.scrollTop=s2.scrollHeight;
     }
 
     while(true){
@@ -1337,17 +1368,15 @@ async function generateReading(){
           const chunk=JSON.parse(d);
           const piece=anthropicDeltaText(chunk);
           if(piece){
-            pendingText+=piece;
-            if(!rafId) rafId=requestAnimationFrame(flushText);
+            full+=piece;
+            renderReadingTextComfortably(full);
           }
         }catch(_){}
       }
       if(done) break;
     }
-    // flush 剩余
-    if(rafId) cancelAnimationFrame(rafId);
-    if(pendingText){full+=pendingText;pendingText='';textEl.textContent=full;}
-    cursor.remove();
+    // 结束时强制渲染剩余文本
+    renderReadingTextComfortably(full, true);
     lastReadingText=full;
     document.getElementById('btnCopy').style.display='';
     btnRetry.style.display='';
