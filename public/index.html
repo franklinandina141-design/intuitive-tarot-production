@@ -464,7 +464,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   color:var(--ink-faint);font-size:12px;line-height:1.7;text-align:center;
   background:rgba(255,255,255,.025);
 }
-.reading-language{position:fixed;top:24px;right:26px;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:nowrap;color:var(--ink-dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fu 1s ease .65s both}.language-options{display:inline-flex;gap:5px;padding:4px;border:1px solid rgba(201,168,76,.22);border-radius:999px;background:rgba(10,7,1,.58);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}.language-btn{min-height:32px;padding:0 11px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;cursor:pointer;transition:.22s ease}.language-btn:hover,.language-btn.active{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.13);box-shadow:0 0 18px rgba(201,168,76,.08)}@media(max-width:720px){.reading-language{top:16px;right:16px;left:auto;font-size:0}.language-options{padding:3px;gap:4px}.language-btn{min-height:30px;padding:0 10px;font-size:10px}}
+.reading-language{position:fixed;top:24px;right:26px;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:nowrap;color:var(--ink-dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fu 1s ease .65s both}.language-options{display:inline-flex;gap:5px;padding:4px;border:1px solid rgba(201,168,76,.22);border-radius:999px;background:rgba(10,7,1,.58);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}.language-btn{min-height:32px;padding:0 11px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;cursor:pointer;transition:.22s ease}.language-btn:hover,.language-btn.active{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.13);box-shadow:0 0 18px rgba(201,168,76,.08)}/* mobile draw tuning: keep the fan readable and tappable on phones */
+@media(max-width:720px){#s1{padding:56px 12px 22px;justify-content:space-between}.pick-top h2{font-size:clamp(15px,4.4vw,20px);letter-spacing:.1em}.pick-top p{font-size:8px;letter-spacing:.28em}.pick-q-display{max-width:86vw;font-size:12px;line-height:1.45;margin-top:5px}.pg{margin-top:6px}.pg-d{width:24px;height:3px}#stage-wrap{min-height:50vh}.pick-bot{gap:8px}.st{font-size:12px;min-height:16px}.bts{gap:8px}.b{min-height:42px;padding:0 16px;font-size:9px}.cb-sym{font-size:24px}.cf .lbl{font-size:7px;padding:5px 3px 6px}.cf .ori{font-size:5.5px}}
 
 </style>
 </head>
@@ -848,6 +849,8 @@ function goToReading(){
 }
 
 /* ══ 布局计算 ══ */
+const MOBILE_DRAW_BREAKPOINT=720;
+
 function getLayout(){
   const VW=window.innerWidth,VH=window.innerHeight;
   const pickTop = document.querySelector('.pick-top').getBoundingClientRect();
@@ -856,16 +859,24 @@ function getLayout(){
   const sTop  = pickTop.height + 12;
   const sBot  = VH - pickBot.top + 12;
   const sH    = VH - sTop - sBot;
-  const ch    = Math.min(Math.floor(sH*0.76), 134, Math.floor(VW*0.13));
+  const isMobile = VW <= MOBILE_DRAW_BREAKPOINT;
+  const mobileMaxCardHeight = Math.floor(sH*0.88);
+  const desktopMaxCardHeight = Math.floor(sH*0.76);
+  const mobileWidthFactor = 0.185;
+  const desktopWidthFactor = 0.13;
+  const ch    = isMobile
+    ? Math.min(mobileMaxCardHeight, 168, Math.floor(VW*mobileWidthFactor/0.618))
+    : Math.min(desktopMaxCardHeight, 134, Math.floor(VW*desktopWidthFactor));
   const cw    = Math.round(ch*0.618);
-  return {VW,VH,sTop,sBot,sH,cw,ch};
+  const mobileCenterScale = isMobile ? 1.16 : 1.08;
+  return {VW,VH,sTop,sBot,sH,cw,ch,isMobile,mobileCenterScale};
 }
 
 /* ══ 抛物线弧形 ══ */
 function calcArcPts(n,sH,VW,cw,ch,sTop){
   const cx=VW/2;
   const midY=sTop+sH*0.48;
-  const margin=Math.max(cw*0.6,48);
+  const margin=Math.max(cw*0.45,VW<=MOBILE_DRAW_BREAKPOINT?20:48);
   const totalW=VW-margin*2;
   const step=n>1?totalW/(n-1):0;
   const arcDip=Math.min(sH*0.10,36);
@@ -971,17 +982,17 @@ function onPick(idx){
   setTimeout(()=>el.classList.remove('spark'),400);
 
   // 飞向屏幕中央
-  const {VW,VH,sTop}=getLayout();
+  const {VW,VH,sTop,mobileCenterScale}=getLayout();
   stopSway();
   el.classList.add('fly');
   el.style.zIndex=5000+slot;
   el.style.left=(VW/2-CW/2)+'px';
   el.style.top=(VH/2-CH/2-sTop)+'px';
-  el.style.transform='rotateZ(0deg) scale(1.08)';
+  el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
 
   // 翻牌 — 稍微延迟，飞到一半再翻
   setTimeout(()=>{
-    el.style.transform='rotateZ(0deg) scale(1.08)';
+    el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
     el.classList.add('flipped');
     if(c.rev) el.classList.add('rev');
     // 图片预触发加载
@@ -991,7 +1002,7 @@ function onPick(idx){
 
   // 稳定后缩小一点
   setTimeout(()=>{
-    el.style.transform='rotateZ(0deg) scale(1.04)';
+    el.style.transform=`rotateZ(0deg) scale(${Math.max(1.04,mobileCenterScale-0.04)})`;
   },520);
 
   setTimeout(()=>{

@@ -160,6 +160,16 @@ test('server serves landing page and landing HTML contains simplified punctuatio
   }
 });
 
+test('mobile draw screen uses larger tappable tarot cards and compact vertical spacing', () => {
+  assertIncludesAll(html, [
+    'MOBILE_DRAW_BREAKPOINT',
+    'mobileMaxCardHeight',
+    'mobileWidthFactor',
+    'mobileCenterScale',
+    '@media(max-width:720px){#s1'
+  ], 'mobile draw layout');
+});
+
 test('server proxies to Sub2API OpenAI-compatible chat completions and supports Vercel CORS', () => {
   assertIncludesAll(server, [
     'process.env.SUB2API_API_KEY',
