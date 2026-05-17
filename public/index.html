@@ -869,13 +869,14 @@ function getLayout(){
     : Math.min(desktopMaxCardHeight, 134, Math.floor(VW*desktopWidthFactor));
   const cw    = Math.round(ch*0.618);
   const mobileCenterScale = isMobile ? 1.16 : 1.08;
-  return {VW,VH,sTop,sBot,sH,cw,ch,isMobile,mobileCenterScale};
+  const stageVisualCenterY = Math.max(ch/2, Math.min(sH - ch/2, sH*0.5));
+  return {VW,VH,sTop,sBot,sH,cw,ch,isMobile,mobileCenterScale,stageVisualCenterY};
 }
 
 /* ══ 抛物线弧形 ══ */
-function calcArcPts(n,sH,VW,cw,ch,sTop){
+function calcArcPts(n,sH,VW,cw,ch,sTop,stageVisualCenterY){
   const cx=VW/2;
-  const midY=sTop+sH*0.48;
+  const midY=sTop+stageVisualCenterY;
   const margin=Math.max(cw*0.45,VW<=MOBILE_DRAW_BREAKPOINT?20:48);
   const totalW=VW-margin*2;
   const step=n>1?totalW/(n-1):0;
@@ -914,9 +915,9 @@ function buildFan(animate){
 function _buildFan(animate){
   stageEl.innerHTML='';
   stageEl.className='sel';
-  const {VW,VH,sTop,sBot,sH,cw,ch}=getLayout();
+  const {VW,VH,sTop,sBot,sH,cw,ch,stageVisualCenterY}=getLayout();
   CW=cw; CH=ch;
-  arcPts=calcArcPts(deck.length,sH,VW,CW,CH,sTop);
+  arcPts=calcArcPts(deck.length,sH,VW,CW,CH,sTop,stageVisualCenterY);
 
   deck.forEach((c,i)=>{
     const el=document.createElement('div');
@@ -982,12 +983,13 @@ function onPick(idx){
   setTimeout(()=>el.classList.remove('spark'),400);
 
   // 飞向屏幕中央
-  const {VW,VH,sTop,mobileCenterScale}=getLayout();
+  const {VW,VH,sTop,sH,mobileCenterScale,stageVisualCenterY}=getLayout();
+  const selectedCenterTop = sTop + stageVisualCenterY - CH/2;
   stopSway();
   el.classList.add('fly');
   el.style.zIndex=5000+slot;
   el.style.left=(VW/2-CW/2)+'px';
-  el.style.top=(VH/2-CH/2-sTop)+'px';
+  el.style.top=selectedCenterTop+'px';
   el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
 
   // 翻牌 — 稍微延迟，飞到一半再翻

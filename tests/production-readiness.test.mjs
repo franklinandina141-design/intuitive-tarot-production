@@ -166,6 +166,8 @@ test('mobile draw screen uses larger tappable tarot cards and compact vertical s
     'mobileMaxCardHeight',
     'mobileWidthFactor',
     'mobileCenterScale',
+    'stageVisualCenterY',
+    'selectedCenterTop',
     '@media(max-width:720px){#s1'
   ], 'mobile draw layout');
 });
