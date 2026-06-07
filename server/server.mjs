@@ -151,13 +151,19 @@ function convertAnthropicMessagesToOpenAI(payload) {
     });
   }
 
-  return {
-    model: process.env.SUB2API_MODEL || SUB2API_MODEL,
+  const model = process.env.SUB2API_MODEL || SUB2API_MODEL;
+  const request = {
+    model,
     messages,
     stream: payload.stream !== false,
-    temperature: typeof payload.temperature === 'number' ? payload.temperature : 0.8,
     max_tokens: payload.max_tokens || 1400,
   };
+
+  if (!/^gpt-5/i.test(model)) {
+    request.temperature = typeof payload.temperature === 'number' ? payload.temperature : 0.8;
+  }
+
+  return request;
 }
 
 function normalizeOpenAIStreamToAnthropicSSE(upstream, res) {
