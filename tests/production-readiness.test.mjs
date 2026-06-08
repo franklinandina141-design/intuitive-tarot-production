@@ -228,10 +228,11 @@ test('server ignores browser Anthropic model and always uses configured Sub2API 
   assertIncludesAll(server, [
     "process.env.SUB2API_MODEL || 'gpt-5.5'",
     "configuredSub2ApiModel === 'gpt-5.2' ? 'gpt-5.5'",
-    'const model = process.env.SUB2API_MODEL || SUB2API_MODEL',
+    'const model = SUB2API_MODEL',
     'model,',
   ], 'configured Sub2API model');
   assert.ok(!server.includes('payload.model || SUB2API_MODEL'), 'server must not pass browser Anthropic model upstream');
+  assert.ok(!server.includes('const model = process.env.SUB2API_MODEL || SUB2API_MODEL'), 'request conversion must use normalized model');
 });
 
 test('server protects public demo usage with access code and rate limiting', () => {

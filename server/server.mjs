@@ -152,7 +152,7 @@ function convertAnthropicMessagesToOpenAI(payload) {
     });
   }
 
-  const model = process.env.SUB2API_MODEL || SUB2API_MODEL;
+  const model = SUB2API_MODEL;
   const request = {
     model,
     messages,
