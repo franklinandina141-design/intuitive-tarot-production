@@ -150,7 +150,7 @@ The backend requires these environment variables:
 HOST=0.0.0.0
 SUB2API_API_KEY=your_provider_api_key
 SUB2API_BASE_URL=https://api.yksa.uk/v1
-SUB2API_MODEL=gpt-5.2
+SUB2API_MODEL=gpt-5.5
 ACCESS_CODE=your_private_demo_access_code
 RATE_LIMIT_MAX_PER_DAY=3
 ALLOWED_ORIGINS=*

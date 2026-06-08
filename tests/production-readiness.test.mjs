@@ -212,7 +212,7 @@ test('server proxies to Sub2API OpenAI-compatible chat completions and supports 
     'process.env.SUB2API_API_KEY',
     'https://api.yksa.uk/v1',
     '/chat/completions',
-    'gpt-5.2',
+    'gpt-5.5',
     'Authorization',
     'ALLOWED_ORIGINS',
     'resolveCorsOrigin',
@@ -225,7 +225,10 @@ test('server proxies to Sub2API OpenAI-compatible chat completions and supports 
 });
 
 test('server ignores browser Anthropic model and always uses configured Sub2API model', () => {
-  assert.ok(server.includes('model: process.env.SUB2API_MODEL || SUB2API_MODEL'), 'server should force configured Sub2API model');
+  assertIncludesAll(server, [
+    'const model = process.env.SUB2API_MODEL || SUB2API_MODEL',
+    'model,',
+  ], 'configured Sub2API model');
   assert.ok(!server.includes('payload.model || SUB2API_MODEL'), 'server must not pass browser Anthropic model upstream');
 });
 

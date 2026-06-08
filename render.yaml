@@ -11,7 +11,7 @@ services:
       - key: SUB2API_BASE_URL
         value: https://api.yksa.uk/v1
       - key: SUB2API_MODEL
-        value: gpt-5.2
+        value: gpt-5.5
       - key: ALLOWED_ORIGINS
         value: '*'
       - key: SUB2API_API_KEY
