@@ -13,7 +13,6 @@ import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHash } from 'node:crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -31,9 +30,6 @@ const SUB2API_FALLBACK_MODELS = (process.env.SUB2API_FALLBACK_MODELS || process.
   .filter(Boolean);
 const RETRYABLE_UPSTREAM_STATUSES = new Set([502, 503, 504]);
 const SUB2API_API_KEY = (process.env.SUB2API_API_KEY || '').trim().replace(/^["']|["']$/g, '');
-const SUB2API_API_KEY_FINGERPRINT = SUB2API_API_KEY
-  ? createHash('sha256').update(SUB2API_API_KEY).digest('hex').slice(0, 12)
-  : '';
 const ACCESS_CODE = (process.env.ACCESS_CODE || '').trim().replace(/^["']|["']$/g, '');
 const RATE_LIMIT_MAX_PER_DAY = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_DAY) || 3);
 const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -260,34 +256,6 @@ function requestSub2API(openaiPayload, onResponse, onError) {
   upstream.end();
 }
 
-function probeSub2API(req, res) {
-  if (req.headers['x-debug-token'] !== SUB2API_API_KEY_FINGERPRINT) {
-    sendJson(res, 404, { error: { message: 'Not found' } });
-    return;
-  }
-
-  requestSub2API(
-    {
-      model: SUB2API_MODEL,
-      messages: [{ role: 'user', content: 'Reply OK only.' }],
-      stream: false,
-      max_tokens: 20,
-    },
-    (upRes) => {
-      const chunks = [];
-      upRes.on('data', (chunk) => chunks.push(chunk));
-      upRes.on('end', () => {
-        sendJson(res, 200, {
-          upstreamStatus: upRes.statusCode || 500,
-          contentType: upRes.headers['content-type'] || '',
-          preview: Buffer.concat(chunks).toString('utf8').slice(0, 500),
-        });
-      });
-    },
-    (error) => sendJson(res, 502, { error: { message: error.message } })
-  );
-}
-
 function proxySub2API(req, res) {
   if (!SUB2API_API_KEY || SUB2API_API_KEY === 'YOUR_SUB2API_API_KEY_HERE') {
     sendJson(res, 500, {
@@ -423,14 +391,8 @@ const server = http.createServer((req, res) => {
       model: SUB2API_MODEL,
       fallbackModels: SUB2API_FALLBACK_MODELS,
       hasApiKey: Boolean(SUB2API_API_KEY),
-      apiKeyFingerprint: SUB2API_API_KEY_FINGERPRINT,
       allowedOrigins: ALLOWED_ORIGINS,
     });
-    return;
-  }
-
-  if (req.method === 'POST' && urlPath === '/_debug/sub2api-probe') {
-    probeSub2API(req, res);
     return;
   }
 
