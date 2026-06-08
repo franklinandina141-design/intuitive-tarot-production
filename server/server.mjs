@@ -90,6 +90,20 @@ function checkRateLimit(req) {
   };
 }
 
+function peekRateLimit(req) {
+  const now = Date.now();
+  const ip = getClientIp(req);
+  const bucket = rateLimitBuckets.get(ip) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  if (now > bucket.resetAt) {
+    return { allowed: true, remaining: RATE_LIMIT_MAX_PER_DAY, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  }
+  return {
+    allowed: bucket.count < RATE_LIMIT_MAX_PER_DAY,
+    remaining: Math.max(0, RATE_LIMIT_MAX_PER_DAY - bucket.count),
+    resetAt: bucket.resetAt,
+  };
+}
+
 function sendPublicHtml(res, fileName = DEFAULT_HTML_FILE, headOnly = false) {
   const safeFileName = path.basename(fileName);
   const htmlPath = path.join(PUBLIC_DIR, safeFileName);
@@ -236,7 +250,7 @@ function proxySub2API(req, res) {
         return;
       }
 
-      const rateLimit = checkRateLimit(req);
+      const rateLimit = peekRateLimit(req);
       if (!rateLimit.allowed) {
         sendJson(res, 429, {
           error: {
@@ -261,16 +275,18 @@ function proxySub2API(req, res) {
         },
         (upRes) => {
           const contentType = String(upRes.headers['content-type'] || '');
+          const upstreamStatus = upRes.statusCode || 500;
           if (!openaiPayload.stream || !contentType.includes('text/event-stream')) {
             const chunks = [];
             upRes.on('data', (chunk) => chunks.push(chunk));
             upRes.on('end', () => {
               const raw = Buffer.concat(chunks).toString('utf8');
-              if ((upRes.statusCode || 500) >= 400) {
-                res.writeHead(upRes.statusCode || 500, { 'Content-Type': 'application/json; charset=utf-8' });
-                res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upRes.statusCode}` } }));
+              if (upstreamStatus >= 400) {
+                res.writeHead(upstreamStatus, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upstreamStatus}` } }));
                 return;
               }
+              checkRateLimit(req);
               try {
                 const json = JSON.parse(raw || '{}');
                 const text = json?.choices?.[0]?.message?.content || '';
@@ -284,6 +300,12 @@ function proxySub2API(req, res) {
             });
             return;
           }
+          if (upstreamStatus >= 400) {
+            res.writeHead(upstreamStatus, { 'Content-Type': contentType || 'application/json; charset=utf-8' });
+            upRes.pipe(res);
+            return;
+          }
+          checkRateLimit(req);
           normalizeOpenAIStreamToAnthropicSSE(upRes, res);
         }
       );
