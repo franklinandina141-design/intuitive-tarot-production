@@ -226,6 +226,8 @@ test('server proxies to Sub2API OpenAI-compatible chat completions and supports 
 
 test('server ignores browser Anthropic model and always uses configured Sub2API model', () => {
   assertIncludesAll(server, [
+    "process.env.SUB2API_MODEL || 'gpt-5.5'",
+    "configuredSub2ApiModel === 'gpt-5.2' ? 'gpt-5.5'",
     'const model = process.env.SUB2API_MODEL || SUB2API_MODEL',
     'model,',
   ], 'configured Sub2API model');
