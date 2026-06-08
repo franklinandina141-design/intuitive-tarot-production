@@ -24,6 +24,8 @@ const HOST = process.env.HOST || '127.0.0.1';
 const SUB2API_BASE_URL = (process.env.SUB2API_BASE_URL || 'https://api.yksa.uk/v1').replace(/\/$/, '');
 const configuredSub2ApiModel = (process.env.SUB2API_MODEL || 'gpt-5.5').trim();
 const SUB2API_MODEL = configuredSub2ApiModel === 'gpt-5.2' ? 'gpt-5.5' : configuredSub2ApiModel;
+const SUB2API_FALLBACK_MODEL = (process.env.SUB2API_FALLBACK_MODEL || 'gpt-5').trim();
+const RETRYABLE_UPSTREAM_STATUSES = new Set([502, 503, 504]);
 const SUB2API_API_KEY = (process.env.SUB2API_API_KEY || '').trim().replace(/^["']|["']$/g, '');
 const ACCESS_CODE = (process.env.ACCESS_CODE || '').trim().replace(/^["']|["']$/g, '');
 const RATE_LIMIT_MAX_PER_DAY = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_DAY) || 3);
@@ -139,7 +141,7 @@ function readRequestBody(req, onBody, onError) {
   req.on('end', () => onBody(Buffer.concat(chunks)));
 }
 
-function convertAnthropicMessagesToOpenAI(payload) {
+function convertAnthropicMessagesToOpenAI(payload, model = SUB2API_MODEL) {
   const messages = [];
   if (payload.system) {
     const systemText = Array.isArray(payload.system)
@@ -166,7 +168,6 @@ function convertAnthropicMessagesToOpenAI(payload) {
     });
   }
 
-  const model = SUB2API_MODEL;
   const request = {
     model,
     messages,
@@ -224,6 +225,26 @@ function normalizeOpenAIStreamToAnthropicSSE(upstream, res) {
   });
 }
 
+function requestSub2API(openaiPayload, onResponse, onError) {
+  const upstreamUrl = new URL(`${SUB2API_BASE_URL}/chat/completions`);
+  const upstream = https.request(
+    {
+      hostname: upstreamUrl.hostname,
+      path: `${upstreamUrl.pathname}${upstreamUrl.search}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${SUB2API_API_KEY}`,
+      },
+    },
+    onResponse
+  );
+
+  upstream.on('error', onError);
+  upstream.write(JSON.stringify(openaiPayload));
+  upstream.end();
+}
+
 function proxySub2API(req, res) {
   if (!SUB2API_API_KEY || SUB2API_API_KEY === 'YOUR_SUB2API_API_KEY_HERE') {
     sendJson(res, 500, {
@@ -261,61 +282,67 @@ function proxySub2API(req, res) {
         return;
       }
 
-      const openaiPayload = convertAnthropicMessagesToOpenAI(incoming);
-      const upstreamUrl = new URL(`${SUB2API_BASE_URL}/chat/completions`);
-      const upstream = https.request(
-        {
-          hostname: upstreamUrl.hostname,
-          path: `${upstreamUrl.pathname}${upstreamUrl.search}`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${SUB2API_API_KEY}`,
+      const tryUpstream = (model, allowFallback = true) => {
+        const openaiPayload = convertAnthropicMessagesToOpenAI(incoming, model);
+        requestSub2API(
+          openaiPayload,
+          (upRes) => {
+            const contentType = String(upRes.headers['content-type'] || '');
+            const upstreamStatus = upRes.statusCode || 500;
+            const shouldFallback = allowFallback && SUB2API_FALLBACK_MODEL && model !== SUB2API_FALLBACK_MODEL && RETRYABLE_UPSTREAM_STATUSES.has(upstreamStatus);
+
+            if (!openaiPayload.stream || !contentType.includes('text/event-stream')) {
+              const chunks = [];
+              upRes.on('data', (chunk) => chunks.push(chunk));
+              upRes.on('end', () => {
+                const raw = Buffer.concat(chunks).toString('utf8');
+                if (shouldFallback) {
+                  tryUpstream(SUB2API_FALLBACK_MODEL, false);
+                  return;
+                }
+                if (upstreamStatus >= 400) {
+                  res.writeHead(upstreamStatus, { 'Content-Type': 'application/json; charset=utf-8' });
+                  res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upstreamStatus}` } }));
+                  return;
+                }
+                checkRateLimit(req);
+                try {
+                  const json = JSON.parse(raw || '{}');
+                  const text = json?.choices?.[0]?.message?.content || '';
+                  res.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8' });
+                  res.write(`data: ${JSON.stringify({ type: 'content_block_delta', delta: { type: 'text_delta', text } })}\n\n`);
+                  res.write('data: [DONE]\n\n');
+                  res.end();
+                } catch {
+                  sendJson(res, 502, { error: { message: 'Invalid upstream response' } });
+                }
+              });
+              return;
+            }
+            if (shouldFallback) {
+              upRes.resume();
+              upRes.on('end', () => tryUpstream(SUB2API_FALLBACK_MODEL, false));
+              return;
+            }
+            if (upstreamStatus >= 400) {
+              res.writeHead(upstreamStatus, { 'Content-Type': contentType || 'application/json; charset=utf-8' });
+              upRes.pipe(res);
+              return;
+            }
+            checkRateLimit(req);
+            normalizeOpenAIStreamToAnthropicSSE(upRes, res);
           },
-        },
-        (upRes) => {
-          const contentType = String(upRes.headers['content-type'] || '');
-          const upstreamStatus = upRes.statusCode || 500;
-          if (!openaiPayload.stream || !contentType.includes('text/event-stream')) {
-            const chunks = [];
-            upRes.on('data', (chunk) => chunks.push(chunk));
-            upRes.on('end', () => {
-              const raw = Buffer.concat(chunks).toString('utf8');
-              if (upstreamStatus >= 400) {
-                res.writeHead(upstreamStatus, { 'Content-Type': 'application/json; charset=utf-8' });
-                res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upstreamStatus}` } }));
-                return;
-              }
-              checkRateLimit(req);
-              try {
-                const json = JSON.parse(raw || '{}');
-                const text = json?.choices?.[0]?.message?.content || '';
-                res.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8' });
-                res.write(`data: ${JSON.stringify({ type: 'content_block_delta', delta: { type: 'text_delta', text } })}\n\n`);
-                res.write('data: [DONE]\n\n');
-                res.end();
-              } catch {
-                sendJson(res, 502, { error: { message: 'Invalid upstream response' } });
-              }
-            });
-            return;
+          () => {
+            if (allowFallback && SUB2API_FALLBACK_MODEL && model !== SUB2API_FALLBACK_MODEL) {
+              tryUpstream(SUB2API_FALLBACK_MODEL, false);
+              return;
+            }
+            if (!res.headersSent) sendJson(res, 502, { error: { message: 'Upstream request failed' } });
           }
-          if (upstreamStatus >= 400) {
-            res.writeHead(upstreamStatus, { 'Content-Type': contentType || 'application/json; charset=utf-8' });
-            upRes.pipe(res);
-            return;
-          }
-          checkRateLimit(req);
-          normalizeOpenAIStreamToAnthropicSSE(upRes, res);
-        }
-      );
+        );
+      };
 
-      upstream.on('error', (error) => {
-        if (!res.headersSent) sendJson(res, 502, { error: { message: error.message } });
-      });
-
-      upstream.write(JSON.stringify(openaiPayload));
-      upstream.end();
+      tryUpstream(SUB2API_MODEL);
     },
     (error) => sendJson(res, 400, { error: { message: error.message } })
   );
@@ -348,6 +375,7 @@ const server = http.createServer((req, res) => {
       provider: 'sub2api-openai-compatible',
       baseUrl: SUB2API_BASE_URL,
       model: SUB2API_MODEL,
+      fallbackModel: SUB2API_FALLBACK_MODEL,
       hasApiKey: Boolean(SUB2API_API_KEY),
       allowedOrigins: ALLOWED_ORIGINS,
     });
