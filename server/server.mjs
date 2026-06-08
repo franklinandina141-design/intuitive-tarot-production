@@ -13,6 +13,7 @@ import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -30,6 +31,9 @@ const SUB2API_FALLBACK_MODELS = (process.env.SUB2API_FALLBACK_MODELS || process.
   .filter(Boolean);
 const RETRYABLE_UPSTREAM_STATUSES = new Set([502, 503, 504]);
 const SUB2API_API_KEY = (process.env.SUB2API_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+const SUB2API_API_KEY_FINGERPRINT = SUB2API_API_KEY
+  ? createHash('sha256').update(SUB2API_API_KEY).digest('hex').slice(0, 12)
+  : '';
 const ACCESS_CODE = (process.env.ACCESS_CODE || '').trim().replace(/^["']|["']$/g, '');
 const RATE_LIMIT_MAX_PER_DAY = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_DAY) || 3);
 const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -235,6 +239,7 @@ function isRetryableUpstreamError(status, raw = '') {
 
 function requestSub2API(openaiPayload, onResponse, onError) {
   const upstreamUrl = new URL(`${SUB2API_BASE_URL}/chat/completions`);
+  const body = JSON.stringify(openaiPayload);
   const upstream = https.request(
     {
       hostname: upstreamUrl.hostname,
@@ -242,6 +247,8 @@ function requestSub2API(openaiPayload, onResponse, onError) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        'User-Agent': 'intuitive-tarot-render-proxy/1.0',
         Authorization: `Bearer ${SUB2API_API_KEY}`,
       },
     },
@@ -249,7 +256,7 @@ function requestSub2API(openaiPayload, onResponse, onError) {
   );
 
   upstream.on('error', onError);
-  upstream.write(JSON.stringify(openaiPayload));
+  upstream.write(body);
   upstream.end();
 }
 
@@ -388,6 +395,7 @@ const server = http.createServer((req, res) => {
       model: SUB2API_MODEL,
       fallbackModels: SUB2API_FALLBACK_MODELS,
       hasApiKey: Boolean(SUB2API_API_KEY),
+      apiKeyFingerprint: SUB2API_API_KEY_FINGERPRINT,
       allowedOrigins: ALLOWED_ORIGINS,
     });
     return;
