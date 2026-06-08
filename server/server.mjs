@@ -24,7 +24,7 @@ const HOST = process.env.HOST || '127.0.0.1';
 const SUB2API_BASE_URL = (process.env.SUB2API_BASE_URL || 'https://api.yksa.uk/v1').replace(/\/$/, '');
 const configuredSub2ApiModel = (process.env.SUB2API_MODEL || 'gpt-5.5').trim();
 const SUB2API_MODEL = configuredSub2ApiModel === 'gpt-5.2' ? 'gpt-5.5' : configuredSub2ApiModel;
-const SUB2API_FALLBACK_MODELS = (process.env.SUB2API_FALLBACK_MODELS || process.env.SUB2API_FALLBACK_MODEL || 'gpt-5,gpt5')
+const SUB2API_FALLBACK_MODELS = (process.env.SUB2API_FALLBACK_MODELS || process.env.SUB2API_FALLBACK_MODEL || 'gpt5')
   .split(',')
   .map((model) => model.trim())
   .filter(Boolean);

@@ -214,7 +214,6 @@ test('server proxies to Sub2API OpenAI-compatible chat completions and supports 
     '/chat/completions',
     'gpt-5.5',
     'SUB2API_FALLBACK_MODELS',
-    'gpt-5',
     'gpt5',
     'RETRYABLE_UPSTREAM_STATUSES',
     'isRetryableUpstreamError',

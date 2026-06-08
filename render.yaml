@@ -13,7 +13,7 @@ services:
       - key: SUB2API_MODEL
         value: gpt-5.5
       - key: SUB2API_FALLBACK_MODELS
-        value: gpt-5,gpt5
+        value: gpt5
       - key: ALLOWED_ORIGINS
         value: '*'
       - key: SUB2API_API_KEY
