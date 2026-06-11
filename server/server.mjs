@@ -382,6 +382,21 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Social sharing cover image (og:image), served from assets/landing-preview.jpg.
+  if ((req.method === 'GET' || req.method === 'HEAD') && urlPath === '/og-image.jpg') {
+    fs.readFile(path.join(ROOT, 'assets', 'landing-preview.jpg'), (err, data) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end();
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=86400' });
+      if (req.method === 'HEAD') res.end();
+      else res.end(data);
+    });
+    return;
+  }
+
   if (req.method === 'GET' && urlPath === '/health') {
     sendJson(res, 200, {
       ok: true,

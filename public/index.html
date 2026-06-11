@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Intuitive Tarot</title>
+<title>Intuitive Tarot · Listen to Your Soul</title>
+<meta name="description" content="线上塔罗占卜：写下你的问题，抽三张 Rider-Waite 塔罗牌，获得一份温和而专业的解读。仅供自我觉察与娱乐参考。"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Intuitive Tarot"/>
+<meta property="og:title" content="Intuitive Tarot · Listen to Your Soul"/>
+<meta property="og:description" content="写下你的问题，抽三张塔罗牌，女巫为你揭晓一份溫和而專業的解讀。"/>
+<meta property="og:url" content="http://139.180.216.12/"/>
+<meta property="og:image" content="http://139.180.216.12/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Intuitive Tarot · Listen to Your Soul"/>
+<meta name="twitter:description" content="写下你的问题，抽三张塔罗牌，获得一份温和而专业的解读。"/>
+<meta name="twitter:image" content="http://139.180.216.12/og-image.jpg"/>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -442,6 +453,33 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   animation:spin .75s linear infinite;flex-shrink:0;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+/* ── 等待解读 · 小女巫施法（仅展示层，不影响请求逻辑） ── */
+.r-output.loading{flex-direction:column;gap:4px;padding:30px 24px 26px;}
+.witch-cast{width:min(225px,62vw);margin:0 auto;}
+.witch-cast svg{width:100%;height:auto;display:block;overflow:visible;}
+.wc-float{animation:wcFloat 5s ease-in-out infinite alternate;}
+@keyframes wcFloat{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+.wc-arm{transform-origin:134px 112px;animation:wcWave 2.9s cubic-bezier(.45,.05,.55,.95) infinite alternate;}
+@keyframes wcWave{from{transform:rotate(-4deg)}to{transform:rotate(9deg)}}
+.wc-trail{stroke-dasharray:3 8;animation:wcTrail 8s linear infinite;opacity:.55;}
+@keyframes wcTrail{to{stroke-dashoffset:-132}}
+.wc-tip{transform-origin:182px 54px;animation:wcTip 2.2s ease-in-out infinite alternate;}
+@keyframes wcTip{from{transform:scale(.82);opacity:.75}to{transform:scale(1.15);opacity:1}}
+.wc-spark{opacity:0;animation:wcSpark var(--d,4.2s) ease-in-out var(--dl,0s) infinite;}
+@keyframes wcSpark{
+  0%{opacity:0;transform:translateY(3px) scale(.6)}
+  35%{opacity:.95;transform:translateY(-2px) scale(1)}
+  70%{opacity:.4;transform:translateY(-6px) scale(.85)}
+  100%{opacity:0;transform:translateY(-10px) scale(.5)}}
+.wc-copy{text-align:center;font-family:'IM Fell English',serif;font-style:normal;
+  color:var(--ink);font-size:15px;line-height:1.9;letter-spacing:.04em;margin-top:2px;}
+.wc-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+.wc-dots i{width:4px;height:4px;border-radius:50%;background:var(--gold);
+  animation:wcDot 1.8s ease-in-out var(--dl,0s) infinite;}
+@keyframes wcDot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+@media (prefers-reduced-motion: reduce){
+  .wc-float,.wc-arm,.wc-tip,.wc-trail,.wc-spark,.wc-dots i{animation:none}
+  .wc-spark{opacity:.55}}
 .r-error{
   padding:18px 22px;border-radius:12px;
   background:rgba(120,20,20,.18);border:1px solid rgba(160,40,40,.30);
@@ -852,9 +890,30 @@ function goToPick(){
 
 /* ══ 抽牌 → 解读 ══ */
 function goToReading(){
+  const prev=lastReadingText;
   buildReadingScreen();
   goToScreen(2);
-  setTimeout(generateReading, 500);
+  if(prev){
+    // 同一组牌已有解读：直接恢复，不重新生成、不重复消耗体验次数
+    restoreReading(prev);
+  }else{
+    setTimeout(generateReading, 500);
+  }
+}
+
+/* 恢复已生成的解读（返回再进入时） */
+function restoreReading(text){
+  lastReadingText=text;
+  const out=document.getElementById('rOutput');
+  out.style.display='block';
+  out.className='r-output';
+  const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  out.innerHTML='<div class="r-text">'+
+    text.split(/\n{2,}|\n/).filter(p=>p.trim()).map(p=>'<p>'+esc(p.trim())+'</p>').join('')+
+    '</div>';
+  document.getElementById('btnGen').style.display='none';
+  document.getElementById('btnRetry').style.display='';
+  document.getElementById('btnCopy').style.display='';
 }
 
 /* ══ 布局计算 ══ */
@@ -1080,6 +1139,7 @@ function buildReadingScreen(){
   out.className='r-output';
   document.getElementById('btnCopy').style.display='none';
   document.getElementById('btnRetry').style.display='none';
+  document.getElementById('btnGen').style.display='';
   lastReadingText='';
 
   // 滚回顶部
@@ -1111,7 +1171,7 @@ const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的�
 
 【解牌邏輯】
 每次解讀時請嚴格按照以下內部流程（不要在輸出中提到）：
-1. 理解用戶問題的核心情緒與需求。
+1. 理解用户问题的核心情緒與需求。
 2. 分析這三張牌的具體意義，並自然連結成前因後果的故事。
 3. 先拉高視角觀察整體主題：這組牌反映的是哪一種生命階段、情緒模式、關係動力或行動節奏。
 4. 再回到牌面細節，說明過去、現在、未來之間的能量流動與轉折。
@@ -1123,7 +1183,7 @@ const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的�
 - 只輸出純文字、自然流暢的敘事，絕不使用標題、條列、JSON 或 Markdown。
 - 繁體中文，約400-550字。
 - 用簡單大白話，像朋友在聊天。
-- 開頭先簡單點出用戶問題的核心。
+- 開頭先簡單點出用户问题的核心。
 - 最後一段不要像老師下指令，要像朋友坐在對面提醒：可以給方向，但保留空間，讓用戶感覺被理解而不是被要求。
 - 每次都根據這三張牌的獨特能量重新撰寫，避免任何重複句型。`;
 
@@ -1247,6 +1307,126 @@ function requestAccessCode(){
   });
 }
 
+/* 等待解读时的小女巫动效（纯展示，不影响请求与流式逻辑） */
+function witchLoadingMarkup(lang){
+  const main = lang==='en'
+    ? 'You seem a little different from the others — the witch will reveal it in a moment.'
+    : '你好像跟别人有点不同，女巫马上为你揭晓';
+  return `
+  <div class="witch-cast" aria-label="${main}">
+    <svg viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wcRobe" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2e1d0a"/><stop offset="100%" stop-color="#140c04"/>
+        </linearGradient>
+        <linearGradient id="wcHair" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#dcae62"/><stop offset="100%" stop-color="#a8762f"/>
+        </linearGradient>
+        <radialGradient id="wcGlow">
+          <stop offset="0%" stop-color="#f0d68a" stop-opacity=".4"/>
+          <stop offset="100%" stop-color="#f0d68a" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- 魔杖火花轨迹：底层柔光 + 流动虚线 -->
+      <path d="M182 52 C 212 70 206 110 196 126 C 188 140 170 148 156 148"
+        stroke="rgba(201,168,76,.18)" stroke-width="3" stroke-linecap="round"/>
+      <path class="wc-trail" d="M182 52 C 212 70 206 110 196 126 C 188 140 170 148 156 148"
+        stroke="rgba(240,214,138,.85)" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- 飘散的金色火花与小月牙 -->
+      <circle class="wc-spark" style="--d:3.8s;--dl:.2s" cx="198" cy="82" r="2" fill="#f0d68a"/>
+      <circle class="wc-spark" style="--d:4.6s;--dl:1.4s" cx="206" cy="112" r="1.4" fill="#c9a84c"/>
+      <circle class="wc-spark" style="--d:4.2s;--dl:2.3s" cx="184" cy="132" r="1.8" fill="#e8c96a"/>
+      <circle class="wc-spark" style="--d:5s;--dl:.8s" cx="162" cy="40" r="1.3" fill="#c9a84c"/>
+      <circle class="wc-spark" style="--d:4.5s;--dl:3s" cx="62" cy="74" r="1.6" fill="#e8c96a"/>
+      <circle class="wc-spark" style="--d:5.2s;--dl:1.9s" cx="48" cy="118" r="1.3" fill="#c9a84c"/>
+      <path class="wc-spark" style="--d:4.8s;--dl:.5s" d="M208 62 l1.5 3.2 3.2 1.5 -3.2 1.5 -1.5 3.2 -1.5 -3.2 -3.2 -1.5 3.2 -1.5 Z" fill="#f0d68a"/>
+      <path class="wc-spark" style="--d:5.4s;--dl:2.7s" d="M56 94 l1.3 2.8 2.8 1.3 -2.8 1.3 -1.3 2.8 -1.3 -2.8 -2.8 -1.3 2.8 -1.3 Z" fill="#e8c96a"/>
+      <path class="wc-spark" style="--d:5.6s;--dl:1.1s" d="M62 50 a6 6 0 1 0 5 9.5 a4.6 4.6 0 1 1 -5 -9.5 Z" fill="#e8c96a" opacity=".8"/>
+      <g class="wc-float">
+        <!-- 身后金色长发：两缕流动曲线 + 高光发丝 -->
+        <path d="M103 86 C 95 104 93 126 100 146 C 107 138 107 116 106 100 Z" fill="url(#wcHair)"/>
+        <path d="M133 88 C 139 104 141 118 136 132 C 130 124 129 108 129 96 Z" fill="url(#wcHair)" opacity=".95"/>
+        <path d="M101.5 96 C 97.5 112 97.5 128 101 140" stroke="#f0d68a" stroke-width=".8" opacity=".5" fill="none"/>
+        <path d="M134 96 C 137.5 106 138.5 116 135.5 126" stroke="#f0d68a" stroke-width=".8" opacity=".5" fill="none"/>
+        <!-- A 字长袍 -->
+        <path d="M100 108 C 108 99 128 99 136 108 C 142 126 148 146 152 164 C 130 177 102 177 84 164 C 90 146 95 124 100 108 Z"
+          fill="url(#wcRobe)" stroke="rgba(201,168,76,.4)" stroke-width="1"/>
+        <!-- 前襟内衬 + 金线滚边 -->
+        <path d="M113 128 L 110.5 171.5 C 115 172.8 121 172.8 125.5 171.5 L 123 128 Z" fill="#2e1d0a" opacity=".9"/>
+        <path d="M113 128 L 110.5 171.5 M123 128 L 125.5 171.5" stroke="rgba(232,201,106,.5)" stroke-width=".8"/>
+        <!-- 肩部小披肩 + 领口金扣 -->
+        <path d="M100 108 C 108 99 128 99 136 108 C 134 115 128 118.5 118 118.5 C 108 118.5 102 115 100 108 Z"
+          fill="#261808" stroke="rgba(201,168,76,.45)" stroke-width=".8"/>
+        <circle cx="118" cy="104.5" r="2" fill="none" stroke="#e8c96a" stroke-width="1"/>
+        <!-- 裙摆双层金边 + 星饰 -->
+        <path d="M84 164 C 102 177 130 177 152 164" stroke="rgba(232,201,106,.7)" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M86.5 160 C 104 172 132 172 149.5 160" stroke="rgba(201,168,76,.35)" stroke-width=".8" stroke-linecap="round"/>
+        <path d="M100 166 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2 Z" fill="#c9a84c" opacity=".6"/>
+        <path d="M118 169 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2 Z" fill="#c9a84c" opacity=".6"/>
+        <path d="M136 166 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2 Z" fill="#c9a84c" opacity=".6"/>
+        <!-- 腰带 + 菱形腰扣 + 垂坠星链 -->
+        <path d="M102 123 C 112 128 124 128 134 123" stroke="rgba(201,168,76,.65)" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M118 121.5 l3 3 -3 3 -3 -3 Z" fill="none" stroke="#e8c96a" stroke-width="1"/>
+        <path d="M118 128 v5" stroke="rgba(232,201,106,.5)" stroke-width=".8"/>
+        <path d="M118 134.5 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2 Z" fill="#e8c96a" opacity=".8"/>
+        <!-- 左臂喇叭袖 + 魔法书 -->
+        <path d="M103 118 Q 94 128 96 139" stroke="#1f1206" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="96.5" cy="138.5" r="3.8" fill="none" stroke="rgba(232,201,106,.55)" stroke-width=".9"/>
+        <circle cx="97" cy="140" r="2.6" fill="#f6e4d4"/>
+        <rect x="86" y="142" width="18" height="13" rx="1.5" fill="#3a2510" stroke="rgba(201,168,76,.65)" stroke-width=".8"/>
+        <path d="M89.5 142 V155" stroke="rgba(232,201,106,.45)" stroke-width=".8"/>
+        <path d="M95 146.5 l1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 Z" fill="#e8c96a" opacity=".7"/>
+        <!-- 头与颈 -->
+        <circle cx="118" cy="86" r="15" fill="#f6e4d4"/>
+        <!-- 刘海与鬓发 -->
+        <path d="M104 82 C 106 69 113 66 118 66 C 123 66 130 69 132 82 C 126 74 121 76 118 76.5 C 115 76 110 74 104 82 Z" fill="url(#wcHair)"/>
+        <path d="M104 82 C 103 87 103 91 104.5 95 C 106 91 106 86 105.5 83 Z" fill="url(#wcHair)"/>
+        <path d="M132 82 C 133 87 133 91 131.5 95 C 130 91 130 86 130.5 83 Z" fill="url(#wcHair)"/>
+        <!-- 圆框金丝眼镜（含镜腿） -->
+        <circle cx="111.5" cy="90" r="4.6" stroke="rgba(240,214,138,.9)" stroke-width="1"/>
+        <circle cx="124.5" cy="90" r="4.6" stroke="rgba(240,214,138,.9)" stroke-width="1"/>
+        <path d="M116.1 88.8 L119.9 88.8" stroke="rgba(240,214,138,.9)" stroke-width="1"/>
+        <path d="M106.9 89.2 L104.2 87.6 M129.1 89.2 L131.8 87.6" stroke="rgba(240,214,138,.7)" stroke-width=".9"/>
+        <!-- 闭眼、小鼻、微笑、腮红 -->
+        <path d="M109 90.5 q2.5 2.2 5 0" stroke="#4a3526" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M122 90.5 q2.5 2.2 5 0" stroke="#4a3526" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M118 94.5 q1 1 0 1.8" stroke="#d9b49a" stroke-width="1" stroke-linecap="round"/>
+        <path d="M115 99.5 q3 2.4 6 0" stroke="#c08a80" stroke-width="1.2" stroke-linecap="round"/>
+        <ellipse cx="106.5" cy="95.5" rx="2.4" ry="1.6" fill="#e0a0a0" opacity=".35"/>
+        <ellipse cx="129.5" cy="95.5" rx="2.4" ry="1.6" fill="#e0a0a0" opacity=".35"/>
+        <!-- 巫师帽：弧形宽檐 + 优雅弯垂帽尖 -->
+        <ellipse cx="118" cy="72" rx="26" ry="6.2" fill="url(#wcRobe)" stroke="rgba(201,168,76,.5)" stroke-width=".8"/>
+        <path d="M92 72 Q 118 80 144 72" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+        <path d="M105 71 C 109 52 114 40 122 32 C 126 28 133 25 140 27 C 135 29 132 33 131 38 C 134 52 133 62 131 71 Z"
+          fill="url(#wcRobe)" stroke="rgba(201,168,76,.4)" stroke-width=".8"/>
+        <path d="M140 27 C 145 26 149 29 149 34 C 146 31 142 30 139 31 Z" fill="#241708" stroke="rgba(201,168,76,.35)" stroke-width=".6"/>
+        <path d="M106 67 C 114 71 126 71 130 67" stroke="#c9a84c" stroke-width="3.2" stroke-linecap="round" opacity=".85"/>
+        <rect x="115.5" y="63.5" width="6.5" height="6.5" rx="1" stroke="#e8c96a" stroke-width="1.1" fill="none"/>
+        <!-- 帽身星饰 + 帽尖垂坠小星 -->
+        <path d="M123 48 l1.1 2.4 2.4 1.1 -2.4 1.1 -1.1 2.4 -1.1 -2.4 -2.4 -1.1 2.4 -1.1 Z" fill="#e8c96a" opacity=".6"/>
+        <circle cx="115" cy="57" r=".9" fill="#e8c96a" opacity=".5"/>
+        <path d="M149 34 q.5 4.5 -2 7" stroke="rgba(232,201,106,.5)" stroke-width=".8" fill="none"/>
+        <path d="M147 43 l1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 Z" fill="#e8c96a" opacity=".7"/>
+        <!-- 右臂喇叭袖 + 木质魔杖（缓慢挥动） -->
+        <g class="wc-arm">
+          <path d="M134 112 C 142 104 150 98 158 92" stroke="#1f1206" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="156.5" cy="93.5" r="3.8" fill="none" stroke="rgba(232,201,106,.55)" stroke-width=".9"/>
+          <circle cx="158" cy="92" r="2.8" fill="#f6e4d4"/>
+          <line x1="157" y1="93" x2="162" y2="85.5" stroke="#5f4022" stroke-width="3.2" stroke-linecap="round"/>
+          <line x1="157" y1="93" x2="180" y2="58" stroke="#8a6238" stroke-width="2.2" stroke-linecap="round"/>
+          <g class="wc-tip">
+            <circle cx="182" cy="54" r="11" fill="url(#wcGlow)"/>
+            <path d="M182 44 l2.4 6.6 6.6 2.4 -6.6 2.4 -2.4 6.6 -2.4 -6.6 -6.6 -2.4 6.6 -2.4 Z" fill="#f0d68a"/>
+            <path d="M182 50 v8 M178 54 h8" stroke="#fff2c8" stroke-width=".9" opacity=".8"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="wc-copy">${main}</div>
+  <div class="wc-dots"><i style="--dl:0s"></i><i style="--dl:.3s"></i><i style="--dl:.6s"></i></div>`;
+}
+
 async function generateReading(){
   const out=document.getElementById('rOutput');
   const btnGen=document.getElementById('btnGen');
@@ -1267,20 +1447,19 @@ async function generateReading(){
     out.style.display='block';
     out.className='r-output';
     out.innerHTML='<div class="r-error"><strong>需要体验码</strong><br>请输入体验码后再生成解读</div>';
+    btnGen.style.display='';
     return;
   }
   const userPrompt = readingLanguage==='en'
     ? `User question: ${q}\n\nDrawn cards:\n${cardLines}`
-    : `用戶問題：${q}\n\n抽到的牌：\n${cardLines}`;
+    : `用户问题：${q}\n\n抽到的牌：\n${cardLines}`;
 
-  btnGen.disabled=true; btnGen.textContent='Reading…';
+  btnGen.disabled=true; btnGen.style.display='none';
   btnRetry.style.display='none';
   document.getElementById('btnCopy').style.display='none';
   out.style.display='block';
   out.className='r-output loading';
-    out.innerHTML='<div class="spinner"></div><span>'+(
-      readingLanguage==='en'?'Elena Voss is reading the cards…':'Elena Voss 正在解讀中…'
-    )+'</span>';
+  out.innerHTML=witchLoadingMarkup(readingLanguage);
 
   try{
     const resp = await fetch(TAROT_MESSAGES_URL,{
@@ -1418,6 +1597,7 @@ function copyReading(){
 /* ══ 洗牌（回到抽牌页）══ */
 function doShuffle(){
   stopSway(); drawn=[]; done=picking=false; sway=0; swayDir=1;
+  lastReadingText='';
   deck=cryptoShuffle(buildDeck());
   buildFan(true); // 带动画
   updPg();
