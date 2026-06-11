@@ -382,6 +382,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if ((req.method === 'GET' || req.method === 'HEAD') && urlPath === '/style-preview.html') {
+    sendPublicHtml(res, 'style-preview.html', req.method === 'HEAD');
+    return;
+  }
+
   // Social sharing cover image (og:image), served from assets/landing-preview.jpg.
   if ((req.method === 'GET' || req.method === 'HEAD') && urlPath === '/og-image.jpg') {
     fs.readFile(path.join(ROOT, 'assets', 'landing-preview.jpg'), (err, data) => {
