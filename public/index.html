@@ -434,7 +434,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   letter-spacing:.02em;
 }
 /* 每段首字下沉效果（第一个自然段） */
-.r-text>p:first-of-type::first-letter{
+.r-text::first-letter{
   font-size:1.6em;line-height:1;float:left;
   margin:0 6px 0 0;color:var(--gold-bright);
   font-family:'Cinzel',serif;
@@ -494,137 +494,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
 @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── grain 紙張顆粒質感 ── */
-.grain{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");}
-
-/* ── 封面儀式卡（桌面同享質感）── */
-.mobile-cover-oracle-card{width:min(560px,92vw);margin:6px auto 20px;padding:20px 22px 18px;position:relative;
-  background:linear-gradient(180deg,rgba(38,25,9,.55),rgba(13,8,3,.3));
-  border:1px solid rgba(201,168,76,.2);box-shadow:0 18px 48px rgba(0,0,0,.3),inset 0 1px 0 rgba(232,201,106,.06);
-  opacity:0;animation:fu 1s ease .7s both;}
-.mobile-cover-oracle-card::before,.mobile-cover-oracle-card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(232,201,106,.42);border-style:solid;}
-.mobile-cover-oracle-card::before{top:7px;left:7px;border-width:1px 0 0 1px}
-.mobile-cover-oracle-card::after{right:7px;bottom:7px;border-width:0 1px 1px 0}
-.mobile-cover-oracle-card .cover-q-wrap{width:100%;}
-.mobile-ritual-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;
-  font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,168,76,.62);}
-.mobile-oracle-line{height:1px;margin-bottom:12px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.32),transparent);}
-
-/* ── 每日一牌 ── */
-.daily-row{display:flex;align-items:center;justify-content:center;gap:10px;
-  margin:0 auto 14px;padding:9px 14px;width:100%;cursor:pointer;
-  border:1px dashed rgba(201,168,76,.26);background:rgba(201,168,76,.04);
-  font-family:'IM Fell English',serif;font-style:italic;font-size:13px;color:var(--ink-dim);
-  transition:all .3s;user-select:none;}
-.daily-row:hover{border-color:rgba(201,168,76,.5);color:var(--ink);}
-.daily-row .d-tag{font-family:'Cinzel',serif;font-style:normal;font-size:8px;letter-spacing:.3em;
-  text-transform:uppercase;color:var(--gold-dim);flex-shrink:0;}
-.daily-row .d-val{line-height:1.55;}
-.daily-row .d-val b{color:var(--gold-bright);font-weight:400;}
-
-/* ── 牌陣 / 問題領域 選擇 ── */
-.opt-group{margin-bottom:13px;text-align:center;}
-.opt-label{display:block;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.34em;
-  text-transform:uppercase;color:var(--gold-dim);margin-bottom:8px;}
-.opt-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
-.chip{font-family:'IM Fell English',serif;font-size:12.5px;letter-spacing:.05em;
-  color:var(--ink-dim);background:rgba(255,255,255,.025);border:1px solid rgba(201,168,76,.18);
-  border-radius:999px;padding:6px 14px;cursor:pointer;transition:all .25s;outline:none;text-align:center;}
-.chip:hover{color:var(--ink);border-color:rgba(201,168,76,.45);}
-.chip.on{color:var(--gold-bright);border-color:rgba(201,168,76,.62);
-  background:rgba(201,168,76,.10);box-shadow:0 0 14px rgba(201,168,76,.10);}
-.chip small{display:block;font-size:7.5px;font-family:'Cinzel',serif;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--ink-faint);margin-top:1px;font-style:normal;}
-.chip.on small{color:var(--gold-dim);}
-
-/* ── 占卜手記 ── */
-.journal-toggle{position:fixed;top:24px;left:26px;z-index:30;opacity:0;animation:fu 1s ease .65s both;}
-.journal-btn{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:0 14px;
-  border-radius:999px;border:1px solid rgba(201,168,76,.22);background:rgba(10,7,1,.58);
-  backdrop-filter:blur(12px);color:var(--ink-dim);font-family:'Cinzel',serif;font-size:10px;
-  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.22s ease;
-  box-shadow:0 12px 30px rgba(0,0,0,.22);}
-.journal-btn:hover{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.13);}
-.journal-modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;
-  padding:24px;background:radial-gradient(ellipse at center,rgba(201,168,76,.06),rgba(8,5,2,.74) 58%,rgba(3,2,0,.9));
-  backdrop-filter:blur(7px);}
-.journal-modal.show{display:flex;animation:modalFade .24s ease both;}
-.journal-card{width:min(640px,94vw);max-height:82vh;display:flex;flex-direction:column;position:relative;
-  padding:26px 22px 18px;background:linear-gradient(160deg,rgba(37,25,9,.97),rgba(16,10,4,.99));
-  border:1px solid rgba(201,168,76,.38);box-shadow:0 24px 70px rgba(0,0,0,.58);}
-.journal-card::before,.journal-card::after{content:'';position:absolute;width:12px;height:12px;
-  border-color:rgba(232,201,106,.72);border-style:solid;}
-.journal-card::before{top:8px;left:8px;border-width:1px 0 0 1px}
-.journal-card::after{right:8px;bottom:8px;border-width:0 1px 1px 0}
-.journal-title{font-family:'Cinzel Decorative',serif;color:var(--ink);font-size:clamp(18px,4vw,24px);
-  letter-spacing:.08em;text-align:center;margin-bottom:4px;}
-.journal-sub{text-align:center;color:var(--ink-faint);font-style:italic;font-size:12.5px;margin-bottom:14px;}
-.journal-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px;padding:2px;}
-.journal-empty{text-align:center;color:var(--ink-faint);font-style:italic;padding:34px 0;font-size:14px;line-height:2;}
-.j-item{border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.02);}
-.j-head{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;cursor:pointer;
-  color:var(--ink-dim);font-family:'IM Fell English',serif;font-size:13px;text-align:left;transition:background .2s;}
-.j-head:hover{background:rgba(201,168,76,.05);}
-.j-date{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.14em;color:var(--gold-dim);flex-shrink:0;}
-.j-q{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;}
-.j-del{flex-shrink:0;color:var(--ink-faint);background:none;border:none;cursor:pointer;font-size:13px;
-  padding:2px 6px;transition:color .2s;}
-.j-del:hover{color:#d9a56f;}
-.j-body{display:none;padding:4px 14px 16px;border-top:1px solid rgba(201,168,76,.12);}
-.j-item.open .j-body{display:block;}
-.j-cards{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.1em;color:var(--gold-dim);
-  margin:10px 0 12px;line-height:1.9;}
-.j-text{font-family:'IM Fell English',serif;font-size:14px;line-height:1.95;color:rgba(235,222,198,.88);}
-.j-text p{margin:0 0 .9em;}
-.j-text .r-h{margin:14px 0 6px;}
-.journal-foot{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-shrink:0;}
-
-/* ── 牌面放大 / 牌義燈箱 ── */
-.card-lightbox{position:fixed;inset:0;z-index:75;display:none;align-items:center;justify-content:center;
-  padding:24px;background:rgba(3,2,0,.86);backdrop-filter:blur(8px);cursor:pointer;}
-.card-lightbox.show{display:flex;animation:modalFade .22s ease both;}
-.lb-inner{display:flex;gap:26px;align-items:center;max-width:min(720px,94vw);
-  animation:modalCardIn .28s cubic-bezier(.2,.8,.2,1) both;}
-.lb-img{width:min(240px,38vw);border-radius:12px;border:1px solid rgba(201,168,76,.5);
-  box-shadow:0 24px 70px rgba(0,0,0,.7),0 0 40px rgba(201,168,76,.10);flex-shrink:0;}
-.lb-img.rv{transform:rotate(180deg);}
-.lb-info{max-width:330px;}
-.lb-name{font-family:'Cinzel',serif;font-size:21px;color:var(--ink);letter-spacing:.05em;margin-bottom:2px;}
-.lb-pos{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;color:var(--gold-dim);margin-left:10px;text-transform:uppercase;}
-.lb-en{font-family:'IM Fell English',serif;font-style:italic;color:var(--ink-dim);font-size:14px;margin-bottom:14px;}
-.lb-m{padding:10px 13px;border:1px solid rgba(201,168,76,.14);margin-bottom:9px;
-  font-family:'IM Fell English',serif;font-size:13.5px;line-height:1.8;color:var(--ink-dim);}
-.lb-m b{display:block;font-family:'Cinzel',serif;font-weight:400;font-size:9px;letter-spacing:.26em;
-  text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px;}
-.lb-m.cur{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.06);color:var(--ink);}
-.lb-m.cur b{color:var(--gold-bright);}
-.lb-hint{font-size:11px;color:var(--ink-faint);font-style:italic;text-align:center;margin-top:10px;}
-@media(max-width:640px){.lb-inner{flex-direction:column;gap:16px;max-height:92vh;overflow-y:auto;}
-  .lb-img{width:min(190px,52vw);}.lb-info{max-width:320px;padding-bottom:8px;}}
-
-/* ── 解讀輸出 質感強化 ── */
-.r-output{position:relative;}
-.r-output::before,.r-output::after{content:'';position:absolute;width:14px;height:14px;
-  border-color:rgba(232,201,106,.4);border-style:solid;pointer-events:none;}
-.r-output::before{top:10px;left:10px;border-width:1px 0 0 1px;}
-.r-output::after{right:10px;bottom:10px;border-width:0 1px 1px 0;}
-.r-h{display:flex;align-items:center;gap:12px;margin:26px 0 12px;
-  font-family:'Cinzel',serif;font-weight:400;font-size:clamp(11px,1.3vw,13.5px);
-  letter-spacing:.3em;text-transform:uppercase;color:var(--gold);white-space:nowrap;}
-.r-h::before,.r-h::after{content:'';height:1px;flex:1;min-width:18px;
-  background:linear-gradient(to right,transparent,rgba(201,168,76,.32),transparent);}
-.r-h:first-child{margin-top:0;}
-.r-keys{display:block;margin-top:5px;max-width:170px;font-family:'IM Fell English',serif;
-  font-style:italic;font-size:clamp(9px,1vw,11.5px);line-height:1.6;color:var(--ink-faint);}
-.r-card{cursor:zoom-in;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;}
-.r-card:hover{transform:translateY(-7px);box-shadow:0 18px 48px rgba(0,0,0,.66),0 0 30px rgba(201,168,76,.16);}
-.r-cards.flat .r-slot{transform:none;}
-.r-cards.flat .r-label{transform:none;}
-.r-cards.single{justify-content:center;}
-.r-slot:nth-child(4).show{animation-delay:.44s;}
-.r-slot:nth-child(5).show{animation-delay:.57s;}
-
 /* production trust boundary */
 .disclaimer{
   width:min(560px,88vw);margin:0 auto 18px;
@@ -639,18 +508,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
 }
 .reading-language{position:fixed;top:24px;right:26px;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:nowrap;color:var(--ink-dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fu 1s ease .65s both}.language-options{display:inline-flex;gap:5px;padding:4px;border:1px solid rgba(201,168,76,.22);border-radius:999px;background:rgba(10,7,1,.58);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}.language-btn{min-height:32px;padding:0 11px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;cursor:pointer;transition:.22s ease}.language-btn:hover,.language-btn.active{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.13);box-shadow:0 0 18px rgba(201,168,76,.08)}@media(max-width:720px){.reading-language{top:calc(env(safe-area-inset-top) + 12px);right:14px;left:auto;font-size:0}.language-options{padding:3px;gap:4px;background:rgba(8,5,2,.68);border-color:rgba(232,201,106,.25)}.language-btn{min-height:32px;padding:0 10px;font-size:10px}.fo{inset:10px;border-color:rgba(201,168,76,.22)}.fi{inset:16px}.co{width:30px;height:30px}.as{display:none}.screen{height:100svh}.mobile-premium-tarot-shell{justify-content:flex-start;padding:calc(env(safe-area-inset-top) + 66px) 18px calc(env(safe-area-inset-bottom) + 22px);overflow:hidden}.cover-sigil{margin-bottom:14px}.cover-sigil svg{width:50px;height:50px}.cover-rule{width:100%;margin-bottom:12px}.cover-eyebrow{font-size:8px;letter-spacing:.25em;margin-bottom:10px}.cover-title{max-width:340px;font-size:clamp(31px,10vw,44px);line-height:1.12;letter-spacing:.035em;text-wrap:pretty}.cover-subtitle{font-size:14px;letter-spacing:.15em}.cover-byline{font-size:11px;letter-spacing:.08em}.disclaimer{width:100%;max-width:330px;margin:8px auto 12px;font-size:10.5px;line-height:1.65;letter-spacing:.03em}.cover-rule2{display:none}.mobile-cover-oracle-card{width:min(100%,360px);margin:8px auto 16px;padding:16px 14px 14px;position:relative;background:linear-gradient(180deg,rgba(38,25,9,.72),rgba(13,8,3,.42));border:1px solid rgba(201,168,76,.23);box-shadow:0 18px 48px rgba(0,0,0,.34),inset 0 1px 0 rgba(232,201,106,.08)}.mobile-cover-oracle-card::before,.mobile-cover-oracle-card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(232,201,106,.48);border-style:solid}.mobile-cover-oracle-card::before{top:7px;left:7px;border-width:1px 0 0 1px}.mobile-cover-oracle-card::after{right:7px;bottom:7px;border-width:0 1px 1px 0}.mobile-ritual-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,168,76,.62)}.mobile-oracle-line{height:1px;margin-bottom:12px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.32),transparent)}.cover-q-wrap{width:100%;margin-bottom:0}.cover-q-label{font-size:8px;letter-spacing:.22em;line-height:1.55;margin-bottom:9px}.cover-q{min-height:104px;padding:14px 13px;font-size:15px;line-height:1.7;border:1px solid rgba(201,168,76,.24);background:rgba(5,3,1,.32);text-align:left;border-radius:12px}.cover-q::placeholder{text-align:center}.cover-begin{width:min(100%,340px)}.cover-begin .btn,.btn{min-height:44px}.cover-begin .btn{width:100%;font-size:9px;letter-spacing:.32em}#s1{height:100svh;padding:calc(env(safe-area-inset-top) + 54px) 12px calc(env(safe-area-inset-bottom) + 18px);justify-content:space-between}.pick-top{width:min(100%,360px);padding:10px 12px 8px;background:linear-gradient(180deg,rgba(28,18,7,.54),rgba(10,6,2,.16));border:1px solid rgba(201,168,76,.16);box-shadow:0 14px 34px rgba(0,0,0,.18)}.pick-top h2{font-size:clamp(17px,5.2vw,22px);line-height:1.15;letter-spacing:.08em;text-wrap:pretty}.pick-top p{font-size:8px;letter-spacing:.23em}.pick-q-display{max-width:300px;font-size:12px;line-height:1.42;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.pg{margin-top:7px}.pg-d{width:28px;height:4px}#stage-wrap{min-height:52svh;width:100%;filter:drop-shadow(0 18px 28px rgba(0,0,0,.28))}.pick-bot{width:min(100%,360px);gap:9px;padding:10px 10px 0}.st{font-size:12.5px;line-height:1.35;min-height:18px;color:rgba(181,164,138,.82)}.bts{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}.bts .btn{width:100%;padding:0 10px;font-size:8.5px;letter-spacing:.22em}.bts .btn.pr:nth-child(2){grid-column:1/-1}.cb-sym{font-size:25px}.cf .lbl{font-size:7px;padding:5px 3px 6px}.cf .ori{font-size:5.5px}#s2{height:100svh;background:linear-gradient(180deg,rgba(20,12,4,.28),rgba(5,3,1,.12))}.reading-inner{max-width:100%;padding:calc(env(safe-area-inset-top) + 54px) 16px calc(env(safe-area-inset-bottom) + 92px);align-items:stretch}.mobile-card-spread-scroll{justify-content:flex-start;align-items:flex-start;gap:14px;margin:0 -16px 24px;padding:8px 16px 18px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}.mobile-card-spread-scroll::-webkit-scrollbar{display:none}.r-slot{min-width:118px;scroll-snap-align:center}.r-slot:nth-child(n){transform:none}.r-slot:nth-child(n) .r-label{transform:none}.r-card{border-radius:13px;box-shadow:0 14px 38px rgba(0,0,0,.58),0 0 0 1px rgba(232,201,106,.04)}.r-label{margin-top:10px;padding:0 2px}.r-pos{font-size:8px;letter-spacing:.28em}.r-name{font-size:13px}.r-en{font-size:11px}.r-orient{font-size:8px;padding:4px 9px}.rule{margin:10px 0 16px}.r-question{max-width:100%;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.025);border-radius:16px;font-size:15px;line-height:1.75;text-wrap:pretty}.r-disclaimer{font-size:11px;line-height:1.65;margin-bottom:14px;border-radius:16px;background:rgba(255,255,255,.028)}.mobile-reading-panel{padding:24px 18px;border-radius:20px;background:linear-gradient(180deg,rgba(45,30,10,.9),rgba(13,8,3,.98));border-color:rgba(201,168,76,.24);box-shadow:0 22px 58px rgba(0,0,0,.38),inset 0 1px 0 rgba(232,201,106,.08)}.r-text{font-size:16px;line-height:2.02;letter-spacing:.01em;text-wrap:pretty}.r-text::first-letter{font-size:1.35em}.mobile-sticky-actions{position:sticky;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:5;margin:8px -4px 0;padding:10px 8px;border:1px solid rgba(201,168,76,.16);border-radius:18px;background:rgba(10,7,2,.72);backdrop-filter:blur(14px);box-shadow:0 16px 40px rgba(0,0,0,.34)}.mobile-sticky-actions .btn{flex:1 1 130px;padding:0 10px;font-size:8.5px;letter-spacing:.18em}}
 
-@media(max-width:720px){
-  .mobile-premium-tarot-shell{overflow-y:auto;justify-content:flex-start;}
-  .journal-toggle{top:calc(env(safe-area-inset-top) + 12px);left:14px;}
-  .journal-btn{min-height:32px;padding:0 11px;font-size:9px;letter-spacing:.08em;}
-  .opt-group{margin-bottom:11px;}
-  .opt-label{letter-spacing:.22em;}
-  .chip{font-size:12px;padding:5px 12px;}
-  .daily-row{font-size:12px;padding:8px 11px;flex-wrap:wrap;}
-  .r-keys{max-width:130px;font-size:10px;}
-  .lb-name{font-size:18px;}
-  .r-h{letter-spacing:.2em;white-space:normal;}
-}
 </style>
 </head>
 <body>
@@ -663,11 +520,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   </div>
 </div>
 
-<div class="journal-toggle">
-  <button class="journal-btn" type="button" onclick="openJournal()">☾&nbsp; Journal · 手記</button>
-</div>
-
-<div class="ly-v"></div><div class="ly-g"></div><div class="grain"></div>
+<div class="ly-v"></div><div class="ly-g"></div>
 <div class="fo"></div><div class="fi"></div>
 <div class="co tl"><svg viewBox="0 0 40 40" fill="none">
   <path d="M2 2L2 14M2 2L14 2" stroke="rgba(201,168,76,.55)" stroke-width="1"/>
@@ -734,22 +587,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
 
     <div class="mobile-cover-oracle-card">
       <div class="mobile-ritual-meta">
-        <span id="ritualSpreadMeta">3 Card Spread</span><span>Rider Waite Smith</span>
+        <span>3 Card Spread</span><span>Rider Waite Smith</span>
       </div>
       <div class="mobile-oracle-line"></div>
-      <div class="daily-row" id="dailyRow" role="button" tabindex="0"
-        onclick="revealDailyCard()" onkeydown="if(event.key==='Enter')revealDailyCard()">
-        <span class="d-tag">Card of the Day</span>
-        <span class="d-val" id="dailyVal">✦ 點擊揭曉今日之牌</span>
-      </div>
-      <div class="opt-group">
-        <span class="opt-label">Spread · 牌陣</span>
-        <div class="opt-chips" id="spreadChips"></div>
-      </div>
-      <div class="opt-group">
-        <span class="opt-label">Focus · 問題領域</span>
-        <div class="opt-chips" id="catChips"></div>
-      </div>
       <div class="cover-q-wrap">
       <label class="cover-q-label" for="coverQ">✦ &nbsp; What does your heart seek clarity on? &nbsp; ✦</label>
       <textarea class="cover-q" id="coverQ" rows="3"
@@ -768,7 +608,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
       <h2>Choose Your Cards</h2>
       <p>✦ &nbsp; draw three to open the reading &nbsp; ✦</p>
       <p class="pick-q-display" id="pickQDisplay"></p>
-      <div class="pg" id="pg"></div>
+      <div class="pg">
+        <div class="pg-d" id="p0"></div>
+        <div class="pg-d" id="p1"></div>
+        <div class="pg-d" id="p2"></div>
+      </div>
     </div>
 
     <div id="stage-wrap"><div id="stage"></div></div>
@@ -807,7 +651,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
       <div class="r-actions mobile-sticky-actions">
         <button class="btn" onclick="backToPick()">← Draw Again</button>
         <button class="btn" onclick="resetAll()">↩ Start Over</button>
-        <button class="btn" id="btnSave" onclick="downloadReading()" style="display:none">Save Reading</button>
         <button class="btn pr" id="btnCopy" onclick="copyReading()" style="display:none">Copy Reading</button>
       </div>
 
@@ -828,22 +671,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
       <button class="btn pr" type="button" id="accessSubmit">Begin</button>
     </div>
   </div>
-</div>
-
-<div class="journal-modal" id="journalModal" aria-hidden="true">
-  <div class="journal-card" role="dialog" aria-modal="true" aria-labelledby="journalTitle">
-    <h2 class="journal-title" id="journalTitle">Reading Journal</h2>
-    <p class="journal-sub">過往的占卜只留存在這部裝置上 · readings are kept on this device only</p>
-    <div class="journal-list" id="journalList"></div>
-    <div class="journal-foot">
-      <button class="btn" type="button" onclick="clearJournal()">Clear All</button>
-      <button class="btn pr" type="button" onclick="closeJournal()">Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="card-lightbox" id="cardLightbox" aria-hidden="true" onclick="closeLightbox()">
-  <div class="lb-inner" id="lbInner"></div>
 </div>
 
 <script>
@@ -930,25 +757,6 @@ const SUITS=[
 ];
 const RZH=['A','二','三','四','五','六','七','八','九','十','侍者','騎士','皇后','國王'];
 const REN=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
-
-/* ══ 牌陣與問題領域 ══ */
-const SPREADS={
-  one:{count:1,zh:'單牌指引',en:'One Card',posZh:['指引'],posEn:['Insight'],meta:'1 Card Spread',tokens:900},
-  time:{count:3,zh:'時間之流',en:'Time Flow',posZh:['過去','現在','未來'],posEn:['Past','Present','Future'],meta:'3 Card Spread',tokens:1400},
-  mirror:{count:3,zh:'心境之鏡',en:'Mind Mirror',posZh:['情境','挑戰','指引'],posEn:['Situation','Challenge','Guidance'],meta:'3 Card Spread',tokens:1400},
-  star:{count:5,zh:'五芒星陣',en:'Five Star',posZh:['現狀','阻礙','根源','助力','趨勢'],posEn:['Present','Obstacle','Root','Support','Direction'],meta:'5 Card Spread',tokens:1900},
-};
-const CATS=[
-  {id:'general',zh:'綜合',en:'General'},
-  {id:'love',zh:'愛情',en:'Love'},
-  {id:'career',zh:'事業',en:'Career'},
-  {id:'wealth',zh:'財務',en:'Wealth'},
-  {id:'growth',zh:'成長',en:'Growth'},
-  {id:'social',zh:'人際',en:'People'},
-];
-let currentSpread='time',currentCategory='general';
-
-function escHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
 /* 維基共享資源 Rider–Waite–Smith 掃圖（公有领域常见收录）；失敗時用 cardSvg 備援 */
 const RWS_MAJOR_FILES=[
@@ -1067,29 +875,14 @@ function goToScreen(n){
   screensEl.style.transform=`translateX(-${n*100}vw)`;
 }
 function ss(t,c=''){stEl.className='st'+(c?' '+c:'');stEl.textContent=t;}
-function buildPg(){
-  const n=SPREADS[currentSpread].count;
-  document.getElementById('pg').innerHTML=Array.from({length:n},()=>'<div class="pg-d"></div>').join('');
-}
-function updPg(){
-  document.querySelectorAll('#pg .pg-d').forEach((d,i)=>d.classList.toggle('on',drawn.length>i));
-}
+function updPg(){for(let i=0;i<3;i++)document.getElementById('p'+i).className='pg-d'+(drawn.length>i?' on':'');}
 
 /* ══ 封面 → 抽牌 ══ */
 function goToPick(){
   userQuestion = document.getElementById('coverQ').value.trim();
   const qd=document.getElementById('pickQDisplay');
   qd.textContent = userQuestion ? `"${userQuestion}"` : '';
-  drawn=[]; done=picking=false; sway=0; swayDir=1; lastReadingText='';
   deck=cryptoShuffle(buildDeck());
-  buildPg(); updPg();
-  btnRead.disabled=true;
-  btnAgain.style.display='none';
-  btnShuf.style.display='';
-  const n=SPREADS[currentSpread].count;
-  const numWord=['one','two','three','four','five'][n-1]||n;
-  document.querySelector('.pick-top p').innerHTML=`✦ &nbsp; draw ${numWord} ${n>1?'cards':'card'} to open the reading &nbsp; ✦`;
-  ss('Touch any card to begin drawing');
   buildFan(false);
   goToScreen(1);
   setTimeout(startSway,400);
@@ -1114,11 +907,13 @@ function restoreReading(text){
   const out=document.getElementById('rOutput');
   out.style.display='block';
   out.className='r-output';
-  out.innerHTML='<div class="r-text">'+readingHtml(text)+'</div>';
+  const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  out.innerHTML='<div class="r-text">'+
+    text.split(/\n{2,}|\n/).filter(p=>p.trim()).map(p=>'<p>'+esc(p.trim())+'</p>').join('')+
+    '</div>';
   document.getElementById('btnGen').style.display='none';
   document.getElementById('btnRetry').style.display='';
   document.getElementById('btnCopy').style.display='';
-  document.getElementById('btnSave').style.display='';
 }
 
 /* ══ 布局计算 ══ */
@@ -1248,8 +1043,7 @@ function stopSway(){if(raf){cancelAnimationFrame(raf);raf=null;}}
 
 /* ══ 抽牌 ══ */
 function onPick(idx){
-  const N=SPREADS[currentSpread].count;
-  if(picking||done||drawn.includes(idx)||drawn.length>=N) return;
+  if(picking||done||drawn.includes(idx)||drawn.length>=3) return;
   picking=true;
   const c=deck[idx],slot=drawn.length;
   const el=stageEl.querySelector(`[data-i="${idx}"]`);
@@ -1286,16 +1080,16 @@ function onPick(idx){
     el.style.pointerEvents='none';
     drawn.push(idx); updPg(); picking=false;
     // 恢复其他牌的摇摆
-    if(drawn.length<N) startSway();
-    if(drawn.length===N){
+    if(drawn.length<3) startSway();
+    if(drawn.length===3){
       done=true; stopSway();
       stageEl.querySelectorAll('.card:not(.pk)').forEach(e=>e.classList.add('dm'));
-      ss(N===1?'Your card is drawn — the reading awaits':'All cards drawn — your reading awaits','rdy');
+      ss('Three cards drawn — your reading awaits','rdy');
       btnRead.disabled=false;
       btnAgain.style.display='';
       btnShuf.style.display='none';
     } else {
-      ss(`${N-drawn.length} card${N-drawn.length>1?'s':''} remaining`);
+      ss(`${3-drawn.length} card${3-drawn.length>1?'s':''} remaining`);
     }
   },820);
 }
@@ -1303,27 +1097,22 @@ function onPick(idx){
 /* ══ 构建解读屏 ══ */
 function buildReadingScreen(){
   const {VW,VH}=getLayout();
-  const spread=SPREADS[currentSpread];
   const isMobileReading = VW <= MOBILE_DRAW_BREAKPOINT;
-  const fiveUp = spread.count>=5;
   const rh=isMobileReading
     ? Math.min(Math.floor(VH*0.32),210,Math.floor(VW*0.52/0.618))
-    : Math.min(Math.floor(VH*0.34),fiveUp?170:190,Math.floor(VW*(fiveUp?0.115:0.17)));
+    : Math.min(Math.floor(VH*0.34),190,Math.floor(VW*0.17));
   const rw=Math.round(rh*0.618);
 
   const rCards=document.getElementById('rCards');
   rCards.innerHTML='';
-  rCards.classList.toggle('flat', spread.count!==3);
-  rCards.classList.toggle('single', spread.count===1);
+  const posLabels=['Past','Present','Future'];
   drawn.forEach((idx,i)=>{
     const c=deck[idx];
-    const m=meaningFor(c.key);
-    const kw=m?(c.rev?m.reversed:m.upright):'';
     const slot=document.createElement('div');
     slot.className='r-slot';
     slot.id='rslot'+i;
     slot.innerHTML=`
-      <div class="r-card${c.rev?' rv':''}" style="width:${rw}px;height:${rh}px" title="View card meaning · 查看牌義">
+      <div class="r-card${c.rev?' rv':''}" style="width:${rw}px;height:${rh}px">
         <div class="img-wrap">
           <img src="${c.img}" alt="${c.zh}" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
             onload="markImageLoaded(this)"
@@ -1331,13 +1120,11 @@ function buildReadingScreen(){
         </div>
       </div>
       <div class="r-label">
-        <span class="r-pos">${spread.posEn[i]}</span>
+        <span class="r-pos">${posLabels[i]}</span>
         <span class="r-name">${c.zh}</span>
         <span class="r-en">${c.en}</span>
         <span class="r-orient${c.rev?' rev':''}">${c.rev?'逆位 · Reversed':'正位 · Upright'}</span>
-        ${kw?`<span class="r-keys">${escHtml(kw)}</span>`:''}
       </div>`;
-    slot.querySelector('.r-card').addEventListener('click',()=>openLightbox(idx,spread.posEn[i]));
     rCards.appendChild(slot);
     setTimeout(()=>slot.classList.add('show'), i*140+60);
   });
@@ -1369,7 +1156,7 @@ const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的�
 
 鐵律（絕對禁止違反）：
 - 必須嚴格使用下方提供的 Rider-Waite 標準牌義，不得自行添加或修改意義。
-- 每次解讀必須根據這次牌陣的獨特組合重新組織故事，嚴禁使用任何固定模板句子。
+- 每次解讀必須根據這三張牌的獨特組合重新組織故事，嚴禁使用任何固定模板句子。
 - 呈現方式必須像一份完整的專業塔羅諮詢報告，不是只回答一句問題。
 - 不要只局限在單張牌義或單一問題答案；要把牌陣放到更大的生命情境與心理脈絡裡理解。
 - 從整體能量、內在狀態、外部互動、時間節奏與可選路徑去解讀。
@@ -1384,25 +1171,21 @@ const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的�
 
 【解牌邏輯】
 每次解讀時請嚴格按照以下內部流程（不要在輸出中提到）：
-1. 理解用户问题的核心情緒與需求，並對準用戶選擇的問題領域。
-2. 分析這幾張牌的具體意義，並自然連結成前因後果的故事。
+1. 理解用户问题的核心情緒與需求。
+2. 分析這三張牌的具體意義，並自然連結成前因後果的故事。
 3. 先拉高視角觀察整體主題：這組牌反映的是哪一種生命階段、情緒模式、關係動力或行動節奏。
-4. 再回到牌面細節，依用戶訊息標注的牌陣位置，說明各位置之間的能量流動與轉折。
+4. 再回到牌面細節，說明過去、現在、未來之間的能量流動與轉折。
 5. 清楚說明目前真實情況、潛在盲點、外部互動與可選路徑。
 6. 給出2-3個實際、可立即執行的建議。
 7. 用一句溫和的話結尾，並提醒「選擇權仍然在用戶手上」。
 
 輸出要求：
-- 用「## 標題」單獨成行來劃分段落，依序輸出：## 整體能量、## 逐張細讀、## 牌與牌的對話、## 給你的方向、## 結語。
-- 單牌牌陣時省略「## 牌與牌的對話」，其餘段落保留。
-- 標題行以外只寫自然流暢的敘事文字，不用條列、編號、JSON 或其他 Markdown 符號。
-- 「逐張細讀」要按牌陣位置逐一展開，每張牌都要連回用户的問題，而不是背誦牌義。
-- 繁體中文；長度依牌陣張數調整：單張約300-450字，三張約550-750字，五張約750-950字。
+- 只輸出純文字、自然流暢的敘事，絕不使用標題、條列、JSON 或 Markdown。
+- 繁體中文，約400-550字。
 - 用簡單大白話，像朋友在聊天。
 - 開頭先簡單點出用户问题的核心。
-- 若用戶選擇了問題領域（愛情、事業、財務、成長、人際），解讀重心要落在該領域，但仍可指出跨領域的連動。
 - 最後一段不要像老師下指令，要像朋友坐在對面提醒：可以給方向，但保留空間，讓用戶感覺被理解而不是被要求。
-- 每次都根據這組牌的獨特能量重新撰寫，避免任何重複句型。`;
+- 每次都根據這三張牌的獨特能量重新撰寫，避免任何重複句型。`;
 
 const ENGLISH_SYSTEM_PROMPT=`You are Elena Voss, a calm professional tarot reader with 20 years of experience reading the Rider-Waite-Smith tarot. You only use the standard 78-card Rider-Waite-Smith system.
 
@@ -1415,7 +1198,7 @@ Core philosophy:
 Professional reading rules:
 - Write directly in polished natural English. Do not translate from Chinese.
 - Interpret each card according to its Rider-Waite-Smith meaning, orientation, and spread position.
-- Connect the drawn cards into one coherent reading rather than listing generic meanings.
+- Connect the three cards into one coherent reading rather than listing generic meanings.
 - Do not stay confined to literal single-card meanings or a narrow answer to one question.
 - First zoom out from individual card meanings and name the broader energetic pattern of the spread.
 - Include inner state, external dynamics, timing, and possible paths before giving grounded guidance.
@@ -1425,11 +1208,9 @@ Professional reading rules:
 - When giving final guidance, sound conversational, warm, and human — like a reader gently talking with the user across the table. Do not sound like a rigid checklist or command.
 
 Output structure:
-- Mark each section with a line that starts with "## ", and use these clear section labels exactly once: Opening Insight, Card-by-Card Reading, Pattern Between the Cards, Grounded Guidance, Closing Reflection.
-- For a one-card spread, omit the "Pattern Between the Cards" section and keep the rest.
-- Write in natural paragraphs under each label, with no other Markdown, lists, or numbering.
-- Scale the length to the spread: about 250-400 words for one card, 500-750 for three cards, 700-950 for five cards.
-- If the user names a focus area (love, career, finances, growth, relationships), keep the reading centred on it while noting meaningful crossovers.
+- Use these clear section labels exactly once: Opening Insight, Card-by-Card Reading, Pattern Between the Cards, Grounded Guidance, Closing Reflection.
+- Write in natural paragraphs under each label.
+- Keep the reading around 500-750 English words.
 - The ending must remind the user that the final choice remains theirs.
 - If the question touches health, legal, financial, or psychological crisis topics, include a calm reminder to seek a qualified professional.`;
 
@@ -1652,9 +1433,7 @@ async function generateReading(){
   const btnRetry=document.getElementById('btnRetry');
 
   const readingLanguage=getReadingLanguage();
-  const spread=SPREADS[currentSpread];
-  const cat=CATS.find(c=>c.id===currentCategory)||CATS[0];
-  const positionLabels=readingLanguage==='en'?spread.posEn:spread.posZh;
+  const positionLabels=readingLanguage==='en'?['Past','Present','Future']:['過去','現在','未來'];
   const cards = drawn.map((idx,s)=>({
     pos:positionLabels[s],
     zh:deck[idx].zh, en:deck[idx].en, rev:deck[idx].rev
@@ -1672,8 +1451,8 @@ async function generateReading(){
     return;
   }
   const userPrompt = readingLanguage==='en'
-    ? `Spread: ${spread.en} (${spread.count} card${spread.count>1?'s':''})\nFocus area: ${cat.en}\nUser question: ${q}\n\nDrawn cards:\n${cardLines}`
-    : `牌陣：${spread.zh}（${spread.count}張）\n問題領域：${cat.zh}\n用户问题：${q}\n\n抽到的牌：\n${cardLines}`;
+    ? `User question: ${q}\n\nDrawn cards:\n${cardLines}`
+    : `用户问题：${q}\n\n抽到的牌：\n${cardLines}`;
 
   btnGen.disabled=true; btnGen.style.display='none';
   btnRetry.style.display='none';
@@ -1681,7 +1460,6 @@ async function generateReading(){
   out.style.display='block';
   out.className='r-output loading';
   out.innerHTML=witchLoadingMarkup(readingLanguage);
-  try{out.scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}
 
   try{
     const resp = await fetch(TAROT_MESSAGES_URL,{
@@ -1689,7 +1467,7 @@ async function generateReading(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-3-5-sonnet-20241022',
-        max_tokens:spread.tokens,
+        max_tokens:1400,
         stream:true,
         access_code:accessCode,
         language:readingLanguage,
@@ -1729,24 +1507,15 @@ async function generateReading(){
       return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
     function appendStableReadingBlock(block){
-      let node;
-      if(/^##/.test(block)){
-        node=document.createElement('h3');
-        node.className='r-h reading-reveal';
-        node.textContent=block.replace(/^#+\s*/,'');
-      }else{
-        node=document.createElement('p');
-        node.className='reading-reveal';
-        node.innerHTML=escapeHtml(block);
-      }
-      textEl.appendChild(node);
+      const p=document.createElement('p');
+      p.className='reading-reveal';
+      p.innerHTML=escapeHtml(block);
+      textEl.appendChild(p);
       renderedBlocks++;
     }
     function extractReadableBlocks(force=false){
       const blocks=[];
       let source=holdingBuffer.replace(/\r\n/g,'\n');
-      // 「## 標題」行獨立成塊，前後都斷開，方便渲染為章節標題
-      source=source.replace(/[ \t]*##/g,'\n\n##').replace(/(##[^\n]*)\n/g,'$1\n\n');
       const re=/\n{2,}|(?<=[。！？!?])\s+|(?<=[.!?])\s+/g;
       let start=0, match;
       while((match=re.exec(source))){
@@ -1795,9 +1564,7 @@ async function generateReading(){
     // 结束时强制渲染剩余文本
     renderReadingTextComfortably('', true);
     lastReadingText=full;
-    saveReadingToJournal();
     document.getElementById('btnCopy').style.display='';
-    document.getElementById('btnSave').style.display='';
     btnRetry.style.display='';
 
   }catch(e){
@@ -1820,203 +1587,11 @@ async function generateReading(){
 
 function copyReading(){
   if(!lastReadingText) return;
-  navigator.clipboard.writeText(buildExportText()).then(()=>{
+  navigator.clipboard.writeText(lastReadingText).then(()=>{
     const b=document.getElementById('btnCopy');
     b.textContent='Copied ✓';
     setTimeout(()=>b.textContent='Copy Reading',2000);
   });
-}
-
-/* ══ 牌義知識庫（解析自系統提示詞，單一資料來源）══ */
-const TAROT_DB=(()=>{
-  try{
-    const a=SYSTEM_PROMPT.indexOf('{"majorArcana"');
-    const b=SYSTEM_PROMPT.indexOf('【解牌邏輯】');
-    return JSON.parse(SYSTEM_PROMPT.slice(a,b).trim());
-  }catch(_){return null;}
-})();
-const SUIT_DB_KEY={wa:'wands',cu:'cups',sw:'swords',pe:'pentacles'};
-function meaningFor(key){
-  if(!TAROT_DB||!key) return null;
-  if(key[0]==='m') return TAROT_DB.majorArcana[+key.slice(1)]||null;
-  const arr=TAROT_DB.minorArcana[SUIT_DB_KEY[key.slice(0,2)]]||[];
-  return arr[+key.slice(2)-1]||null;
-}
-
-/* ══ 解讀文本渲染 / 導出 ══ */
-function readingHtml(text){
-  return String(text).split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>
-    /^##/.test(l)
-      ? `<h3 class="r-h">${escHtml(l.replace(/^#+\s*/,''))}</h3>`
-      : `<p>${escHtml(l)}</p>`).join('');
-}
-function plainReading(){
-  return String(lastReadingText).replace(/^#+\s*(.+)$/gm,'✦ $1 ✦');
-}
-function buildExportText(){
-  const spread=SPREADS[currentSpread];
-  const cardLines=drawn.map((idx,i)=>{
-    const c=deck[idx];
-    return `${spread.posEn[i]}：${c.zh}（${c.en}）· ${c.rev?'逆位':'正位'}`;
-  }).join('\n');
-  return [
-    'Intuitive Tarot · Listen to Your Soul',
-    new Date().toLocaleString(),
-    `${spread.zh} · ${spread.en}`,
-    ...(userQuestion?[`問題：${userQuestion}`]:[]),
-    '',
-    cardLines,
-    '',
-    plainReading(),
-    '',
-    '— 塔羅解讀僅供自我覺察與娛樂參考 —',
-  ].join('\n');
-}
-function downloadReading(){
-  if(!lastReadingText) return;
-  const blob=new Blob([buildExportText()],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='tarot-reading-'+new Date().toISOString().slice(0,10)+'.txt';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-}
-
-/* ══ 占卜手記（僅存於本機）══ */
-const JOURNAL_KEY='TAROT_JOURNAL_V1';
-function loadJournal(){
-  try{const a=JSON.parse(localStorage.getItem(JOURNAL_KEY)||'[]');return Array.isArray(a)?a:[];}catch(_){return [];}
-}
-function persistJournal(list){
-  try{localStorage.setItem(JOURNAL_KEY,JSON.stringify(list.slice(0,30)));}catch(_){}
-}
-function saveReadingToJournal(){
-  if(!lastReadingText) return;
-  const spread=SPREADS[currentSpread];
-  const entry={
-    t:Date.now(),
-    q:userQuestion,
-    lang:getReadingLanguage(),
-    spread:`${spread.zh} · ${spread.en}`,
-    cards:drawn.map((idx,i)=>{const c=deck[idx];return {pos:spread.posEn[i],zh:c.zh,en:c.en,rev:!!c.rev};}),
-    text:lastReadingText,
-  };
-  const list=loadJournal();
-  list.unshift(entry);
-  persistJournal(list);
-}
-function openJournal(){
-  renderJournal();
-  const m=document.getElementById('journalModal');
-  m.classList.add('show');m.setAttribute('aria-hidden','false');
-}
-function closeJournal(){
-  const m=document.getElementById('journalModal');
-  m.classList.remove('show');m.setAttribute('aria-hidden','true');
-}
-function clearJournal(){persistJournal([]);renderJournal();}
-function renderJournal(){
-  const list=loadJournal();
-  const wrap=document.getElementById('journalList');
-  if(!list.length){
-    wrap.innerHTML='<div class="journal-empty">還沒有留下任何占卜記錄<br>completed readings will gather here</div>';
-    return;
-  }
-  wrap.innerHTML=list.map((e,i)=>{
-    const d=new Date(e.t||Date.now());
-    const date=`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-    const cards=(e.cards||[]).map(c=>`${escHtml(c.pos)} · ${escHtml(c.zh)} ${c.rev?'逆位':'正位'}`).join('　');
-    return `<div class="j-item">
-      <div class="j-head" role="button" tabindex="0">
-        <span class="j-date">${date}</span>
-        <span class="j-q">${escHtml(e.q||'（未填寫問題）')}</span>
-        <button class="j-del" type="button" title="刪除這條記錄" data-del="${i}">✕</button>
-      </div>
-      <div class="j-body">
-        <div class="j-cards">${escHtml(e.spread||'')}<br>${cards}</div>
-        <div class="j-text">${readingHtml(e.text||'')}</div>
-      </div>
-    </div>`;
-  }).join('');
-  wrap.querySelectorAll('.j-head').forEach(h=>h.addEventListener('click',ev=>{
-    if(ev.target.closest('.j-del')) return;
-    h.parentElement.classList.toggle('open');
-  }));
-  wrap.querySelectorAll('.j-del').forEach(b=>b.addEventListener('click',()=>{
-    const remaining=loadJournal();
-    remaining.splice(+b.dataset.del,1);
-    persistJournal(remaining);
-    renderJournal();
-  }));
-}
-
-/* ══ 牌面燈箱 ══ */
-function openLightbox(idx,pos){
-  const c=deck[idx];
-  if(!c) return;
-  const m=meaningFor(c.key)||{};
-  document.getElementById('lbInner').innerHTML=`
-    <img class="lb-img${c.rev?' rv':''}" src="${c.img}" alt="${escHtml(c.zh)}" referrerpolicy="no-referrer"
-      data-fb="${encodeURIComponent(c.fallback)}" onerror="this.onerror=null;this.src=decodeURIComponent(this.dataset.fb)">
-    <div class="lb-info">
-      <div class="lb-name">${escHtml(c.zh)}<span class="lb-pos">${escHtml(pos||'')}</span></div>
-      <div class="lb-en">${escHtml(c.en)} · ${c.rev?'Reversed 逆位':'Upright 正位'}</div>
-      <div class="lb-m${c.rev?'':' cur'}"><b>Upright · 正位</b>${escHtml(m.upright||'—')}</div>
-      <div class="lb-m${c.rev?' cur':''}"><b>Reversed · 逆位</b>${escHtml(m.reversed||'—')}</div>
-      <div class="lb-hint">點擊任意處關閉 · tap anywhere to close</div>
-    </div>`;
-  const lb=document.getElementById('cardLightbox');
-  lb.classList.add('show');lb.setAttribute('aria-hidden','false');
-}
-function closeLightbox(){
-  const lb=document.getElementById('cardLightbox');
-  lb.classList.remove('show');lb.setAttribute('aria-hidden','true');
-}
-
-/* ══ 每日一牌 ══ */
-const DAILY_REVEAL_KEY='TAROT_DAILY_REVEAL';
-function todayKey(){
-  const d=new Date();
-  return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
-}
-function getDailyCard(){
-  let h=(todayKey()*2654435761)>>>0;
-  h^=h>>>13;h=(h*2246822519)>>>0;h^=h>>>16;
-  const idx=h%78,rev=((h>>>7)&1)===1;
-  if(idx<22) return {zh:MAJOR[idx].zh,en:MAJOR[idx].en,key:'m'+idx,rev};
-  const s=SUITS[Math.floor((idx-22)/14)],n=(idx-22)%14+1;
-  return {zh:s.zh+RZH[n-1],en:`${REN[n-1]} of ${s.en}`,key:s.p+n,rev};
-}
-function revealDailyCard(){
-  const c=getDailyCard(),m=meaningFor(c.key);
-  const kw=m?(c.rev?m.reversed:m.upright):'';
-  document.getElementById('dailyVal').innerHTML=
-    `<b>${escHtml(c.zh)} · ${c.rev?'逆位':'正位'}</b>　${escHtml(kw)}`;
-  try{localStorage.setItem(DAILY_REVEAL_KEY,String(todayKey()));}catch(_){}
-}
-function initDailyCard(){
-  try{if(localStorage.getItem(DAILY_REVEAL_KEY)===String(todayKey())) revealDailyCard();}catch(_){}
-}
-
-/* ══ 牌陣 / 領域選擇 ══ */
-function renderOptionChips(){
-  const sc=document.getElementById('spreadChips');
-  sc.innerHTML=Object.entries(SPREADS).map(([id,s])=>
-    `<button type="button" class="chip${id===currentSpread?' on':''}" data-spread="${id}">${s.zh}<small>${s.en} · ${s.count}</small></button>`).join('');
-  sc.querySelectorAll('[data-spread]').forEach(b=>b.addEventListener('click',()=>{
-    currentSpread=b.dataset.spread;
-    document.getElementById('ritualSpreadMeta').textContent=SPREADS[currentSpread].meta;
-    renderOptionChips();
-  }));
-  const cc=document.getElementById('catChips');
-  cc.innerHTML=CATS.map(c=>
-    `<button type="button" class="chip${c.id===currentCategory?' on':''}" data-cat="${c.id}">${c.zh}<small>${c.en}</small></button>`).join('');
-  cc.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click',()=>{
-    currentCategory=b.dataset.cat;
-    renderOptionChips();
-  }));
 }
 
 /* ══ 洗牌（回到抽牌页）══ */
@@ -2069,17 +1644,9 @@ document.getElementById('coverQ').addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();goToPick();}
 });
 
-// Esc 關閉燈箱與手記
-window.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeLightbox();closeJournal();}
-});
-
 // 页面加载后立即开始预加载所有牌面图片
 preloadAllImages();
 syncReadingLanguageUI();
-renderOptionChips();
-initDailyCard();
-buildPg();
 
 let rt=null;
 window.addEventListener('resize',()=>{
