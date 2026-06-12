@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Assisted Tarot Reading · Intuitive Tarot</title>
+<meta name="description" content="线上塔罗占卜：写下你的问题，抽三张 Rider-Waite 塔罗牌，获得一份温和而专业的解读。仅供自我觉察与娱乐参考。"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Intuitive Tarot"/>
+<meta property="og:title" content="AI Assisted Tarot Reading · Intuitive Tarot"/>
+<meta property="og:description" content="写下你的问题，抽三张塔罗牌，女巫为你揭晓一份溫和而專業的解讀。"/>
+<meta property="og:url" content="http://139.180.216.12/landing.html"/>
+<meta property="og:image" content="http://139.180.216.12/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="AI Assisted Tarot Reading · Intuitive Tarot"/>
+<meta name="twitter:description" content="写下你的问题，抽三张塔罗牌，获得一份温和而专业的解读。"/>
+<meta name="twitter:image" content="http://139.180.216.12/og-image.jpg"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#fff8df;
+  --panel:#fffdf2;
+  --ink:#2f2a1f;
+  --muted:#766b54;
+  --gold:#f4c542;
+  --gold-2:#fff1a8;
+  --green:#79b58a;
+  --pink:#e78fa7;
+  --line:rgba(47,42,31,.14);
+  --shadow:0 28px 72px rgba(84,67,22,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  color:var(--ink);
+  font-family:'Noto Sans SC',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 12% 10%,rgba(244,197,66,.38),transparent 28%),
+    radial-gradient(circle at 84% 14%,rgba(231,143,167,.24),transparent 28%),
+    radial-gradient(circle at 72% 78%,rgba(121,181,138,.26),transparent 34%),
+    linear-gradient(135deg,#fff8df 0%,#fffdf2 48%,#f7ecd2 100%);
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(47,42,31,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(47,42,31,.028) 1px,transparent 1px);
+  background-size:58px 58px;
+  mask-image:radial-gradient(circle at 50% 14%,black,transparent 80%);
+}
+.botanical-pattern-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:.68}
+.botanical-pattern-layer span{position:absolute;display:grid;place-items:center;width:82px;height:82px;border-radius:999px;filter:drop-shadow(0 18px 28px rgba(84,67,22,.08))}
+.botanical-pattern-layer .daisy-motif::before{content:"✿";font-size:62px;line-height:1;color:rgba(244,197,66,.58);text-shadow:0 1px 0 rgba(255,253,242,.82)}
+.botanical-pattern-layer .daisy-motif::after{content:"";position:absolute;width:17px;height:17px;border-radius:50%;background:rgba(255,253,242,.9);box-shadow:0 0 0 1px rgba(47,42,31,.06)}
+.botanical-pattern-layer .clover-motif::before{content:"";width:46px;height:46px;border-radius:46% 54% 50% 50%;background:rgba(91,150,101,.16);transform:rotate(45deg);box-shadow:18px 0 0 rgba(91,150,101,.10),0 18px 0 rgba(91,150,101,.12);filter:blur(.1px)}
+.botanical-pattern-layer .motif-1{left:4vw;top:14vh;transform:rotate(-10deg) scale(.9)}
+.botanical-pattern-layer .motif-2{right:8vw;top:10vh;transform:rotate(15deg) scale(.74)}
+.botanical-pattern-layer .motif-3{left:8vw;top:60vh;transform:rotate(18deg) scale(.6)}
+.botanical-pattern-layer .motif-4{right:5vw;top:50vh;transform:rotate(-14deg) scale(.7)}
+.botanical-pattern-layer .motif-5{left:45vw;top:28vh;transform:rotate(8deg) scale(.48);opacity:.62}
+.botanical-pattern-layer .motif-6{right:22vw;bottom:8vh;transform:rotate(22deg) scale(.56);opacity:.7}
+a{color:inherit;text-decoration:none}
+img{display:block;width:100%;height:100%;object-fit:cover}
+.page{position:relative;z-index:1;width:min(1180px,94vw);margin:0 auto;padding:28px 0 64px}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0 28px;color:#5f5338;font-size:13px;letter-spacing:.08em}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Cinzel',serif;color:#3f3421;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.brand-mark{width:34px;height:34px;border:1px solid rgba(47,42,31,.18);display:grid;place-items:center;transform:rotate(45deg);background:#fffdf2;box-shadow:0 0 28px rgba(244,197,66,.24)}
+.brand-mark span{transform:rotate(-45deg);font-size:18px}.brand-mark span::before{content:"";display:block;width:11px;height:11px;border-radius:50%;border:1px solid rgba(63,52,33,.38);box-shadow:0 0 0 5px rgba(244,197,66,.14)}
+.nav-links{display:flex;gap:20px;align-items:center}.nav-links a{opacity:.78}.nav-links a:hover{opacity:1;color:#a87900}
+.hero{min-height:calc(100vh - 96px);display:grid;grid-template-columns:.86fr 1.14fr;gap:42px;align-items:center;padding:8px 0 72px}
+.eyebrow{display:inline-flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:8px 12px;background:rgba(255,255,255,.58);color:#6f5a16;font-size:12px;letter-spacing:.12em;margin-bottom:24px;box-shadow:0 10px 30px rgba(244,197,66,.16)}
+.eyebrow i{width:7px;height:7px;background:var(--gold);border-radius:50%;box-shadow:0 0 0 5px rgba(244,197,66,.18)}
+.hero-copy{max-width:560px}.headline{font-family:'Cinzel', 'Noto Serif SC',serif;font-size:clamp(46px,6.3vw,82px);line-height:.98;letter-spacing:-.035em;font-weight:600;margin-bottom:24px;color:#2f2a1f;text-wrap:balance}.headline span{display:block}.headline .gold{color:#b98200;font-size:.9em;margin-top:8px;font-family:'Noto Serif SC',serif;font-weight:900;letter-spacing:-.065em}.lead{font-family:'Noto Serif SC',serif;font-size:clamp(18px,2vw,24px);line-height:1.72;color:#4a3e29;margin-bottom:10px;font-weight:700}.lead span{display:block}.lead-en{font-family:'Cinzel',serif;color:#6d5e40;font-size:clamp(13px,1.35vw,16px);letter-spacing:.085em;line-height:1.8;text-transform:uppercase;margin-bottom:26px;max-width:500px}.lead-en span{display:block}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:24px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:14px 22px;font-weight:700;letter-spacing:.04em;transition:.25s ease;min-height:50px}.btn.primary{background:linear-gradient(135deg,#ffe984,var(--gold));color:#2f2a1f;border:1px solid rgba(47,42,31,.12);box-shadow:0 16px 40px rgba(244,197,66,.34)}.btn.primary:hover{transform:translateY(-2px);box-shadow:0 22px 52px rgba(244,197,66,.44)}.btn.ghost{background:#fffdf2;color:#2f2a1f;border:1px solid rgba(47,42,31,.16)}
+.trust{display:flex;gap:10px;flex-wrap:wrap;color:#766b54;font-size:12px}.trust span{border:1px solid rgba(47,42,31,.12);padding:8px 10px;border-radius:999px;background:#fffdf2}
+.visual{position:relative;min-height:640px;display:grid;place-items:center}.halo{position:absolute;width:min(620px,92vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(244,197,66,.18),transparent 60%);border:1px solid rgba(244,197,66,.24);animation:spin 42s linear infinite}.halo::before,.halo::after{content:"";position:absolute;inset:50px;border:1px dashed rgba(231,143,167,.24);border-radius:50%}.halo::after{inset:112px;border-color:rgba(121,181,138,.28);border-style:solid}@keyframes spin{to{transform:rotate(360deg)}}
+.tarot-gallery{position:relative;width:min(500px,90vw);height:590px}.gallery-card{position:absolute;border-radius:28px;overflow:hidden;background:#fffdf2;border:1px solid rgba(47,42,31,.14);box-shadow:var(--shadow)}.gallery-card img{filter:saturate(.95) contrast(.98)}.gallery-card.main{left:50%;top:48%;transform:translate(-50%,-50%);width:250px;height:430px;padding:14px;background:linear-gradient(180deg,#fffdf2,#fff1b8);z-index:4}.gallery-card.side-card{width:172px;height:292px;padding:10px;background:linear-gradient(180deg,#fffdf2,#fff4c7);opacity:.96}.gallery-card.side-card figure{height:100%;border-radius:20px;overflow:hidden}.gallery-card.side-card.one{left:0;top:90px;transform:rotate(-13deg);z-index:2}.gallery-card.side-card.two{right:4px;top:48px;transform:rotate(10deg);z-index:1}.gallery-card.side-card.three{right:30px;bottom:18px;transform:rotate(15deg);z-index:3}.gallery-card.main figure{height:100%;border-radius:20px;overflow:hidden;position:relative}.gallery-card.main figure::after{content:"";position:absolute;inset:10px;border:1px solid rgba(255,255,255,.7);border-radius:15px}.tarot-credit{display:none}.spiritual-tarot-art{height:100%}
+.section{padding:74px 0;border-top:1px solid rgba(47,42,31,.08)}.ritual-strip{display:grid;grid-template-columns:.86fr 1.14fr;gap:20px;align-items:stretch}.quiet-card{border-radius:34px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,253,242,.9),rgba(255,241,184,.64));padding:34px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center}.quiet-card h3{font-family:'Cinzel','Noto Serif SC',serif;font-size:clamp(30px,4vw,48px);font-weight:600;letter-spacing:-.025em;line-height:1.08;margin-bottom:16px;text-wrap:balance}.quiet-card p{color:#5c5037;line-height:1.9}.quiet-card p span{display:block}.quiet-card .cn-note{font-family:'Noto Serif SC',serif;font-weight:700;color:#3d3424;margin-top:16px}.quiet-card .cn-note span{display:block}.image-mosaic{min-height:430px;display:grid;grid-template-columns:1fr 1fr;gap:16px}.image-mosaic figure{border-radius:28px;overflow:hidden;border:1px solid rgba(47,42,31,.12);box-shadow:0 22px 58px rgba(84,67,22,.12);background:#fffdf2}.image-mosaic figure:first-child{grid-row:span 2}.image-mosaic img{object-fit:cover}.final{padding:76px 32px;text-align:center;border:1px solid var(--line);border-radius:38px;background:radial-gradient(circle at 50% 0,rgba(244,197,66,.26),transparent 36%),linear-gradient(145deg,rgba(255,253,242,.94),rgba(255,241,184,.74));box-shadow:var(--shadow)}.final h2{font-family:'Cinzel','Noto Serif SC',serif;font-weight:600;letter-spacing:-.025em;font-size:clamp(36px,5vw,64px);margin-bottom:18px;text-wrap:balance}.final p{color:var(--muted);line-height:1.85;max-width:640px;margin:0 auto 26px}.final p span{display:block}.footer{padding:26px 0 0;color:#8b7a58;font-size:12px;line-height:1.9;text-align:center}.footer span{display:block}
+@media(max-width:880px){.nav-links{display:none}.hero,.ritual-strip{grid-template-columns:1fr}.visual{min-height:600px}.image-mosaic{min-height:auto}.page{width:min(94vw,720px)}.tarot-gallery{height:590px}.final{padding:48px 22px}}
+@media(max-width:520px){.headline{font-size:44px}.lead{font-size:20px}.cta-row .btn{width:100%}.visual{min-height:540px}.tarot-gallery{height:520px}.gallery-card.main{width:210px;height:360px}.gallery-card.side-card{width:138px;height:236px}.gallery-card.side-card.one{left:0;top:96px}.gallery-card.side-card.two{right:0;top:62px}.gallery-card.side-card.three{right:22px;bottom:32px}.section{padding:54px 0}.image-mosaic{grid-template-columns:1fr}.image-mosaic figure:first-child{grid-row:auto}.trust span{font-size:11px}}
+</style>
+<script>
+function tarotLandingFallbackSvg(label,symbol,color){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 190">
+    <defs><radialGradient id="g" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="${color}" stop-opacity=".26"/><stop offset="100%" stop-color="#fff8df"/></radialGradient></defs>
+    <rect width="120" height="190" rx="10" fill="url(#g)"/>
+    <rect x="6" y="6" width="108" height="178" rx="7" fill="none" stroke="${color}" stroke-width="1" opacity=".55"/>
+    <text x="60" y="42" text-anchor="middle" font-size="8" fill="#6f5a16" opacity=".58" font-family="serif" letter-spacing="2">TAROT</text>
+    <text x="60" y="104" text-anchor="middle" dominant-baseline="middle" font-size="38" fill="${color}" opacity=".92">${symbol}</text>
+    <text x="60" y="150" text-anchor="middle" font-size="10" fill="#6f5a16" opacity=".78" font-family="serif">${label}</text>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+function tarotLandingImgFallback(el){
+  if(el.dataset.step==='1') return;
+  el.dataset.step='1';
+  const fb=el.getAttribute('data-fb');
+  if(fb) el.src=decodeURIComponent(fb);
+}
+</script>
+</head>
+<body class="daisy-days-deck-style">
+<div class="botanical-pattern-layer" aria-hidden="true">
+  <span class="daisy-motif motif-1"></span>
+  <span class="clover-motif motif-2"></span>
+  <span class="daisy-motif motif-3"></span>
+  <span class="clover-motif motif-4"></span>
+  <span class="daisy-motif motif-5"></span>
+  <span class="clover-motif motif-6"></span>
+</div>
+<main class="page">
+  <nav class="nav">
+    <a class="brand" href="#top"><span class="brand-mark"><span></span></span>Intuitive Tarot</a>
+    <div class="nav-links">
+      <a href="#quiet">Visuals</a>
+      <a href="#quiet">Reflection</a>
+      <a href="/index.html">Start Reading</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="top">
+    <div class="hero-copy">
+      <div class="eyebrow"><i></i>AI Assisted Tarot Reading</div>
+      <h1 class="headline">
+        <span>A softer way</span>
+        <span class="gold">to read within</span>
+      </h1>
+      <p class="lead">
+        <span>不替你做决定</span>
+        <span>只陪你慢慢看见</span>
+      </p>
+      <p class="lead-en">
+        <span>Reflect on real questions</span>
+        <span>with tarot symbolism and guided AI interpretation</span>
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="/index.html">Start the Reading <span>→</span></a>
+        <a class="btn ghost" href="#quiet">View the Visual Story</a>
+      </div>
+      <div class="trust">
+        <span>Professional reader tone</span>
+        <span>Real card imagery</span>
+        <span>No absolute predictions</span>
+      </div>
+    </div>
+
+    <div class="visual" aria-label="tarot visual preview">
+      <div class="halo"></div>
+      <div class="tarot-gallery">
+        <article class="gallery-card side-card one" aria-hidden="true">
+          <figure>
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/RWS%20Tarot%2001%20Magician.jpg" data-fb="" alt="" loading="eager" decoding="async" onerror="tarotLandingImgFallback(this)" />
+            <figcaption class="tarot-credit">RWS Tarot 01 Magician.jpg Wikimedia Commons</figcaption>
+          </figure>
+        </article>
+        <article class="gallery-card side-card two" aria-hidden="true">
+          <figure>
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/RWS%20Tarot%2002%20High%20Priestess.jpg" data-fb="" alt="" loading="eager" decoding="async" onerror="tarotLandingImgFallback(this)" />
+            <figcaption class="tarot-credit">RWS Tarot 02 High Priestess.jpg Wikimedia Commons</figcaption>
+          </figure>
+        </article>
+        <article class="gallery-card side-card three" aria-hidden="true">
+          <figure>
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/RWS%20Tarot%2006%20Lovers.jpg" data-fb="" alt="" loading="lazy" decoding="async" onerror="tarotLandingImgFallback(this)" />
+            <figcaption class="tarot-credit">RWS Tarot 06 Lovers.jpg Wikimedia Commons</figcaption>
+          </figure>
+        </article>
+        <article class="gallery-card main">
+          <figure class="spiritual-tarot-art" aria-label="隐士牌">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/RWS%20Tarot%2009%20Hermit.jpg" data-fb="" alt="隐士牌 The Hermit" loading="eager" decoding="async" onerror="tarotLandingImgFallback(this)" />
+            <figcaption class="tarot-credit">RWS Tarot 09 Hermit.jpg Wikimedia Commons</figcaption>
+          </figure>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="quiet">
+    <div class="ritual-strip">
+      <div class="quiet-card">
+        <h3>Open a quiet atlas of symbols</h3>
+        <p>
+          <span>The interface slows the pace first</span>
+          <span>then guides you into card imagery and AI interpretation</span>
+          <span>so intuition and personal agency remain intact</span>
+        </p>
+        <p class="cn-note">
+          <span>画面先带你安静下来</span>
+          <span>再进入牌面象征与 AI 解读</span>
+        </p>
+      </div>
+      <div class="image-mosaic">
+        <figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/RWS%20Tarot%2009%20Hermit.jpg" data-fb="" alt="隐士牌局部图像" loading="lazy" decoding="async" onerror="tarotLandingImgFallback(this)" /></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="final">
+      <h2>Begin when the question feels real</h2>
+      <p>
+        <span>Bring one honest question into the reading</span>
+        <span>There is no need to force a single answer</span>
+      </p>
+      <a class="btn primary" href="/index.html">Start the Reading <span>→</span></a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>Tarot readings are for self-reflection and entertainment only</span>
+    <span>They do not replace medical legal financial or psychological advice</span>
+  </footer>
+</main>
+<script>
+document.querySelectorAll('img[data-fb]').forEach((img)=>{
+  if(img.dataset.fb) return;
+  const label=img.alt||'TAROT';
+  const symbol=label.includes('恋人')||img.src.includes('Lovers')?'♡':label.includes('女祭司')||img.src.includes('Priestess')?'☽':label.includes('魔术')||img.src.includes('Magician')?'⚗':'⊙';
+  const color=label.includes('恋人')||img.src.includes('Lovers')?'#e78fa7':label.includes('女祭司')||img.src.includes('Priestess')?'#8e78c8':label.includes('魔术')||img.src.includes('Magician')?'#d4a853':'#79b58a';
+  img.dataset.fb=encodeURIComponent(tarotLandingFallbackSvg(label||'TAROT',symbol,color));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Intuitive Tarot · 视觉风格预览（不连接后端）</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400&family=Noto+Serif+SC:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════
+   STYLE PREVIEW DEMO · 仅供风格预览，不连接后端
+   三套主题通过 body[data-theme] 切换 CSS 变量
+════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  font-family:'Noto Serif SC','IM Fell English',Georgia,serif;
+  color:var(--txt);
+  background:var(--bg-base);
+  -webkit-tap-highlight-color:transparent;
+  transition:background .8s ease,color .8s ease;
+  overflow-x:hidden;
+}
+
+/* ── 主题变量 ─────────────────────────── */
+/* A · 紫金高级神秘感 */
+body[data-theme="a"]{
+  --bg-base:#120a1e;
+  --bg-grad:radial-gradient(ellipse 90% 60% at 50% -10%,rgba(96,62,168,.32),transparent 60%),
+            radial-gradient(ellipse 70% 50% at 80% 100%,rgba(58,34,110,.28),transparent 65%),
+            radial-gradient(ellipse 40% 30% at 15% 65%,rgba(176,138,64,.07),transparent 70%);
+  --txt:#ece4f4;--txt-dim:#b3a7c6;--txt-faint:#7d7194;
+  --acc:#d4af6a;--acc-bright:#f0d694;--acc-soft:rgba(212,175,106,.32);
+  --acc2:#9d7bdb;--acc2-soft:rgba(157,123,219,.25);
+  --panel:linear-gradient(165deg,rgba(46,30,76,.78),rgba(22,13,40,.92));
+  --panel-border:rgba(212,175,106,.26);
+  --panel-glow:0 24px 64px rgba(0,0,0,.45),inset 0 1px 0 rgba(240,214,148,.10);
+  --card-back:linear-gradient(160deg,#2c1b4e 0%,#1b1036 55%,#241543 100%);
+  --spark:#f0d694;--spark2:#c4a8f0;
+  --halo:rgba(212,175,106,.16);
+}
+/* B · 月光温柔治愈感 */
+body[data-theme="b"]{
+  --bg-base:#191527;
+  --bg-grad:radial-gradient(ellipse 80% 55% at 50% -8%,rgba(178,168,220,.20),transparent 62%),
+            radial-gradient(ellipse 60% 45% at 12% 90%,rgba(120,110,170,.16),transparent 65%),
+            radial-gradient(circle 120px at 82% 12%,rgba(238,236,250,.10),transparent 70%);
+  --txt:#eceaf4;--txt-dim:#bdb8d2;--txt-faint:#878099;
+  --acc:#cfc4a4;--acc-bright:#e8e0c4;--acc-soft:rgba(207,196,164,.30);
+  --acc2:#b4a8de;--acc2-soft:rgba(180,168,222,.26);
+  --panel:linear-gradient(170deg,rgba(54,48,80,.66),rgba(28,24,46,.90));
+  --panel-border:rgba(196,188,228,.22);
+  --panel-glow:0 22px 56px rgba(8,6,20,.42),inset 0 1px 0 rgba(238,236,250,.09);
+  --card-back:linear-gradient(165deg,#34304e 0%,#211d38 60%,#2a2545 100%);
+  --spark:#e6e2f6;--spark2:#cfc4a4;
+  --halo:rgba(210,204,240,.14);
+}
+/* C · 星云梦幻仪式感 */
+body[data-theme="c"]{
+  --bg-base:#0c081f;
+  --bg-grad:radial-gradient(ellipse 75% 55% at 22% 8%,rgba(110,70,200,.36),transparent 58%),
+            radial-gradient(ellipse 65% 48% at 85% 38%,rgba(186,98,158,.22),transparent 60%),
+            radial-gradient(ellipse 55% 40% at 50% 105%,rgba(64,42,140,.34),transparent 62%),
+            radial-gradient(ellipse 30% 22% at 70% 75%,rgba(212,170,96,.08),transparent 70%);
+  --txt:#f0eafa;--txt-dim:#b8aed4;--txt-faint:#7e72a0;
+  --acc:#dcb277;--acc-bright:#f4d9a4;--acc-soft:rgba(220,178,119,.34);
+  --acc2:#a880e8;--acc2-soft:rgba(168,128,232,.30);
+  --panel:linear-gradient(160deg,rgba(52,32,92,.72),rgba(20,12,44,.92));
+  --panel-border:rgba(168,128,232,.30);
+  --panel-glow:0 28px 70px rgba(0,0,0,.5),0 0 42px rgba(120,80,210,.14),inset 0 1px 0 rgba(244,217,164,.10);
+  --card-back:linear-gradient(150deg,#3a2270 0%,#1e1148 50%,#33205e 100%);
+  --spark:#f4d9a4;--spark2:#c99ae0;
+  --halo:rgba(150,100,230,.20);
+}
+
+/* ── 全局氛围层 ─────────────────────────── */
+.atmo{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bg-grad);transition:opacity .8s ease;}
+.vignette{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 85% 80% at 50% 45%,transparent 0%,rgba(4,2,10,.45) 70%,rgba(2,1,6,.85) 100%);}
+/* 细小星点 */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--spark);
+  opacity:.18;animation:twk var(--d,6s) ease-in-out var(--dl,0s) infinite alternate;}
+@keyframes twk{0%{opacity:.06;transform:scale(.8)}100%{opacity:.45;transform:scale(1.2)}}
+body[data-theme="b"] .stars i{opacity:.10}
+
+/* ── 顶部切换条 ─────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  background:rgba(8,5,18,.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--panel-border);
+  display:flex;flex-direction:column;gap:10px;align-items:center;
+}
+.topbar h1{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--acc);font-weight:400;}
+.topbar small{font-size:10px;color:var(--txt-faint);letter-spacing:.12em;margin-top:-6px;}
+.theme-btns{display:flex;gap:8px;width:100%;max-width:420px;}
+.tb{
+  flex:1;min-height:44px;padding:6px 4px;cursor:pointer;outline:none;
+  font-family:'Noto Serif SC',serif;font-size:12px;letter-spacing:.08em;line-height:1.35;
+  color:var(--txt-dim);background:rgba(255,255,255,.03);
+  border:1px solid var(--panel-border);border-radius:12px;
+  transition:all .35s ease;
+}
+.tb b{display:block;font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.18em;color:var(--txt-dim);transition:color .35s;}
+.tb.active{color:var(--txt);background:linear-gradient(160deg,var(--acc2-soft),transparent 70%);
+  border-color:var(--acc-soft);box-shadow:0 0 24px var(--halo);}
+.tb.active b{color:var(--acc-bright);}
+
+/* ── 版面 ─────────────────────────── */
+main{position:relative;z-index:1;width:min(560px,100%);margin:0 auto;padding:8px 18px calc(env(safe-area-inset-bottom) + 64px);}
+section{padding:38px 0 8px;}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+.sec-head .ln{flex:1;height:1px;background:linear-gradient(to right,transparent,var(--acc-soft),transparent);}
+.sec-head .dot{width:5px;height:5px;background:var(--acc);transform:rotate(45deg);box-shadow:0 0 6px var(--acc-soft);flex-shrink:0;}
+.sec-head h2{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--txt-faint);font-weight:400;white-space:nowrap;}
+
+/* ── 1 · HERO 预览 ─────────────────────────── */
+.hero{text-align:center;padding:34px 12px 10px;position:relative;}
+.hero-sigil{width:54px;height:54px;margin:0 auto 18px;position:relative;}
+.hero-sigil svg{width:100%;height:100%;filter:drop-shadow(0 0 12px var(--halo));animation:sigilBreath 5s ease-in-out infinite alternate;}
+@keyframes sigilBreath{from{opacity:.75;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.hero-eyebrow{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--txt-faint);margin-bottom:12px;}
+.hero-title{font-family:'Cinzel Decorative',serif;font-size:clamp(30px,9vw,44px);line-height:1.15;
+  color:var(--txt);letter-spacing:.04em;margin-bottom:10px;
+  text-shadow:0 0 36px var(--halo),0 0 90px var(--halo);}
+.hero-sub{font-style:italic;font-size:14px;color:var(--txt-dim);letter-spacing:.14em;margin-bottom:26px;}
+.hero-q{
+  width:100%;max-width:380px;margin:0 auto 18px;padding:16px 15px;min-height:96px;text-align:left;
+  font-family:inherit;font-size:15px;line-height:1.7;color:var(--txt);
+  background:rgba(255,255,255,.035);border:1px solid var(--panel-border);border-radius:14px;
+  outline:none;resize:none;box-shadow:inset 0 0 24px rgba(0,0,0,.25);transition:border-color .3s,box-shadow .3s;
+}
+.hero-q:focus{border-color:var(--acc-soft);box-shadow:0 0 0 3px var(--acc2-soft),inset 0 0 24px rgba(0,0,0,.25);}
+.hero-q::placeholder{color:var(--txt-faint);}
+
+/* ── 2 · 卡牌预览 ─────────────────────────── */
+.cards-stage{display:flex;justify-content:center;align-items:flex-end;gap:0;padding:26px 0 14px;min-height:230px;}
+.tcard{
+  width:108px;height:178px;border-radius:12px;position:relative;flex-shrink:0;
+  background:var(--card-back);
+  border:1px solid var(--acc-soft);
+  box-shadow:0 16px 40px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.04);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s;
+}
+.tcard::before{content:'';position:absolute;inset:7px;border:1px solid var(--acc-soft);border-radius:8px;opacity:.55;}
+.tcard .face{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.tcard .moon{font-size:26px;color:var(--acc-bright);text-shadow:0 0 14px var(--halo);line-height:1;}
+.tcard .orn{width:46px;height:1px;background:linear-gradient(to right,transparent,var(--acc-soft),transparent);}
+.tcard .star-s{font-size:10px;color:var(--acc2);opacity:.85;letter-spacing:6px;text-indent:6px;}
+.tcard:nth-child(1){transform:rotate(-9deg) translateX(14px) translateY(8px);z-index:1;}
+.tcard:nth-child(2){z-index:3;}
+.tcard:nth-child(3){transform:rotate(9deg) translateX(-14px) translateY(8px);z-index:2;}
+.tcard:hover,.tcard:active{transform:translateY(-14px) scale(1.04);z-index:5;
+  box-shadow:0 26px 56px rgba(0,0,0,.6),0 0 34px var(--halo);}
+/* 主题 C：卡牌轻微悬浮 */
+body[data-theme="c"] .tcard{animation:cardFloat 5.5s ease-in-out infinite alternate;}
+body[data-theme="c"] .tcard:nth-child(2){animation-delay:1.2s}
+body[data-theme="c"] .tcard:nth-child(3){animation-delay:2.4s}
+@keyframes cardFloat{from{margin-bottom:0}to{margin-bottom:10px}}
+.cards-hint{text-align:center;font-size:12px;font-style:italic;color:var(--txt-faint);letter-spacing:.1em;}
+
+/* ── 3 · 抽牌按钮预览 ─────────────────────────── */
+.btn-stage{display:flex;flex-direction:column;gap:14px;align-items:center;padding:8px 0 14px;}
+.draw-btn{
+  position:relative;min-height:50px;width:min(320px,100%);cursor:pointer;outline:none;
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:.36em;text-indent:.36em;text-transform:uppercase;
+  color:var(--acc-bright);background:linear-gradient(165deg,var(--acc2-soft),rgba(255,255,255,.02) 70%);
+  border:1px solid var(--acc-soft);border-radius:999px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.03),0 14px 36px rgba(0,0,0,.4),0 0 28px var(--halo);
+  transition:all .35s ease;overflow:hidden;
+}
+.draw-btn::after{content:'';position:absolute;top:0;left:-70%;width:50%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.10),transparent);
+  animation:sheen 4.6s ease-in-out infinite;}
+@keyframes sheen{0%,55%{left:-70%}85%,100%{left:120%}}
+.draw-btn:hover{border-color:var(--acc);box-shadow:0 14px 36px rgba(0,0,0,.4),0 0 42px var(--halo);transform:translateY(-1px);}
+.draw-btn:active{transform:translateY(1px) scale(.99);}
+.draw-btn.ghost{background:transparent;color:var(--txt-dim);box-shadow:none;}
+.draw-btn.ghost::after{display:none}
+.btn-note{font-size:11px;color:var(--txt-faint);letter-spacing:.08em;font-style:italic;}
+
+/* ── 4 · 等待解读 · 小女巫 ─────────────────────────── */
+.witch-panel{
+  position:relative;border-radius:22px;padding:34px 22px 30px;text-align:center;
+  background:var(--panel);border:1px solid var(--panel-border);box-shadow:var(--panel-glow);
+  overflow:hidden;
+}
+.witch-panel .inner-halo{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 65% 55% at 50% 38%,var(--halo),transparent 70%);
+  animation:haloBreath 6s ease-in-out infinite alternate;}
+@keyframes haloBreath{from{opacity:.55}to{opacity:1}}
+.witch-wrap{position:relative;width:min(250px,72vw);margin:0 auto 8px;}
+.witch-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
+
+/* 整体轻盈漂浮 */
+.w-float{animation:wFloat 5s ease-in-out infinite alternate;transform-origin:110px 120px;}
+@keyframes wFloat{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+/* 手臂 + 魔法棒：缓慢挥动 */
+.w-arm{transform-origin:128px 116px;animation:wave 3s cubic-bezier(.45,.05,.55,.95) infinite alternate;}
+@keyframes wave{from{transform:rotate(-5deg)}to{transform:rotate(11deg)}}
+/* 棒尖星星：柔和呼吸 */
+.w-tip{transform-origin:172px 64px;animation:tipPulse 2.2s ease-in-out infinite alternate;}
+@keyframes tipPulse{from{transform:scale(.85);opacity:.8}to{transform:scale(1.18);opacity:1}}
+/* 魔法轨迹：流动虚线弧 */
+.w-trail{stroke-dasharray:4 9;animation:trailFlow 7s linear infinite;opacity:.6;}
+@keyframes trailFlow{to{stroke-dashoffset:-130}}
+/* 周围光点：错峰闪烁漂浮 */
+.w-spark{animation:sparkFloat var(--d,4s) ease-in-out var(--dl,0s) infinite;opacity:0;transform-origin:center;}
+@keyframes sparkFloat{
+  0%{opacity:0;transform:translateY(4px) scale(.6)}
+  35%{opacity:.95;transform:translateY(-2px) scale(1)}
+  70%{opacity:.4;transform:translateY(-7px) scale(.85)}
+  100%{opacity:0;transform:translateY(-11px) scale(.55)}
+}
+.wait-copy{font-size:15px;line-height:1.9;color:var(--txt);letter-spacing:.04em;margin-top:6px;}
+.wait-copy em{display:block;font-style:normal;font-size:12px;color:var(--txt-faint);letter-spacing:.14em;margin-top:7px;}
+.wait-dots{display:inline-flex;gap:6px;margin-top:14px;}
+.wait-dots i{width:5px;height:5px;border-radius:50%;background:var(--acc);
+  animation:dotBreath 1.8s ease-in-out var(--dl,0s) infinite;}
+@keyframes dotBreath{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+
+/* ── 5 · 结果页预览 ─────────────────────────── */
+.result-q{
+  padding:14px 16px;margin-bottom:14px;border-radius:14px;text-align:center;
+  font-style:italic;font-size:14px;line-height:1.8;color:var(--txt-dim);
+  border:1px solid var(--panel-border);background:rgba(255,255,255,.025);
+}
+.result-cards{display:flex;gap:12px;justify-content:center;margin-bottom:18px;}
+.rc{flex:1;max-width:104px;text-align:center;}
+.rc .rc-img{height:120px;border-radius:10px;background:var(--card-back);
+  border:1px solid var(--acc-soft);box-shadow:0 12px 30px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--acc-bright);
+  text-shadow:0 0 12px var(--halo);margin-bottom:8px;}
+.rc .rc-pos{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.26em;color:var(--txt-faint);text-transform:uppercase;margin-bottom:3px;}
+.rc .rc-name{font-size:12.5px;color:var(--txt);}
+.rc .rc-ori{display:inline-block;margin-top:5px;font-size:9px;letter-spacing:.12em;color:var(--acc);
+  border:1px solid var(--acc-soft);border-radius:99px;padding:2px 9px;}
+.reading-panel{
+  border-radius:20px;padding:26px 20px;position:relative;
+  background:var(--panel);border:1px solid var(--panel-border);box-shadow:var(--panel-glow);
+}
+.reading-panel .r-text{font-size:15.5px;line-height:2.05;color:var(--txt);letter-spacing:.02em;text-wrap:pretty;}
+.reading-panel .r-text p{margin-bottom:1.05em;}
+.reading-panel .r-text p:last-child{margin-bottom:0;}
+.reading-panel .r-text::first-letter{
+  font-size:1.5em;line-height:1;float:left;margin:2px 7px 0 0;
+  color:var(--acc-bright);font-family:'Cinzel',serif;}
+.result-actions{display:flex;gap:10px;margin-top:16px;}
+.ra-btn{flex:1;min-height:44px;cursor:pointer;border-radius:999px;
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--txt-dim);background:rgba(255,255,255,.03);border:1px solid var(--panel-border);transition:all .3s;}
+.ra-btn:hover{color:var(--acc-bright);border-color:var(--acc-soft);}
+.ra-btn.pr{color:var(--acc-bright);background:linear-gradient(160deg,var(--acc2-soft),transparent 75%);border-color:var(--acc-soft);}
+
+/* ── 页脚说明 ─────────────────────────── */
+.demo-note{margin-top:44px;text-align:center;font-size:11px;line-height:1.9;color:var(--txt-faint);letter-spacing:.06em;}
+
+@media(min-width:640px){
+  .topbar{flex-direction:row;justify-content:space-between;padding-left:24px;padding-right:24px;}
+  .theme-btns{width:auto;}
+  .tb{min-width:128px;}
+}
+</style>
+</head>
+<body data-theme="a">
+
+<div class="atmo"></div>
+<div class="vignette"></div>
+<div class="stars" id="stars"></div>
+
+<header class="topbar">
+  <div>
+    <h1>Style Preview</h1>
+    <small>视觉风格预览 · 不连接后端</small>
+  </div>
+  <div class="theme-btns" role="tablist">
+    <button class="tb active" data-set="a" onclick="setTheme('a')"><b>A</b>紫金神秘</button>
+    <button class="tb" data-set="b" onclick="setTheme('b')"><b>B</b>月光治愈</button>
+    <button class="tb" data-set="c" onclick="setTheme('c')"><b>C</b>星云梦幻</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1 · HERO -->
+  <section>
+    <div class="sec-head"><div class="ln"></div><div class="dot"></div><h2>01 · 首页 Hero</h2><div class="dot"></div><div class="ln"></div></div>
+    <div class="hero">
+      <div class="hero-sigil">
+        <svg viewBox="0 0 60 60" fill="none">
+          <circle cx="30" cy="30" r="26" stroke="var(--acc-soft)" stroke-width="1"/>
+          <circle cx="30" cy="30" r="20" stroke="var(--acc2-soft)" stroke-width=".8" stroke-dasharray="2 4"/>
+          <path d="M30 12 L33.5 26.5 L48 30 L33.5 33.5 L30 48 L26.5 33.5 L12 30 L26.5 26.5 Z" fill="var(--acc)" opacity=".9"/>
+          <circle cx="30" cy="30" r="2.4" fill="var(--acc-bright)"/>
+        </svg>
+      </div>
+      <div class="hero-eyebrow">Sanctum of the Cards</div>
+      <div class="hero-title">Intuitive Tarot</div>
+      <div class="hero-sub">在静谧中，听见牌的声音</div>
+      <textarea class="hero-q" placeholder="在心中默想你的问题，写下或不写都可以……" rows="3"></textarea>
+      <button class="draw-btn">✦ &nbsp;开始仪式</button>
+    </div>
+  </section>
+
+  <!-- 2 · 卡牌 -->
+  <section>
+    <div class="sec-head"><div class="ln"></div><div class="dot"></div><h2>02 · 塔罗卡牌</h2><div class="dot"></div><div class="ln"></div></div>
+    <div class="cards-stage">
+      <div class="tcard"><div class="face"><div class="star-s">✶ ✶ ✶</div><div class="orn"></div><div class="moon">☾</div><div class="orn"></div><div class="star-s">✶ ✶ ✶</div></div></div>
+      <div class="tcard"><div class="face"><div class="star-s">✶ ✶ ✶</div><div class="orn"></div><div class="moon">✦</div><div class="orn"></div><div class="star-s">✶ ✶ ✶</div></div></div>
+      <div class="tcard"><div class="face"><div class="star-s">✶ ✶ ✶</div><div class="orn"></div><div class="moon">☽</div><div class="orn"></div><div class="star-s">✶ ✶ ✶</div></div></div>
+    </div>
+    <div class="cards-hint">轻触卡牌，感受悬停 / 选中的微光反馈</div>
+  </section>
+
+  <!-- 3 · 抽牌按钮 -->
+  <section>
+    <div class="sec-head"><div class="ln"></div><div class="dot"></div><h2>03 · 抽牌按钮</h2><div class="dot"></div><div class="ln"></div></div>
+    <div class="btn-stage">
+      <button class="draw-btn">✦ &nbsp;抽一张牌</button>
+      <button class="draw-btn ghost">重新洗牌</button>
+      <div class="btn-note">主按钮带缓慢流光，副按钮保持安静</div>
+    </div>
+  </section>
+
+  <!-- 4 · 等待解读 · 小女巫 -->
+  <section>
+    <div class="sec-head"><div class="ln"></div><div class="dot"></div><h2>04 · 等待解读</h2><div class="dot"></div><div class="ln"></div></div>
+    <div class="witch-panel">
+      <div class="inner-halo"></div>
+      <div class="witch-wrap">
+        <svg viewBox="0 0 220 200" fill="none" aria-label="小女巫正在施法">
+          <!-- 魔法轨迹弧线 -->
+          <path class="w-trail" d="M168 70 Q 196 92 186 128 Q 178 152 150 160"
+                stroke="var(--spark2)" stroke-width="1.4" stroke-linecap="round"/>
+          <!-- 周围光点（错峰闪烁） -->
+          <g>
+            <circle class="w-spark" style="--d:3.8s;--dl:.2s" cx="186" cy="92" r="2.2" fill="var(--spark)"/>
+            <circle class="w-spark" style="--d:4.6s;--dl:1.4s" cx="192" cy="118" r="1.6" fill="var(--spark2)"/>
+            <circle class="w-spark" style="--d:4.2s;--dl:2.2s" cx="172" cy="142" r="2" fill="var(--spark)"/>
+            <circle class="w-spark" style="--d:5s;--dl:.9s" cx="152" cy="52" r="1.5" fill="var(--spark2)"/>
+            <circle class="w-spark" style="--d:4.4s;--dl:3s" cx="60" cy="70" r="1.8" fill="var(--spark)"/>
+            <circle class="w-spark" style="--d:5.2s;--dl:1.9s" cx="44" cy="120" r="1.5" fill="var(--spark2)"/>
+            <path class="w-spark" style="--d:4.8s;--dl:.6s" d="M196 76 l1.6 3.4 3.4 1.6 -3.4 1.6 -1.6 3.4 -1.6 -3.4 -3.4 -1.6 3.4 -1.6 Z" fill="var(--spark)"/>
+            <path class="w-spark" style="--d:5.4s;--dl:2.6s" d="M52 94 l1.4 3 3 1.4 -3 1.4 -1.4 3 -1.4 -3 -3 -1.4 3 -1.4 Z" fill="var(--spark2)"/>
+          </g>
+          <!-- 小女巫本体 -->
+          <g class="w-float">
+            <!-- 长发 -->
+            <path d="M88 96 Q 82 118 86 138 Q 96 132 96 116 L 96 100 Z" fill="var(--acc2)" opacity=".55"/>
+            <!-- 裙袍 -->
+            <path d="M92 118 Q 110 102 128 118 L 138 168 Q 110 180 82 168 Z" fill="var(--acc2)" opacity=".88"/>
+            <!-- 裙袍金边 -->
+            <path d="M82 168 Q 110 180 138 168" stroke="var(--acc)" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".8"/>
+            <!-- 腰带 -->
+            <path d="M96 124 Q 110 130 124 124" stroke="var(--acc)" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".7"/>
+            <!-- 头 -->
+            <circle cx="110" cy="94" r="16.5" fill="#f3dfd0"/>
+            <!-- 刘海 -->
+            <path d="M94 90 Q 96 78 110 78 Q 124 78 126 90 Q 118 84 110 85 Q 102 84 94 90 Z" fill="var(--acc2)" opacity=".75"/>
+            <!-- 闭眼微笑 -->
+            <path d="M102 96 q 2.6 2.8 5.2 0" stroke="#4c3a52" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M113 96 q 2.6 2.8 5.2 0" stroke="#4c3a52" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M107 103 q 3 2.4 6 0" stroke="#c98b8b" stroke-width="1.3" stroke-linecap="round"/>
+            <!-- 腮红 -->
+            <circle cx="99" cy="100" r="2.6" fill="#e0a0a0" opacity=".42"/>
+            <circle cx="121" cy="100" r="2.6" fill="#e0a0a0" opacity=".42"/>
+            <!-- 帽子：宽檐 + 微弯尖顶 -->
+            <ellipse cx="110" cy="80" rx="26" ry="6.5" fill="var(--acc2)"/>
+            <ellipse cx="110" cy="79" rx="26" ry="6.5" stroke="var(--acc)" stroke-width="1" fill="none" opacity=".55"/>
+            <path d="M96 79 Q 104 52 116 42 Q 113 56 124 79 Z" fill="var(--acc2)"/>
+            <path d="M116 42 Q 120 38 126 39" stroke="var(--acc2)" stroke-width="5" stroke-linecap="round"/>
+            <!-- 帽带星星 -->
+            <path d="M108 72 l1.7 3.6 3.6 1.7 -3.6 1.7 -1.7 3.6 -1.7 -3.6 -3.6 -1.7 3.6 -1.7 Z" fill="var(--acc)" opacity=".9" transform="translate(0,-4) scale(.8) translate(27,18)"/>
+            <!-- 左手（安静收着） -->
+            <path d="M94 122 Q 88 130 90 138" stroke="#f3dfd0" stroke-width="4.6" stroke-linecap="round"/>
+            <!-- 右臂 + 魔法棒（挥动组） -->
+            <g class="w-arm">
+              <path d="M126 120 Q 140 110 150 96" stroke="#f3dfd0" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+              <!-- 袖口 -->
+              <circle cx="128" cy="118" r="5" fill="var(--acc2)"/>
+              <!-- 魔法棒 -->
+              <line x1="148" y1="98" x2="168" y2="70" stroke="var(--acc)" stroke-width="2.6" stroke-linecap="round"/>
+              <!-- 棒尖星 + 光晕 -->
+              <g class="w-tip">
+                <circle cx="172" cy="64" r="9" fill="var(--spark)" opacity=".14"/>
+                <path d="M172 55 l2.4 6.4 6.4 2.4 -6.4 2.4 -2.4 6.4 -2.4 -6.4 -6.4 -2.4 6.4 -2.4 Z" fill="var(--spark)"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="wait-copy">
+        你好像跟别人有点不同，女巫马上为你揭晓
+        <em>The witch is reading what the cards already know…</em>
+      </div>
+      <div class="wait-dots"><i style="--dl:0s"></i><i style="--dl:.3s"></i><i style="--dl:.6s"></i></div>
+    </div>
+  </section>
+
+  <!-- 5 · 结果页 -->
+  <section>
+    <div class="sec-head"><div class="ln"></div><div class="dot"></div><h2>05 · 解读结果页</h2><div class="dot"></div><div class="ln"></div></div>
+    <div class="result-q">「我和他之间，接下来会走向哪里？」</div>
+    <div class="result-cards">
+      <div class="rc"><div class="rc-img">☾</div><div class="rc-pos">Past · 過去</div><div class="rc-name">月亮</div><span class="rc-ori">正位</span></div>
+      <div class="rc"><div class="rc-img">✦</div><div class="rc-pos">Present · 現在</div><div class="rc-name">星星</div><span class="rc-ori">正位</span></div>
+      <div class="rc"><div class="rc-img">☉</div><div class="rc-pos">Future · 未來</div><div class="rc-name">太陽</div><span class="rc-ori">逆位</span></div>
+    </div>
+    <div class="reading-panel">
+      <div class="r-text">
+        <p>三张牌呈现出一条从迷雾走向光亮的轨迹。过去的月亮说明你曾在这段关系里反复揣测、夜里想得很多——那不是多虑，而是直觉在替你留意一些尚未说出口的事。</p>
+        <p>现在的星星是整个牌阵里最安静也最有力的一张：它代表修复与希望，提示你此刻不需要急着推进，只需要保持真诚的表达，关系自然会向更清澈的方向流动。</p>
+        <p>未来的太阳虽然逆位，但太阳从不代表坏消息——它只是提醒你，结果的明朗可能比预期来得慢一些。把节奏放缓，让事情按它自己的时间成熟。</p>
+      </div>
+      <div class="result-actions">
+        <button class="ra-btn">复制解读</button>
+        <button class="ra-btn pr">再抽一次</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="demo-note">
+    此页面为独立视觉预览，不调用任何后端接口。<br/>
+    切换上方 A / B / C 可对比三套风格在同一布局下的氛围差异。
+  </div>
+
+</main>
+
+<script>
+function setTheme(t){
+  document.body.dataset.theme=t;
+  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('active',b.dataset.set===t));
+}
+/* 随机散布背景星点 */
+(function(){
+  const wrap=document.getElementById('stars');
+  for(let i=0;i<26;i++){
+    const s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';
+    s.style.top=(Math.random()*100)+'%';
+    s.style.setProperty('--d',(4+Math.random()*5)+'s');
+    s.style.setProperty('--dl',(Math.random()*5)+'s');
+    if(Math.random()>.7){s.style.width='3px';s.style.height='3px';}
+    wrap.appendChild(s);
+  }
+})();
+/* 尊重系统减弱动态偏好 */
+if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  document.documentElement.style.setProperty('--reduced','1');
+  document.querySelectorAll('*').forEach(()=>{});
+}
+</script>
+</body>
+</html>

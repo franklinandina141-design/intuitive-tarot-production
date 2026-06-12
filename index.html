@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Intuitive Tarot · Listen to Your Soul</title>
+<meta name="description" content="线上塔罗占卜：写下你的问题，抽三张 Rider-Waite 塔罗牌，获得一份温和而专业的解读。仅供自我觉察与娱乐参考。"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Intuitive Tarot"/>
+<meta property="og:title" content="Intuitive Tarot · Listen to Your Soul"/>
+<meta property="og:description" content="写下你的问题，抽三张塔罗牌，女巫为你揭晓一份溫和而專業的解讀。"/>
+<meta property="og:url" content="http://139.180.216.12/"/>
+<meta property="og:image" content="http://139.180.216.12/og-image.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Intuitive Tarot · Listen to Your Soul"/>
+<meta name="twitter:description" content="写下你的问题，抽三张塔罗牌，获得一份温和而专业的解读。"/>
+<meta name="twitter:image" content="http://139.180.216.12/og-image.jpg"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --parchment:#1a1208;--ink:#e8dcc4;--ink-dim:#b5a48a;--ink-faint:#7a6a52;
+  --gold:#c9a84c;--gold-bright:#e8c96a;--gold-dim:#7a5e2a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
+  color:var(--ink);font-family:'IM Fell English',Georgia,serif;
+  user-select:none;-webkit-tap-highlight-color:transparent;}
+
+/* ── atmosphere ── */
+.ly-v{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 75% at 50% 50%,transparent 0%,rgba(8,5,2,.54) 65%,rgba(4,2,0,.92) 100%);}
+.ly-g{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 45% 38% at 50% 48%,rgba(201,168,76,.07) 0%,transparent 65%);
+  animation:pg 9s ease-in-out infinite alternate;}
+@keyframes pg{0%{opacity:.7}100%{opacity:1}}
+.fo{position:fixed;inset:18px;z-index:1;pointer-events:none;border:1px solid rgba(201,168,76,.28);}
+.fi{position:fixed;inset:24px;z-index:1;pointer-events:none;border:1px solid rgba(201,168,76,.11);}
+.co{position:fixed;z-index:2;pointer-events:none;width:40px;height:40px;}
+.co svg{width:100%;height:100%}
+.co.tl{top:10px;left:10px}.co.tr{top:10px;right:10px;transform:scaleX(-1)}
+.co.bl{bottom:10px;left:10px;transform:scaleY(-1)}.co.br{bottom:10px;right:10px;transform:scale(-1)}
+.as{position:fixed;z-index:1;pointer-events:none;font-size:11px;color:rgba(201,168,76,.09);
+  animation:flt var(--d,22s) ease-in-out var(--dl,0s) infinite alternate;}
+@keyframes flt{0%{opacity:.05}100%{opacity:.11;transform:translate(var(--x,4px),var(--y,-5px))}}
+
+/* ════════════════════════════════════
+   三个全屏页面，用 translateX 切换
+   screen 0 = 封面
+   screen 1 = 抽牌
+   screen 2 = 解读
+════════════════════════════════════ */
+#screens{
+  position:fixed;inset:0;z-index:10;
+  display:flex;
+  transition:transform .7s cubic-bezier(.4,0,.2,1);
+}
+.screen{
+  flex-shrink:0;width:100vw;height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  overflow:hidden;
+}
+
+/* ── btn 通用样式 ── */
+.btn{font-family:'Cinzel',serif;font-size:clamp(8px,1vw,10px);
+  letter-spacing:.4em;text-transform:uppercase;color:var(--gold);background:transparent;
+  border:1px solid rgba(201,168,76,.3);padding:10px 28px;cursor:pointer;outline:none;
+  position:relative;transition:all .3s;user-select:none;}
+.btn::before,.btn::after{content:'';position:absolute;width:5px;height:5px;
+  border-color:var(--gold);border-style:solid;opacity:.38;transition:opacity .28s;}
+.btn::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.btn::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+.btn:hover{color:var(--gold-bright);border-color:rgba(201,168,76,.65);background:rgba(201,168,76,.07);}
+.btn:hover::before,.btn:hover::after{opacity:1}
+.btn:disabled{opacity:.22;cursor:not-allowed;pointer-events:none;}
+.btn.pr{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.06);}
+
+/* ── Access code modal ── */
+.access-modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+  padding:24px;background:radial-gradient(ellipse at center,rgba(201,168,76,.08),rgba(8,5,2,.72) 56%,rgba(3,2,0,.9));
+  backdrop-filter:blur(7px);}
+.access-modal.show{display:flex;animation:modalFade .24s ease both;}
+.access-card{width:min(430px,92vw);position:relative;padding:28px 24px 22px;text-align:center;
+  background:linear-gradient(160deg,rgba(37,25,9,.96),rgba(16,10,4,.98));
+  border:1px solid rgba(201,168,76,.38);box-shadow:0 24px 70px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,245,210,.035);}
+.access-card::before,.access-card::after{content:'';position:absolute;width:12px;height:12px;border-color:rgba(232,201,106,.72);border-style:solid;}
+.access-card::before{top:8px;left:8px;border-width:1px 0 0 1px}.access-card::after{right:8px;bottom:8px;border-width:0 1px 1px 0}
+.access-sigil{font-family:'Cinzel Decorative',serif;color:var(--gold-bright);font-size:25px;margin-bottom:10px;text-shadow:0 0 18px rgba(201,168,76,.34);}
+.access-title{font-family:'Cinzel Decorative',serif;color:var(--ink);font-size:clamp(20px,5vw,28px);letter-spacing:.08em;margin-bottom:7px;}
+.access-copy{color:var(--ink-dim);font-style:italic;font-size:14px;line-height:1.75;margin:0 auto 16px;max-width:320px;}
+.access-input{width:100%;height:48px;background:rgba(255,255,255,.035);border:1px solid rgba(201,168,76,.28);
+  color:var(--ink);font-family:'Cinzel',serif;letter-spacing:.16em;text-align:center;outline:none;border-radius:0;
+  box-shadow:inset 0 0 22px rgba(0,0,0,.22);}
+.access-input:focus{border-color:rgba(232,201,106,.72);box-shadow:0 0 0 3px rgba(201,168,76,.08),inset 0 0 22px rgba(0,0,0,.22);}
+.access-input::placeholder{color:rgba(181,164,138,.45);letter-spacing:.08em;}
+.access-error{min-height:18px;margin-top:9px;color:#d9a56f;font-size:13px;font-style:italic;}
+.access-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+.access-actions .btn{min-width:132px;}
+@keyframes modalFade{from{opacity:0}to{opacity:1}}
+.access-modal.show .access-card{animation:modalCardIn .28s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes modalCardIn{from{transform:translateY(8px) scale(.98);opacity:.88}to{transform:translateY(0) scale(1);opacity:1}}
+
+/* ════════════════════════════════════
+   SCREEN 0 — 封面
+════════════════════════════════════ */
+#s0{padding:48px 32px;}
+
+.cover-sigil{margin-bottom:24px;opacity:0;animation:fu 1.2s ease .2s both;}
+.cover-sigil svg{width:60px;height:60px;filter:drop-shadow(0 0 10px rgba(201,168,76,.3));}
+
+.cover-rule{display:flex;align-items:center;gap:12px;width:min(520px,88vw);margin-bottom:16px;
+  opacity:0;animation:fu 1s ease .4s both;}
+.cover-rule-line{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(201,168,76,.4),transparent);}
+.cover-rule-dot{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);
+  flex-shrink:0;box-shadow:0 0 5px rgba(201,168,76,.5);}
+
+.cover-eyebrow{font-family:'Cinzel',serif;font-size:clamp(8px,1vw,10px);
+  letter-spacing:.42em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:12px;
+  opacity:0;animation:fu 1s ease .35s both;}
+
+.cover-title{font-family:'Cinzel Decorative',serif;font-size:clamp(28px,5vw,58px);
+  letter-spacing:.06em;color:var(--ink);
+  text-shadow:0 0 40px rgba(201,168,76,.18),0 0 80px rgba(201,168,76,.08);
+  text-align:center;margin-bottom:8px;
+  opacity:0;animation:fu 1.4s cubic-bezier(.2,.8,.2,1) .3s both;}
+
+.cover-subtitle{font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(12px,1.6vw,16px);color:var(--gold-dim);letter-spacing:.2em;
+  margin-bottom:6px;opacity:0;animation:fu 1s ease .5s both;}
+
+.cover-byline{font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(10px,1.3vw,13px);color:var(--ink-faint);letter-spacing:.16em;
+  margin-bottom:0;opacity:0;animation:fu 1s ease .6s both;}
+
+.cover-rule2{margin-top:16px;margin-bottom:24px;opacity:0;animation:fu 1s ease .65s both;}
+
+/* 问题输入 */
+.cover-q-wrap{width:min(520px,88vw);margin-bottom:22px;
+  opacity:0;animation:fu 1s ease .75s both;}
+.cover-q-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.4em;
+  text-transform:uppercase;color:var(--gold-dim);display:block;margin-bottom:10px;text-align:center;}
+.cover-q{
+  width:100%;background:rgba(255,255,255,.025);
+  border:none;
+  border-top:1px solid rgba(201,168,76,.22);
+  border-bottom:1px solid rgba(201,168,76,.22);
+  color:var(--ink);font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(13px,1.7vw,15px);padding:13px 18px;resize:none;outline:none;
+  line-height:1.8;text-align:center;caret-color:var(--gold);
+  transition:border-color .3s;}
+.cover-q:focus{border-color:rgba(201,168,76,.52);}
+.cover-q::placeholder{color:var(--ink-faint);font-style:italic;}
+
+.cover-begin{opacity:0;animation:fu 1s ease .9s both;}
+
+/* ════════════════════════════════════
+   SCREEN 1 — 抽牌
+════════════════════════════════════ */
+#s1{padding:44px 20px 32px;justify-content:space-between;}
+
+.pick-top{text-align:center;flex-shrink:0;}
+.pick-top h2{font-family:'Cinzel Decorative',serif;font-size:clamp(14px,2vw,21px);
+  letter-spacing:.13em;color:var(--ink);text-shadow:0 0 26px rgba(201,168,76,.2);margin-bottom:5px;}
+.pick-top p{font-family:'Cinzel',serif;font-size:clamp(7.5px,.95vw,9.5px);
+  letter-spacing:.4em;color:var(--gold-dim);text-transform:uppercase;}
+.pick-q-display{font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(11px,1.4vw,13px);color:var(--ink-dim);margin-top:6px;
+  max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
+
+.pg{display:flex;gap:8px;margin-top:8px;justify-content:center;}
+.pg-d{width:28px;height:3px;border-radius:2px;background:rgba(201,168,76,.12);
+  border:1px solid rgba(201,168,76,.2);transition:background .4s,box-shadow .4s;}
+.pg-d.on{background:var(--gold);box-shadow:0 0 6px rgba(201,168,76,.5);}
+
+/* stage 占中间所有剩余空间 */
+#stage-wrap{flex:1;width:100%;position:relative;overflow:visible;}
+#stage{position:absolute;inset:0;overflow:visible;}
+
+.pick-bot{display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0;}
+.st{font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(11px,1.4vw,13px);color:var(--ink-faint);
+  letter-spacing:.08em;text-align:center;min-height:18px;}
+.st.rdy{color:var(--gold);font-style:normal;}
+.bts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+
+/* ── 牌 ── */
+.card{
+  position:absolute;cursor:pointer;transform-style:preserve-3d;
+  transition:opacity .3s;
+  will-change:transform;
+}
+/* 洗牌散开动画 */
+@keyframes shuffleOut{
+  0%{opacity:1;transform:rotateZ(var(--rz,0deg)) scale(1);}
+  40%{opacity:.7;transform:rotateZ(var(--rz2,15deg)) translateY(-20px) scale(.96);}
+  100%{opacity:0;transform:rotateZ(var(--rz3,0deg)) translateY(var(--ty,-60px)) translateX(var(--tx,0px)) scale(.88);}
+}
+@keyframes shuffleIn{
+  0%{opacity:0;transform:rotateZ(var(--rz3,0deg)) translateY(var(--ty,-40px)) translateX(var(--tx,0px)) scale(.88);}
+  60%{opacity:.9;}
+  100%{opacity:1;transform:rotateZ(var(--rz,0deg)) translateY(0) translateX(0) scale(1);}
+}
+.card.shuffle-out{animation:shuffleOut .38s cubic-bezier(.4,0,1,1) both;}
+.card.shuffle-in{animation:shuffleIn .52s cubic-bezier(.2,.9,.3,1) both;}
+
+/* 飞向中央 */
+.card.fly{
+  transition:
+    left .65s cubic-bezier(.22,.9,.22,1),
+    top .65s cubic-bezier(.22,.9,.22,1),
+    transform .65s cubic-bezier(.22,.9,.22,1),
+    opacity .3s;
+}
+
+.ci{
+  position:absolute;inset:0;transform-style:preserve-3d;border-radius:10px;
+  transition:transform .72s cubic-bezier(.28,0,.18,1);
+}
+.cf,.cb{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;overflow:hidden;}
+
+/* 牌背 — 更精致 */
+.cb{
+  background:linear-gradient(155deg,#2e2008 0%,#1a1005 50%,#261a08 100%);
+  border:1px solid rgba(201,168,76,.32);
+  box-shadow:0 4px 16px rgba(0,0,0,.55),inset 0 0 0 1px rgba(100,78,28,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.cb::before{
+  content:'';position:absolute;inset:0;border-radius:10px;
+  background:
+    repeating-linear-gradient(45deg,rgba(201,168,76,.035) 0 4px,transparent 4px 8px),
+    repeating-linear-gradient(-45deg,rgba(201,168,76,.025) 0 4px,transparent 4px 8px);
+}
+.cb::after{content:'';position:absolute;inset:6px;border:1px solid rgba(201,168,76,.13);border-radius:6px;}
+.cb-sym{
+  font-size:20px;color:rgba(201,168,76,.65);position:relative;z-index:1;
+  animation:brs 4.5s ease-in-out infinite;
+  text-shadow:0 0 12px rgba(201,168,76,.3);
+}
+@keyframes brs{0%,100%{opacity:.32}50%{opacity:.72}}
+
+/* 牌面 */
+.cf{
+  background:#0e0a03;border:1px solid rgba(201,168,76,.40);
+  transform:rotateY(180deg);display:flex;flex-direction:column;
+  box-shadow:0 6px 22px rgba(0,0,0,.62);
+}
+/* 骨架屏加载状态 */
+.cf .img-wrap{width:100%;flex:1;position:relative;overflow:hidden;min-height:0;}
+.cf .img-wrap::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(201,168,76,.06) 50%,transparent 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s ease-in-out infinite;
+}
+.cf .img-wrap.loaded::before{
+  opacity:0;
+  animation:none;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.cf img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  opacity:0;transition:opacity .45s ease;
+  position:absolute;inset:0;
+}
+.cf img.loaded{opacity:1;}
+.cf .csv{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#1e1508,#2a1c0a);
+  position:absolute;inset:0;
+}
+.cf .lbl{
+  font-family:'Cinzel',serif;font-size:clamp(5.5px,0.7vw,7px);letter-spacing:.05em;color:var(--ink);
+  text-align:center;padding:4px 3px 5px;line-height:1.35;
+  background:rgba(10,6,1,.94);width:100%;flex-shrink:0;position:relative;z-index:2;
+}
+.cf .ori{font-size:clamp(4.5px,0.6vw,6px);letter-spacing:.09em;color:var(--gold-dim);display:block;margin-top:1px;text-transform:uppercase;}
+
+.card.flipped .ci{transform:rotateY(180deg);}
+.card.rev .cf img,.card.rev .cf .csv{transform:rotate(180deg);}
+
+/* hover 发光 */
+#stage.sel .card:not(.pk):not(.dm):hover .cb{
+  border-color:rgba(201,168,76,.68);
+  box-shadow:0 0 20px rgba(201,168,76,.28),0 8px 22px rgba(0,0,0,.52);
+}
+#stage.sel .card:not(.pk):not(.dm):hover{
+  transform:rotateZ(var(--base-rz,0deg)) translateY(-6px) !important;
+  transition:transform .2s ease !important;
+}
+.card.pk .cb{
+  border-color:rgba(201,168,76,.80);
+  box-shadow:0 0 24px rgba(201,168,76,.32),0 6px 20px rgba(0,0,0,.5);
+}
+.card.dm{opacity:.05!important;pointer-events:none!important;filter:blur(.5px);}
+
+/* 选中光晕 */
+@keyframes spk{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.1);}
+  20%{opacity:.8;}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(2.2);}
+}
+.card.spark::after{
+  content:'';position:absolute;left:50%;top:42%;
+  width:90%;height:90%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(215,178,85,.32) 0%,rgba(215,178,85,.08) 45%,transparent 70%);
+  animation:spk .38s ease-out both;
+}
+
+/* ════════════════════════════════════
+   SCREEN 2 — 解读
+════════════════════════════════════ */
+#s2{
+  justify-content:flex-start;align-items:stretch;
+  overflow-y:auto;overflow-x:hidden;
+  height:100vh;padding:0;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+.reading-inner{
+  width:100%;max-width:780px;margin:0 auto;
+  padding:56px 28px 88px;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* ── 三张牌展示 ── */
+.r-cards{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:clamp(16px,3vw,40px);margin-bottom:40px;width:100%;
+}
+.r-slot{display:flex;flex-direction:column;align-items:center;opacity:0;}
+.r-slot:nth-child(1){transform:rotate(-7deg) translateY(-6px);}
+.r-slot:nth-child(2){transform:rotate(0deg)  translateY(8px);}
+.r-slot:nth-child(3){transform:rotate(7deg)  translateY(-6px);}
+
+@keyframes slotIn{
+  from{opacity:0;transform:translateY(24px) scale(.94);}
+  to{opacity:1;}
+}
+.r-slot.show{animation:slotIn .6s cubic-bezier(.2,.9,.3,1) both;}
+.r-slot:nth-child(1).show{animation-delay:.05s;}
+.r-slot:nth-child(2).show{animation-delay:.18s;}
+.r-slot:nth-child(3).show{animation-delay:.31s;}
+
+.r-card{
+  border-radius:12px;border:1px solid rgba(201,168,76,.44);overflow:hidden;
+  box-shadow:0 10px 36px rgba(0,0,0,.60),0 2px 8px rgba(0,0,0,.4);
+  background:#0e0a03;flex-shrink:0;position:relative;
+}
+.r-card .img-wrap{width:100%;height:100%;position:relative;overflow:hidden;}
+.r-card .img-wrap::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.05),transparent);
+  background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+}
+.r-card .img-wrap.loaded::before{
+  opacity:0;
+  animation:none;
+}
+.r-card img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .5s ease;}
+.r-card img.loaded{opacity:1;}
+.r-card.rv img{transform:rotate(180deg);}
+
+/* 位置标 + 金光边框（中间牌突出） */
+.r-slot:nth-child(2) .r-card{
+  border-color:rgba(201,168,76,.62);
+  box-shadow:0 14px 44px rgba(0,0,0,.65),0 0 28px rgba(201,168,76,.12);
+}
+
+.r-label{margin-top:12px;text-align:center;}
+.r-slot:nth-child(1) .r-label{transform:rotate(7deg);}
+.r-slot:nth-child(2) .r-label{transform:rotate(0deg);}
+.r-slot:nth-child(3) .r-label{transform:rotate(-7deg);}
+
+.r-pos{
+  font-family:'Cinzel',serif;font-size:clamp(7px,.9vw,9.5px);
+  letter-spacing:.38em;text-transform:uppercase;color:var(--gold-dim);
+  margin-bottom:5px;display:block;
+}
+.r-name{
+  font-family:'Cinzel',serif;font-size:clamp(11px,1.4vw,15px);
+  letter-spacing:.06em;color:var(--ink);display:block;margin-bottom:3px;
+}
+.r-en{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(9px,1.1vw,12px);color:var(--ink-dim);display:block;margin-bottom:5px;
+}
+.r-orient{
+  font-family:'Cinzel',serif;font-size:clamp(7px,.85vw,9px);
+  letter-spacing:.18em;text-transform:uppercase;
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  border:1px solid rgba(201,168,76,.28);color:var(--gold-dim);
+}
+.r-orient.rev{color:var(--ink-faint);border-color:rgba(201,168,76,.14);}
+
+/* 分隔线 */
+.rule{display:flex;align-items:center;gap:12px;width:100%;margin:20px 0;}
+.rule-line{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(201,168,76,.30),transparent);}
+.rule-dot{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);
+  box-shadow:0 0 6px rgba(201,168,76,.45);flex-shrink:0;}
+
+/* 问题回显 */
+.r-question{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(13px,1.6vw,17px);color:var(--ink-dim);text-align:center;
+  line-height:1.9;margin-bottom:20px;max-width:540px;
+}
+
+/* 解读输出区 */
+.r-output{
+  width:100%;min-height:120px;
+  padding:32px 36px;border-radius:22px;
+  background:linear-gradient(160deg,rgba(42,28,10,.85),rgba(18,12,4,.96));
+  border:1px solid rgba(201,168,76,.20);
+  box-shadow:0 24px 60px rgba(0,0,0,.30),inset 0 1px 0 rgba(201,168,76,.08);
+  margin-bottom:28px;display:none;
+}
+.r-output.loading{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;color:var(--gold-dim);font-style:italic;
+  font-family:'IM Fell English',serif;font-size:15px;
+}
+.reading-reveal{animation:readingReveal .34s ease both;}
+.r-text p{margin:0 0 1.05em;}
+.r-text p:last-child{margin-bottom:0;}
+@keyframes readingReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* 流式阅读 — 段落块渐显，比逐字打字更舒服 */
+.r-text{
+  font-family:'IM Fell English',serif;
+  font-size:clamp(14px,1.85vw,17.5px);
+  line-height:2.15;
+  color:rgba(235,222,198,.93);
+  white-space:pre-wrap;
+  letter-spacing:.02em;
+}
+/* 每段首字下沉效果（第一个自然段） */
+.r-text::first-letter{
+  font-size:1.6em;line-height:1;float:left;
+  margin:0 6px 0 0;color:var(--gold-bright);
+  font-family:'Cinzel',serif;
+}
+.cursor{
+  display:inline-block;width:2px;height:1.1em;
+  background:var(--gold);opacity:.9;
+  animation:blink .75s step-end infinite;
+  vertical-align:text-bottom;margin-left:2px;
+  border-radius:1px;
+}
+@keyframes blink{0%,100%{opacity:.9}50%{opacity:0}}
+.spinner{
+  width:20px;height:20px;border:1.5px solid rgba(201,168,76,.18);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .75s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ── 等待解读 · 小女巫施法（仅展示层，不影响请求逻辑） ── */
+.r-output.loading{flex-direction:column;gap:4px;padding:30px 24px 26px;}
+.witch-cast{width:min(225px,62vw);margin:0 auto;}
+.witch-cast svg{width:100%;height:auto;display:block;overflow:visible;}
+.wc-float{animation:wcFloat 5s ease-in-out infinite alternate;}
+@keyframes wcFloat{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+.wc-arm{transform-origin:134px 112px;animation:wcWave 2.9s cubic-bezier(.45,.05,.55,.95) infinite alternate;}
+@keyframes wcWave{from{transform:rotate(-4deg)}to{transform:rotate(9deg)}}
+.wc-trail{stroke-dasharray:3 8;animation:wcTrail 8s linear infinite;opacity:.55;}
+@keyframes wcTrail{to{stroke-dashoffset:-132}}
+.wc-tip{transform-origin:182px 54px;animation:wcTip 2.2s ease-in-out infinite alternate;}
+@keyframes wcTip{from{transform:scale(.82);opacity:.75}to{transform:scale(1.15);opacity:1}}
+.wc-spark{opacity:0;animation:wcSpark var(--d,4.2s) ease-in-out var(--dl,0s) infinite;}
+@keyframes wcSpark{
+  0%{opacity:0;transform:translateY(3px) scale(.6)}
+  35%{opacity:.95;transform:translateY(-2px) scale(1)}
+  70%{opacity:.4;transform:translateY(-6px) scale(.85)}
+  100%{opacity:0;transform:translateY(-10px) scale(.5)}}
+.wc-copy{text-align:center;font-family:'IM Fell English',serif;font-style:normal;
+  color:var(--ink);font-size:15px;line-height:1.9;letter-spacing:.04em;margin-top:2px;}
+.wc-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+.wc-dots i{width:4px;height:4px;border-radius:50%;background:var(--gold);
+  animation:wcDot 1.8s ease-in-out var(--dl,0s) infinite;}
+@keyframes wcDot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+@media (prefers-reduced-motion: reduce){
+  .wc-float,.wc-arm,.wc-tip,.wc-trail,.wc-spark,.wc-dots i{animation:none}
+  .wc-spark{opacity:.55}}
+.r-error{
+  padding:18px 22px;border-radius:12px;
+  background:rgba(120,20,20,.18);border:1px solid rgba(160,40,40,.30);
+  color:#eeaaaa;font-size:14px;line-height:1.75;width:100%;margin-bottom:20px;
+  font-family:'IM Fell English',serif;
+}
+
+/* 底部操作 — 更完整 */
+.r-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px;}
+
+/* ── keyframes ── */
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* production trust boundary */
+.disclaimer{
+  width:min(560px,88vw);margin:0 auto 18px;
+  color:var(--ink-faint);font-size:clamp(10px,1.35vw,12px);line-height:1.7;
+  text-align:center;letter-spacing:.08em;opacity:0;animation:fu 1s ease 1s both;
+}
+.r-disclaimer{
+  max-width:680px;margin:0 auto 18px;padding:12px 16px;
+  border:1px solid rgba(201,168,76,.18);border-radius:14px;
+  color:var(--ink-faint);font-size:12px;line-height:1.7;text-align:center;
+  background:rgba(255,255,255,.025);
+}
+.reading-language{position:fixed;top:24px;right:26px;z-index:30;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:nowrap;color:var(--ink-dim);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:0;animation:fu 1s ease .65s both}.language-options{display:inline-flex;gap:5px;padding:4px;border:1px solid rgba(201,168,76,.22);border-radius:999px;background:rgba(10,7,1,.58);backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(0,0,0,.22)}.language-btn{min-height:32px;padding:0 11px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;cursor:pointer;transition:.22s ease}.language-btn:hover,.language-btn.active{color:var(--ink);border-color:rgba(201,168,76,.42);background:rgba(201,168,76,.13);box-shadow:0 0 18px rgba(201,168,76,.08)}@media(max-width:720px){.reading-language{top:calc(env(safe-area-inset-top) + 12px);right:14px;left:auto;font-size:0}.language-options{padding:3px;gap:4px;background:rgba(8,5,2,.68);border-color:rgba(232,201,106,.25)}.language-btn{min-height:32px;padding:0 10px;font-size:10px}.fo{inset:10px;border-color:rgba(201,168,76,.22)}.fi{inset:16px}.co{width:30px;height:30px}.as{display:none}.screen{height:100svh}.mobile-premium-tarot-shell{justify-content:flex-start;padding:calc(env(safe-area-inset-top) + 66px) 18px calc(env(safe-area-inset-bottom) + 22px);overflow:hidden}.cover-sigil{margin-bottom:14px}.cover-sigil svg{width:50px;height:50px}.cover-rule{width:100%;margin-bottom:12px}.cover-eyebrow{font-size:8px;letter-spacing:.25em;margin-bottom:10px}.cover-title{max-width:340px;font-size:clamp(31px,10vw,44px);line-height:1.12;letter-spacing:.035em;text-wrap:pretty}.cover-subtitle{font-size:14px;letter-spacing:.15em}.cover-byline{font-size:11px;letter-spacing:.08em}.disclaimer{width:100%;max-width:330px;margin:8px auto 12px;font-size:10.5px;line-height:1.65;letter-spacing:.03em}.cover-rule2{display:none}.mobile-cover-oracle-card{width:min(100%,360px);margin:8px auto 16px;padding:16px 14px 14px;position:relative;background:linear-gradient(180deg,rgba(38,25,9,.72),rgba(13,8,3,.42));border:1px solid rgba(201,168,76,.23);box-shadow:0 18px 48px rgba(0,0,0,.34),inset 0 1px 0 rgba(232,201,106,.08)}.mobile-cover-oracle-card::before,.mobile-cover-oracle-card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(232,201,106,.48);border-style:solid}.mobile-cover-oracle-card::before{top:7px;left:7px;border-width:1px 0 0 1px}.mobile-cover-oracle-card::after{right:7px;bottom:7px;border-width:0 1px 1px 0}.mobile-ritual-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,168,76,.62)}.mobile-oracle-line{height:1px;margin-bottom:12px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.32),transparent)}.cover-q-wrap{width:100%;margin-bottom:0}.cover-q-label{font-size:8px;letter-spacing:.22em;line-height:1.55;margin-bottom:9px}.cover-q{min-height:104px;padding:14px 13px;font-size:15px;line-height:1.7;border:1px solid rgba(201,168,76,.24);background:rgba(5,3,1,.32);text-align:left;border-radius:12px}.cover-q::placeholder{text-align:center}.cover-begin{width:min(100%,340px)}.cover-begin .btn,.btn{min-height:44px}.cover-begin .btn{width:100%;font-size:9px;letter-spacing:.32em}#s1{height:100svh;padding:calc(env(safe-area-inset-top) + 54px) 12px calc(env(safe-area-inset-bottom) + 18px);justify-content:space-between}.pick-top{width:min(100%,360px);padding:10px 12px 8px;background:linear-gradient(180deg,rgba(28,18,7,.54),rgba(10,6,2,.16));border:1px solid rgba(201,168,76,.16);box-shadow:0 14px 34px rgba(0,0,0,.18)}.pick-top h2{font-size:clamp(17px,5.2vw,22px);line-height:1.15;letter-spacing:.08em;text-wrap:pretty}.pick-top p{font-size:8px;letter-spacing:.23em}.pick-q-display{max-width:300px;font-size:12px;line-height:1.42;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.pg{margin-top:7px}.pg-d{width:28px;height:4px}#stage-wrap{min-height:52svh;width:100%;filter:drop-shadow(0 18px 28px rgba(0,0,0,.28))}.pick-bot{width:min(100%,360px);gap:9px;padding:10px 10px 0}.st{font-size:12.5px;line-height:1.35;min-height:18px;color:rgba(181,164,138,.82)}.bts{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}.bts .btn{width:100%;padding:0 10px;font-size:8.5px;letter-spacing:.22em}.bts .btn.pr:nth-child(2){grid-column:1/-1}.cb-sym{font-size:25px}.cf .lbl{font-size:7px;padding:5px 3px 6px}.cf .ori{font-size:5.5px}#s2{height:100svh;background:linear-gradient(180deg,rgba(20,12,4,.28),rgba(5,3,1,.12))}.reading-inner{max-width:100%;padding:calc(env(safe-area-inset-top) + 54px) 16px calc(env(safe-area-inset-bottom) + 92px);align-items:stretch}.mobile-card-spread-scroll{justify-content:flex-start;align-items:flex-start;gap:14px;margin:0 -16px 24px;padding:8px 16px 18px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}.mobile-card-spread-scroll::-webkit-scrollbar{display:none}.r-slot{min-width:118px;scroll-snap-align:center}.r-slot:nth-child(n){transform:none}.r-slot:nth-child(n) .r-label{transform:none}.r-card{border-radius:13px;box-shadow:0 14px 38px rgba(0,0,0,.58),0 0 0 1px rgba(232,201,106,.04)}.r-label{margin-top:10px;padding:0 2px}.r-pos{font-size:8px;letter-spacing:.28em}.r-name{font-size:13px}.r-en{font-size:11px}.r-orient{font-size:8px;padding:4px 9px}.rule{margin:10px 0 16px}.r-question{max-width:100%;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(201,168,76,.16);background:rgba(255,255,255,.025);border-radius:16px;font-size:15px;line-height:1.75;text-wrap:pretty}.r-disclaimer{font-size:11px;line-height:1.65;margin-bottom:14px;border-radius:16px;background:rgba(255,255,255,.028)}.mobile-reading-panel{padding:24px 18px;border-radius:20px;background:linear-gradient(180deg,rgba(45,30,10,.9),rgba(13,8,3,.98));border-color:rgba(201,168,76,.24);box-shadow:0 22px 58px rgba(0,0,0,.38),inset 0 1px 0 rgba(232,201,106,.08)}.r-text{font-size:16px;line-height:2.02;letter-spacing:.01em;text-wrap:pretty}.r-text::first-letter{font-size:1.35em}.mobile-sticky-actions{position:sticky;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:5;margin:8px -4px 0;padding:10px 8px;border:1px solid rgba(201,168,76,.16);border-radius:18px;background:rgba(10,7,2,.72);backdrop-filter:blur(14px);box-shadow:0 16px 40px rgba(0,0,0,.34)}.mobile-sticky-actions .btn{flex:1 1 130px;padding:0 10px;font-size:8.5px;letter-spacing:.18em}}
+
+</style>
+</head>
+<body>
+
+<div class="reading-language" aria-label="Reading Language">
+  <span>Reading Language</span>
+  <div class="language-options">
+    <button class="language-btn" type="button" data-lang="zh" onclick="setReadingLanguage('zh')">中文</button>
+    <button class="language-btn" type="button" data-lang="en" onclick="setReadingLanguage('en')">English</button>
+  </div>
+</div>
+
+<div class="ly-v"></div><div class="ly-g"></div>
+<div class="fo"></div><div class="fi"></div>
+<div class="co tl"><svg viewBox="0 0 40 40" fill="none">
+  <path d="M2 2L2 14M2 2L14 2" stroke="rgba(201,168,76,.55)" stroke-width="1"/>
+  <circle cx="2" cy="2" r="1.3" fill="rgba(201,168,76,.7)"/>
+  <circle cx="14" cy="2" r=".6" fill="rgba(201,168,76,.35)"/>
+  <circle cx="2" cy="14" r=".6" fill="rgba(201,168,76,.35)"/>
+</svg></div>
+<div class="co tr"><svg viewBox="0 0 40 40" fill="none">
+  <path d="M2 2L2 14M2 2L14 2" stroke="rgba(201,168,76,.55)" stroke-width="1"/>
+  <circle cx="2" cy="2" r="1.3" fill="rgba(201,168,76,.7)"/>
+  <circle cx="14" cy="2" r=".6" fill="rgba(201,168,76,.35)"/>
+  <circle cx="2" cy="14" r=".6" fill="rgba(201,168,76,.35)"/>
+</svg></div>
+<div class="co bl"><svg viewBox="0 0 40 40" fill="none">
+  <path d="M2 2L2 14M2 2L14 2" stroke="rgba(201,168,76,.55)" stroke-width="1"/>
+  <circle cx="2" cy="2" r="1.3" fill="rgba(201,168,76,.7)"/>
+  <circle cx="14" cy="2" r=".6" fill="rgba(201,168,76,.35)"/>
+  <circle cx="2" cy="14" r=".6" fill="rgba(201,168,76,.35)"/>
+</svg></div>
+<div class="co br"><svg viewBox="0 0 40 40" fill="none">
+  <path d="M2 2L2 14M2 2L14 2" stroke="rgba(201,168,76,.55)" stroke-width="1"/>
+  <circle cx="2" cy="2" r="1.3" fill="rgba(201,168,76,.7)"/>
+  <circle cx="14" cy="2" r=".6" fill="rgba(201,168,76,.35)"/>
+  <circle cx="2" cy="14" r=".6" fill="rgba(201,168,76,.35)"/>
+</svg></div>
+<span class="as" style="top:11%;left:6%;--d:22s;--dl:0s;--x:4px;--y:-5px">☽</span>
+<span class="as" style="top:19%;left:89%;--d:26s;--dl:2s;--x:-4px;--y:4px">☿</span>
+<span class="as" style="top:70%;left:5%;--d:19s;--dl:1s;--x:6px;--y:-3px">♄</span>
+<span class="as" style="top:75%;left:91%;--d:23s;--dl:3s;--x:-3px;--y:-5px">♃</span>
+
+<!-- ══ SCREENS CONTAINER ══ -->
+<div id="screens">
+
+  <!-- ── SCREEN 0: 封面 ── -->
+  <div class="screen mobile-premium-tarot-shell" id="s0">
+    <div class="cover-sigil">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" stroke="rgba(201,168,76,.45)" stroke-width=".8"/>
+        <circle cx="32" cy="32" r="20" stroke="rgba(201,168,76,.25)" stroke-width=".5"/>
+        <path d="M32 10 L52 46 L12 46 Z" stroke="rgba(201,168,76,.5)" stroke-width=".8" fill="none"/>
+        <path d="M32 54 L12 18 L52 18 Z" stroke="rgba(201,168,76,.3)" stroke-width=".5" fill="none"/>
+        <circle cx="32" cy="32" r="2" fill="rgba(201,168,76,.8)"/>
+        <circle cx="32" cy="4" r="1" fill="rgba(201,168,76,.45)"/>
+        <circle cx="32" cy="60" r="1" fill="rgba(201,168,76,.45)"/>
+        <circle cx="4" cy="32" r="1" fill="rgba(201,168,76,.45)"/>
+        <circle cx="60" cy="32" r="1" fill="rgba(201,168,76,.45)"/>
+      </svg>
+    </div>
+
+    <div class="cover-rule">
+      <div class="cover-rule-line"></div><div class="cover-rule-dot"></div><div class="cover-rule-line"></div>
+    </div>
+
+    <p class="cover-eyebrow">Rider · Waite · Smith &nbsp;·&nbsp; MDCCCIX</p>
+
+    <h1 class="cover-title">Listen to Your Soul</h1>
+    <p class="cover-subtitle">Intuitive Tarot Guidance</p>
+    <p class="cover-byline">Cyauio · Custodian of the Ancient Arcana</p>
+    <p class="disclaimer">塔羅解讀僅供自我覺察與娛樂參考，不能替代醫療、法律、財務或心理專業建議；最終選擇權仍然在你手上。</p>
+
+    <div class="cover-rule cover-rule2">
+      <div class="cover-rule-line"></div><div class="cover-rule-dot"></div><div class="cover-rule-line"></div>
+    </div>
+
+    <div class="mobile-cover-oracle-card">
+      <div class="mobile-ritual-meta">
+        <span>3 Card Spread</span><span>Rider Waite Smith</span>
+      </div>
+      <div class="mobile-oracle-line"></div>
+      <div class="cover-q-wrap">
+      <label class="cover-q-label" for="coverQ">✦ &nbsp; What does your heart seek clarity on? &nbsp; ✦</label>
+      <textarea class="cover-q" id="coverQ" rows="3"
+        placeholder="Write your question here…"></textarea>
+      </div>
+    </div>
+
+    <div class="cover-begin">
+      <button class="btn pr" onclick="goToPick()">Begin the Reading</button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 1: 抽牌 ── -->
+  <div class="screen" id="s1">
+    <div class="pick-top">
+      <h2>Choose Your Cards</h2>
+      <p>✦ &nbsp; draw three to open the reading &nbsp; ✦</p>
+      <p class="pick-q-display" id="pickQDisplay"></p>
+      <div class="pg">
+        <div class="pg-d" id="p0"></div>
+        <div class="pg-d" id="p1"></div>
+        <div class="pg-d" id="p2"></div>
+      </div>
+    </div>
+
+    <div id="stage-wrap"><div id="stage"></div></div>
+
+    <div class="pick-bot">
+      <p class="st" id="st">Touch any card to begin drawing</p>
+      <div class="bts">
+        <button class="btn" id="btnShuffle" onclick="doShuffle()">Shuffle</button>
+        <button class="btn pr" id="btnRead" onclick="goToReading()" disabled>Begin Reading</button>
+        <button class="btn" id="btnAgain" style="display:none" onclick="doShuffle()">Draw Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: 解读 ── -->
+  <div class="screen" id="s2">
+    <div class="reading-inner">
+
+      <div class="r-cards mobile-card-spread-scroll" id="rCards"></div>
+
+      <div class="rule"><div class="rule-line"></div><div class="rule-dot"></div><div class="rule-line"></div></div>
+
+      <p class="r-question" id="rQuestion"></p>
+
+      <div class="r-disclaimer">塔羅解讀僅供自我覺察與娛樂參考，不能替代醫療、法律、財務或心理專業建議；請把它當作一面鏡子，而不是替你做決定的答案。</div>
+
+      <div style="text-align:center;margin-bottom:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn pr" id="btnGen" onclick="generateReading()">✦ &nbsp; Generate Reading</button>
+        <button class="btn" id="btnRetry" onclick="generateReading()" style="display:none">↺ &nbsp; Retry</button>
+      </div>
+
+      <div class="r-output mobile-reading-panel" id="rOutput"></div>
+
+      <div class="rule"><div class="rule-line"></div><div class="rule-dot"></div><div class="rule-line"></div></div>
+
+      <div class="r-actions mobile-sticky-actions">
+        <button class="btn" onclick="backToPick()">← Draw Again</button>
+        <button class="btn" onclick="resetAll()">↩ Start Over</button>
+        <button class="btn pr" id="btnCopy" onclick="copyReading()" style="display:none">Copy Reading</button>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end #screens -->
+
+<div class="access-modal" id="accessModal" aria-hidden="true">
+  <div class="access-card" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+    <div class="access-sigil">✦</div>
+    <h2 class="access-title" id="accessTitle">Enter the Inner Circle</h2>
+    <p class="access-copy">Enter your private access code to begin<br>3 readings per network each day</p>
+    <input class="access-input" id="accessInput" type="text" autocomplete="off" placeholder="Access code" />
+    <div class="access-error" id="accessError"></div>
+    <div class="access-actions">
+      <button class="btn" type="button" id="accessCancel">Cancel</button>
+      <button class="btn pr" type="button" id="accessSubmit">Begin</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ 图片：本地 SVG 生成，零网络依赖 ══ */
+const CSYM={
+  m0:'☽',m1:'⚗',m2:'☽',m3:'♀',m4:'♂',m5:'✝',m6:'♡',m7:'⚔',
+  m8:'∞',m9:'⊙',m10:'⊕',m11:'⚖',m12:'⌖',m13:'☠',m14:'△',
+  m15:'⛧',m16:'⚡',m17:'✦',m18:'☽',m19:'☀',m20:'♪',m21:'◎',
+};
+const CCOL={
+  m0:'#e8d89a',m1:'#d4a853',m2:'#a891d4',m3:'#c8a87a',m4:'#c97a5a',
+  m5:'#d4b870',m6:'#e8a0a0',m7:'#a0b8d4',m8:'#d4a070',m9:'#a0c4a0',
+  m10:'#d4c070',m11:'#c4d4a0',m12:'#a0c0d4',m13:'#a0a4b8',m14:'#b8d4c0',
+  m15:'#b87070',m16:'#d4a860',m17:'#a0c4e0',m18:'#c8c0e8',m19:'#e8d060',
+  m20:'#d4c0a0',m21:'#a8d4a8',
+  wa:'#d4922a',cu:'#7ab4d4',sw:'#a0b8d4',pe:'#80b870',
+};
+const MNAMES={
+  m0:'愚者',m1:'魔術師',m2:'女祭司',m3:'女皇',m4:'皇帝',m5:'教皇',
+  m6:'戀人',m7:'戰車',m8:'力量',m9:'隱者',m10:'命運之輪',m11:'正義',
+  m12:'吊人',m13:'死神',m14:'節制',m15:'惡魔',m16:'高塔',m17:'星星',
+  m18:'月亮',m19:'太陽',m20:'審判',m21:'世界',
+};
+const SNAMES={wa:'權杖',cu:'聖杯',sw:'寶劍',pe:'錢幣'};
+const RNKS=['','A','二','三','四','五','六','七','八','九','十','侍','騎','后','王'];
+const SSYMS={wa:'🔥',cu:'💧',sw:'⚔',pe:'⬡'};
+
+function cardSvg(key){
+  const isMajor=key[0]==='m';
+  const num=parseInt(key.replace(/[a-z]/gi,''))||0;
+  const col=CCOL[key]||(isMajor?'#c9a84c':CCOL[key.slice(0,2)])||'#c9a84c';
+  const sym=isMajor?(CSYM[key]||'✦'):(SSYMS[key.slice(0,2)]||'✦');
+  const label=isMajor?(MNAMES[key]||''):(SNAMES[key.slice(0,2)]||'')+' '+( RNKS[num]||'');
+  const numStr=isMajor?String(num).padStart(2,'0'):'';
+  const sub=isMajor?'✦ ARCANA ✦':'✦ TAROT ✦';
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 190">
+<defs><radialGradient id="g" cx="50%" cy="35%" r="65%">
+<stop offset="0%" stop-color="${col}" stop-opacity="0.2"/>
+<stop offset="100%" stop-color="#0a0701" stop-opacity="1"/>
+</radialGradient></defs>
+<rect width="120" height="190" fill="url(#g)"/>
+<rect x="1.5" y="1.5" width="117" height="187" rx="9" fill="none" stroke="${col}" stroke-width="0.9" opacity="0.55"/>
+<rect x="6" y="6" width="108" height="178" rx="6" fill="none" stroke="${col}" stroke-width="0.35" opacity="0.22"/>
+<text x="60" y="22" text-anchor="middle" font-size="8" fill="${col}" opacity="0.5" font-family="serif" letter-spacing="2">${numStr}</text>
+<text x="60" y="42" text-anchor="middle" font-size="7.5" fill="${col}" opacity="0.4" font-family="serif" letter-spacing="1.5">${sub}</text>
+<line x1="18" y1="52" x2="102" y2="52" stroke="${col}" stroke-width="0.35" opacity="0.25"/>
+<text x="60" y="108" text-anchor="middle" dominant-baseline="middle" font-size="38" fill="${col}" opacity="0.88">${sym}</text>
+<line x1="18" y1="136" x2="102" y2="136" stroke="${col}" stroke-width="0.35" opacity="0.25"/>
+<text x="60" y="152" text-anchor="middle" font-size="10" fill="${col}" opacity="0.78" font-family="serif">${label}</text>
+<text x="60" y="170" text-anchor="middle" font-size="7" fill="${col}" opacity="0.35" font-family="serif" letter-spacing="1">RIDER · WAITE</text>
+</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
+const MAJOR=[
+  {zh:'愚者',  en:'The Fool',          img:cardSvg('m0'), s:'☽',c:'#e8d89a'},
+  {zh:'魔術師',en:'The Magician',       img:cardSvg('m1'), s:'⚗',c:'#d4a853'},
+  {zh:'女祭司',en:'The High Priestess', img:cardSvg('m2'), s:'☽',c:'#a891d4'},
+  {zh:'女皇',  en:'The Empress',        img:cardSvg('m3'), s:'♀',c:'#c8a87a'},
+  {zh:'皇帝',  en:'The Emperor',        img:cardSvg('m4'), s:'♂',c:'#c97a5a'},
+  {zh:'教皇',  en:'The Hierophant',     img:cardSvg('m5'), s:'✝',c:'#d4b870'},
+  {zh:'戀人',  en:'The Lovers',         img:cardSvg('m6'), s:'♡',c:'#e8a0a0'},
+  {zh:'戰車',  en:'The Chariot',        img:cardSvg('m7'), s:'⚔',c:'#a0b8d4'},
+  {zh:'力量',  en:'Strength',           img:cardSvg('m8'), s:'∞',c:'#d4a070'},
+  {zh:'隱者',  en:'The Hermit',         img:cardSvg('m9'), s:'⊙',c:'#a0c4a0'},
+  {zh:'命運之輪',en:'Wheel of Fortune', img:cardSvg('m10'),s:'⊕',c:'#d4c070'},
+  {zh:'正義',  en:'Justice',            img:cardSvg('m11'),s:'⚖',c:'#c4d4a0'},
+  {zh:'倒吊人',en:'The Hanged Man',     img:cardSvg('m12'),s:'⌖',c:'#a0c0d4'},
+  {zh:'死神',  en:'Death',              img:cardSvg('m13'),s:'☠',c:'#a0a4b8'},
+  {zh:'節制',  en:'Temperance',         img:cardSvg('m14'),s:'△',c:'#b8d4c0'},
+  {zh:'惡魔',  en:'The Devil',          img:cardSvg('m15'),s:'⛧',c:'#b87070'},
+  {zh:'高塔',  en:'The Tower',          img:cardSvg('m16'),s:'⚡',c:'#d4a860'},
+  {zh:'星星',  en:'The Star',           img:cardSvg('m17'),s:'✦',c:'#a0c4e0'},
+  {zh:'月亮',  en:'The Moon',           img:cardSvg('m18'),s:'☽',c:'#c8c0e8'},
+  {zh:'太陽',  en:'The Sun',            img:cardSvg('m19'),s:'☀',c:'#e8d060'},
+  {zh:'審判',  en:'Judgement',          img:cardSvg('m20'),s:'♪',c:'#d4c0a0'},
+  {zh:'世界',  en:'The World',          img:cardSvg('m21'),s:'◎',c:'#a8d4a8'},
+];
+const SUITS=[
+  {zh:'權杖',en:'Wands',    p:'wa',c:'#d4922a',s:'🔥'},
+  {zh:'聖杯',en:'Cups',     p:'cu',c:'#7ab4d4',s:'💧'},
+  {zh:'寶劍',en:'Swords',   p:'sw',c:'#a0b8d4',s:'⚔'},
+  {zh:'錢幣',en:'Pentacles',p:'pe',c:'#80b870',s:'⬡'},
+];
+const RZH=['A','二','三','四','五','六','七','八','九','十','侍者','騎士','皇后','國王'];
+const REN=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
+
+/* 維基共享資源 Rider–Waite–Smith 掃圖（公有领域常见收录）；失敗時用 cardSvg 備援 */
+const RWS_MAJOR_FILES=[
+  'RWS Tarot 00 Fool.jpg','RWS Tarot 01 Magician.jpg','RWS Tarot 02 High Priestess.jpg',
+  'RWS Tarot 03 Empress.jpg','RWS Tarot 04 Emperor.jpg','RWS Tarot 05 Hierophant.jpg',
+  'RWS Tarot 06 Lovers.jpg','RWS Tarot 07 Chariot.jpg','RWS Tarot 08 Strength.jpg',
+  'RWS Tarot 09 Hermit.jpg','RWS Tarot 10 Wheel of Fortune.jpg','RWS Tarot 11 Justice.jpg',
+  'RWS Tarot 12 Hanged Man.jpg','RWS Tarot 13 Death.jpg','RWS Tarot 14 Temperance.jpg',
+  'RWS Tarot 15 Devil.jpg','RWS Tarot 16 Tower.jpg','RWS Tarot 17 Star.jpg',
+  'RWS Tarot 18 Moon.jpg','RWS Tarot 19 Sun.jpg','RWS Tarot 20 Judgement.jpg','RWS Tarot 21 World.jpg'
+];
+const RWS_MINOR_PREFIX={wa:'Wands',cu:'Cups',sw:'Swords',pe:'Pents'};
+function rwsCommonsUrl(filename){
+  return 'https://commons.wikimedia.org/wiki/Special:FilePath/'+filename.replace(/ /g,'_');
+}
+function cardImageUrl(key){
+  if(key[0]==='m'){
+    const n=+key.slice(1);
+    return rwsCommonsUrl(RWS_MAJOR_FILES[n]||RWS_MAJOR_FILES[0]);
+  }
+  const suit=key.slice(0,2);
+  const num=+key.slice(2);
+  const pref=RWS_MINOR_PREFIX[suit]||'Wands';
+  return rwsCommonsUrl(`${pref}${String(num).padStart(2,'0')}.jpg`);
+}
+
+function buildDeck(){
+  const d=[];
+  MAJOR.forEach((m,idx)=>{
+    const key='m'+idx;
+    d.push({zh:m.zh,en:m.en,img:cardImageUrl(key),fallback:cardSvg(key),key,s:m.s,c:m.c,rev:Math.random()<.5});
+  });
+  SUITS.forEach(({zh:sz,en:se,p,c,s})=>{
+    for(let i=1;i<=14;i++){
+      const key=`${p}${i}`;
+      d.push({zh:`${sz}${RZH[i-1]}`,en:`${REN[i-1]} of ${se}`,
+        img:cardImageUrl(key),fallback:cardSvg(key),key,s,c,rev:Math.random()<.5});
+    }
+  });
+  return d;
+}
+
+const preloadedImages=new Set();
+function preloadAllImages(){
+  // 预解码整副牌，降低首轮翻牌/解读页切换时的闪烁感
+  const allCards=buildDeck();
+  allCards.forEach(({img,fallback})=>{
+    [img,fallback].forEach(src=>{
+      if(!src||preloadedImages.has(src)) return;
+      preloadedImages.add(src);
+      const im=new Image();
+      im.decoding='async';
+      im.src=src;
+      if(im.decode) im.decode().catch(()=>{});
+    });
+  });
+}
+function markImageLoaded(imgEl){
+  imgEl.classList.add('loaded');
+  const wrap=imgEl.closest('.img-wrap');
+  if(wrap) wrap.classList.add('loaded');
+}
+function tarotImgFallback(el){
+  if(el.dataset.step==='1'){
+    el.style.display='none';
+    const csv=el.nextElementSibling;
+    if(csv) csv.style.display='flex';
+    return;
+  }
+  el.dataset.step='1';
+  const fb=el.getAttribute('data-fb');
+  if(fb){
+    el.src=decodeURIComponent(fb);
+    markImageLoaded(el);
+  }
+}
+function tarotReadingImgFallback(el){
+  if(el.dataset.step==='1'){
+    el.parentElement.style.background='linear-gradient(155deg,#2c1f0d,#1e1407)';
+    markImageLoaded(el);
+    return;
+  }
+  el.dataset.step='1';
+  const fb=el.getAttribute('data-fb');
+  if(fb){
+    el.src=decodeURIComponent(fb);
+    markImageLoaded(el);
+  }
+}
+function mkSvg(s,c){
+  return `<svg viewBox="0 0 56 88" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1.5" y="1.5" width="53" height="85" rx="3" fill="none" stroke="${c}" stroke-width=".6" opacity=".5"/>
+    <text x="28" y="48" text-anchor="middle" dominant-baseline="middle"
+      font-size="20" fill="${c}" opacity=".85">${s}</text>
+    <line x1="10" y1="20" x2="46" y2="20" stroke="${c}" stroke-width=".4" opacity=".25"/>
+    <line x1="10" y1="68" x2="46" y2="68" stroke="${c}" stroke-width=".4" opacity=".25"/>
+  </svg>`;
+}
+
+/* ══ STATE ══ */
+const BSYMS=['✦','☽','✧','⊕','△','☿'];
+let deck=[],drawn=[],picking=false,done=false;
+let raf=null,sway=0,swayDir=1,arcPts=[],CW=0,CH=0;
+let lastReadingText='',currentScreen=0,userQuestion='';
+
+const screensEl = document.getElementById('screens');
+const stageEl   = document.getElementById('stage');
+const stWrap    = document.getElementById('stage-wrap');
+const stEl      = document.getElementById('st');
+const btnRead   = document.getElementById('btnRead');
+const btnAgain  = document.getElementById('btnAgain');
+const btnShuf   = document.getElementById('btnShuffle');
+
+function goToScreen(n){
+  currentScreen=n;
+  screensEl.style.transform=`translateX(-${n*100}vw)`;
+}
+function ss(t,c=''){stEl.className='st'+(c?' '+c:'');stEl.textContent=t;}
+function updPg(){for(let i=0;i<3;i++)document.getElementById('p'+i).className='pg-d'+(drawn.length>i?' on':'');}
+
+/* ══ 封面 → 抽牌 ══ */
+function goToPick(){
+  userQuestion = document.getElementById('coverQ').value.trim();
+  const qd=document.getElementById('pickQDisplay');
+  qd.textContent = userQuestion ? `"${userQuestion}"` : '';
+  deck=cryptoShuffle(buildDeck());
+  buildFan(false);
+  goToScreen(1);
+  setTimeout(startSway,400);
+}
+
+/* ══ 抽牌 → 解读 ══ */
+function goToReading(){
+  const prev=lastReadingText;
+  buildReadingScreen();
+  goToScreen(2);
+  if(prev){
+    // 同一组牌已有解读：直接恢复，不重新生成、不重复消耗体验次数
+    restoreReading(prev);
+  }else{
+    setTimeout(generateReading, 500);
+  }
+}
+
+/* 恢复已生成的解读（返回再进入时） */
+function restoreReading(text){
+  lastReadingText=text;
+  const out=document.getElementById('rOutput');
+  out.style.display='block';
+  out.className='r-output';
+  const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  out.innerHTML='<div class="r-text">'+
+    text.split(/\n{2,}|\n/).filter(p=>p.trim()).map(p=>'<p>'+esc(p.trim())+'</p>').join('')+
+    '</div>';
+  document.getElementById('btnGen').style.display='none';
+  document.getElementById('btnRetry').style.display='';
+  document.getElementById('btnCopy').style.display='';
+}
+
+/* ══ 布局计算 ══ */
+const MOBILE_DRAW_BREAKPOINT=720;
+
+function getLayout(){
+  const VW=window.innerWidth,VH=window.innerHeight;
+  const pickTop = document.querySelector('.pick-top').getBoundingClientRect();
+  const pickBot = document.querySelector('.pick-bot').getBoundingClientRect();
+  // stage-wrap 相对于 s1 屏幕的偏移
+  const sTop  = pickTop.height + 12;
+  const sBot  = VH - pickBot.top + 12;
+  const sH    = VH - sTop - sBot;
+  const isMobile = VW <= MOBILE_DRAW_BREAKPOINT;
+  const mobileMaxCardHeight = Math.floor(sH*0.88);
+  const desktopMaxCardHeight = Math.floor(sH*0.76);
+  const mobileWidthFactor = 0.185;
+  const desktopWidthFactor = 0.13;
+  const ch    = isMobile
+    ? Math.min(mobileMaxCardHeight, 168, Math.floor(VW*mobileWidthFactor/0.618))
+    : Math.min(desktopMaxCardHeight, 134, Math.floor(VW*desktopWidthFactor));
+  const cw    = Math.round(ch*0.618);
+  const mobileCenterScale = isMobile ? 1.16 : 1.08;
+  const stageVisualCenterY = Math.max(ch/2, Math.min(sH - ch/2, sH*0.5));
+  return {VW,VH,sTop,sBot,sH,cw,ch,isMobile,mobileCenterScale,stageVisualCenterY};
+}
+
+/* ══ 抛物线弧形 ══ */
+function calcArcPts(n,sH,VW,cw,ch,sTop,stageVisualCenterY){
+  const cx=VW/2;
+  const midY=sTop+stageVisualCenterY;
+  const margin=Math.max(cw*0.45,VW<=MOBILE_DRAW_BREAKPOINT?20:48);
+  const totalW=VW-margin*2;
+  const step=n>1?totalW/(n-1):0;
+  const arcDip=Math.min(sH*0.10,36);
+  const maxRot=18;
+  const pts=[];
+  for(let i=0;i<n;i++){
+    const t=n===1?0:(i/(n-1))*2-1;
+    const x=cx-totalW/2+i*step;
+    pts.push({left:x-cw/2,top:midY-ch/2+arcDip*t*t,rot:maxRot*t,zIndex:i});
+  }
+  return pts;
+}
+
+/* ══ 构建扇形 ══ */
+function buildFan(animate){
+  const wasAnimating = animate;
+  if(wasAnimating){
+    // 先散开旧牌
+    const oldCards=[...stageEl.querySelectorAll('.card')];
+    oldCards.forEach((el,i)=>{
+      const rz2=(Math.random()-.5)*40;
+      const tx=(Math.random()-.5)*200;
+      const ty=-(60+Math.random()*80);
+      el.style.setProperty('--rz2',rz2+'deg');
+      el.style.setProperty('--tx',tx+'px');
+      el.style.setProperty('--ty',ty+'px');
+      el.classList.add('shuffle-out');
+    });
+    setTimeout(()=>_buildFan(true), 420);
+  } else {
+    _buildFan(false);
+  }
+}
+
+function _buildFan(animate){
+  stageEl.innerHTML='';
+  stageEl.className='sel';
+  const {VW,VH,sTop,sBot,sH,cw,ch,stageVisualCenterY}=getLayout();
+  CW=cw; CH=ch;
+  arcPts=calcArcPts(deck.length,sH,VW,CW,CH,sTop,stageVisualCenterY);
+
+  deck.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className='card';
+    el.dataset.i=i;
+    const rz=arcPts[i].rot;
+    el.style.setProperty('--base-rz', rz+'deg');
+    el.style.cssText+=`;width:${CW}px;height:${CH}px;left:${arcPts[i].left}px;top:${arcPts[i].top-sTop}px;transform:rotateZ(${rz}deg);z-index:${i}`;
+
+    if(animate){
+      const tx=(Math.random()-.5)*120;
+      const ty=-(40+Math.random()*60);
+      const rz3=(Math.random()-.5)*24;
+      el.style.setProperty('--rz',rz+'deg');
+      el.style.setProperty('--rz3',rz3+'deg');
+      el.style.setProperty('--tx',tx+'px');
+      el.style.setProperty('--ty',ty+'px');
+      el.classList.add('shuffle-in');
+      el.style.animationDelay=(i*8)+'ms';
+    }
+
+    el.innerHTML=`<div class="ci">
+      <div class="cb"><div class="cb-sym">${BSYMS[i%BSYMS.length]}</div></div>
+      <div class="cf">
+        <div class="img-wrap">
+          <img src="${c.img}" alt="${c.zh}" loading="lazy" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
+            onload="markImageLoaded(this)"
+            onerror="tarotImgFallback(this)">
+          <div class="csv" style="display:none">${mkSvg(c.s,c.c)}</div>
+        </div>
+        <div class="lbl">${c.zh}<span class="ori">${c.rev?'逆位':'正位'}</span></div>
+      </div></div>`;
+    el.addEventListener('click',()=>onPick(i));
+    stageEl.appendChild(el);
+  });
+}
+
+/* ══ 摇摆 ══ */
+function startSway(){
+  stopSway();
+  const SPD=.008,MAX=2.8;
+  let cards=[...stageEl.querySelectorAll('.card:not(.pk):not(.dm)')];
+  function tick(){
+    sway+=swayDir*SPD; if(Math.abs(sway)>MAX) swayDir*=-1;
+    for(let k=0;k<cards.length;k++){
+      const el=cards[k];
+      if(el.classList.contains('pk')||el.classList.contains('dm')) continue;
+      el.style.transform=`rotateZ(${arcPts[+el.dataset.i].rot+sway}deg)`;
+    }
+    raf=requestAnimationFrame(tick);
+  }
+  raf=requestAnimationFrame(tick);
+}
+function stopSway(){if(raf){cancelAnimationFrame(raf);raf=null;}}
+
+/* ══ 抽牌 ══ */
+function onPick(idx){
+  if(picking||done||drawn.includes(idx)||drawn.length>=3) return;
+  picking=true;
+  const c=deck[idx],slot=drawn.length;
+  const el=stageEl.querySelector(`[data-i="${idx}"]`);
+  el.classList.add('spark','pk');
+  setTimeout(()=>el.classList.remove('spark'),400);
+
+  // 飞向屏幕中央
+  const {VW,VH,sTop,sH,mobileCenterScale,stageVisualCenterY}=getLayout();
+  const selectedCenterTop = sTop + stageVisualCenterY - CH/2;
+  stopSway();
+  el.classList.add('fly');
+  el.style.zIndex=5000+slot;
+  el.style.left=(VW/2-CW/2)+'px';
+  el.style.top=selectedCenterTop+'px';
+  el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
+
+  // 翻牌 — 稍微延迟，飞到一半再翻
+  setTimeout(()=>{
+    el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
+    el.classList.add('flipped');
+    if(c.rev) el.classList.add('rev');
+    // 图片预触发加载
+    const img=el.querySelector('img');
+    if(img && !img.classList.contains('loaded')) img.src=img.src;
+  },320);
+
+  // 稳定后缩小一点
+  setTimeout(()=>{
+    el.style.transform=`rotateZ(0deg) scale(${Math.max(1.04,mobileCenterScale-0.04)})`;
+  },520);
+
+  setTimeout(()=>{
+    el.style.opacity='0';
+    el.style.pointerEvents='none';
+    drawn.push(idx); updPg(); picking=false;
+    // 恢复其他牌的摇摆
+    if(drawn.length<3) startSway();
+    if(drawn.length===3){
+      done=true; stopSway();
+      stageEl.querySelectorAll('.card:not(.pk)').forEach(e=>e.classList.add('dm'));
+      ss('Three cards drawn — your reading awaits','rdy');
+      btnRead.disabled=false;
+      btnAgain.style.display='';
+      btnShuf.style.display='none';
+    } else {
+      ss(`${3-drawn.length} card${3-drawn.length>1?'s':''} remaining`);
+    }
+  },820);
+}
+
+/* ══ 构建解读屏 ══ */
+function buildReadingScreen(){
+  const {VW,VH}=getLayout();
+  const isMobileReading = VW <= MOBILE_DRAW_BREAKPOINT;
+  const rh=isMobileReading
+    ? Math.min(Math.floor(VH*0.32),210,Math.floor(VW*0.52/0.618))
+    : Math.min(Math.floor(VH*0.34),190,Math.floor(VW*0.17));
+  const rw=Math.round(rh*0.618);
+
+  const rCards=document.getElementById('rCards');
+  rCards.innerHTML='';
+  const posLabels=['Past','Present','Future'];
+  drawn.forEach((idx,i)=>{
+    const c=deck[idx];
+    const slot=document.createElement('div');
+    slot.className='r-slot';
+    slot.id='rslot'+i;
+    slot.innerHTML=`
+      <div class="r-card${c.rev?' rv':''}" style="width:${rw}px;height:${rh}px">
+        <div class="img-wrap">
+          <img src="${c.img}" alt="${c.zh}" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
+            onload="markImageLoaded(this)"
+            onerror="tarotReadingImgFallback(this)">
+        </div>
+      </div>
+      <div class="r-label">
+        <span class="r-pos">${posLabels[i]}</span>
+        <span class="r-name">${c.zh}</span>
+        <span class="r-en">${c.en}</span>
+        <span class="r-orient${c.rev?' rev':''}">${c.rev?'逆位 · Reversed':'正位 · Upright'}</span>
+      </div>`;
+    rCards.appendChild(slot);
+    setTimeout(()=>slot.classList.add('show'), i*140+60);
+  });
+
+  // 显示问题
+  const qEl=document.getElementById('rQuestion');
+  qEl.textContent=userQuestion?`"${userQuestion}"`:'';
+
+  // 重置输出区
+  const out=document.getElementById('rOutput');
+  out.style.display='none'; out.innerHTML='';
+  out.className='r-output';
+  document.getElementById('btnCopy').style.display='none';
+  document.getElementById('btnRetry').style.display='none';
+  document.getElementById('btnGen').style.display='';
+  lastReadingText='';
+
+  // 滚回顶部
+  document.getElementById('s2').scrollTop=0;
+}
+
+/* ══ Claude API 解读 ══ */
+const SYSTEM_PROMPT=`你現在是 Elena Voss，一位擁有20年專業經驗的歐洲塔羅占卜師。你只使用標準 Rider-Waite-Smith 牌組（78張牌），絕不使用其他牌系。
+
+核心哲學：
+- 塔羅是用來照亮當事人內在已有的力量與選擇，而不是預言絕對未來。
+- 必須永遠溫和、慈悲、支持、尊重自由意志。
+- 絕不製造恐懼、絕不說「一定會」「命中註定」、絕不給醫療、法律、財務或心理診斷建議。
+
+鐵律（絕對禁止違反）：
+- 必須嚴格使用下方提供的 Rider-Waite 標準牌義，不得自行添加或修改意義。
+- 每次解讀必須根據這三張牌的獨特組合重新組織故事，嚴禁使用任何固定模板句子。
+- 呈現方式必須像一份完整的專業塔羅諮詢報告，不是只回答一句問題。
+- 不要只局限在單張牌義或單一問題答案；要把牌陣放到更大的生命情境與心理脈絡裡理解。
+- 從整體能量、內在狀態、外部互動、時間節奏與可選路徑去解讀。
+- 語氣必須像親切的朋友聊天，用最簡單的大白話，句子短而清楚。
+- 絕對不可使用重複的安全句型（如「先把現實穩住」「慢慢來就可以」等）。
+- 避免命令式語氣，不替用戶做決定；所有建議都要用「傾向、可能、可以觀察、如果你願意」這類非強迫表達。
+- 最後給建議時要像面對面聊天，溫柔、自然、好懂，不要用生硬的條列式命令或教訓式語氣。
+- 遇到醫療、法律、財務、心理危機或重大人生決策，必須提醒尋求合格專業人士協助。
+
+【完整的78張牌標準知識庫】
+{"majorArcana":[{"id":0,"nameZh":"愚者","nameEn":"The Fool","upright":"新開始、純真冒險、信任宇宙","reversed":"魯莽、猶豫不前、缺乏方向"},{"id":1,"nameZh":"魔術師","nameEn":"The Magician","upright":"行動力、創造力、掌握資源、把想法變現實","reversed":"技巧不足、欺騙、浪費潛力"},{"id":2,"nameZh":"女祭司","nameEn":"The High Priestess","upright":"直覺、內在智慧、神秘、潛意識","reversed":"隱藏真相、忽略直覺"},{"id":3,"nameZh":"皇后","nameEn":"The Empress","upright":"豐盛、滋養、創造力、母性","reversed":"依賴、創造力枯竭、過度保護"},{"id":4,"nameZh":"皇帝","nameEn":"The Emperor","upright":"結構、權威、穩定、領導力","reversed":"專橫、僵化、缺乏控制"},{"id":5,"nameZh":"教皇","nameEn":"The Hierophant","upright":"傳統、教導、道德、精神指引","reversed":"叛逆、僵化教條、不守規則"},{"id":6,"nameZh":"戀人","nameEn":"The Lovers","upright":"選擇、關係、愛情、和諧","reversed":"不和諧、錯誤選擇、誘惑"},{"id":7,"nameZh":"戰車","nameEn":"The Chariot","upright":"勝利、意志力、方向感、前進","reversed":"失控、方向錯誤、障礙"},{"id":8,"nameZh":"力量","nameEn":"Strength","upright":"內在勇氣、耐心、溫柔的力量","reversed":"自我懷疑、恐懼、軟弱"},{"id":9,"nameZh":"隱者","nameEn":"The Hermit","upright":"內省、獨處、尋找真理","reversed":"孤立、退縮、拒絕幫助"},{"id":10,"nameZh":"命運之輪","nameEn":"Wheel of Fortune","upright":"變化、機會循環、命運轉折","reversed":"壞運、抵抗變化、停滯"},{"id":11,"nameZh":"正義","nameEn":"Justice","upright":"公平、真相、因果、平衡","reversed":"不公、逃避責任、偏頗"},{"id":12,"nameZh":"吊人","nameEn":"The Hanged Man","upright":"犧牲、放下、新的視角、暫停","reversed":"拖延、卡住、拒絕改變"},{"id":13,"nameZh":"死神","nameEn":"Death","upright":"結束、轉變、新開始、蛻變","reversed":"抗拒改變、停滯不前"},{"id":14,"nameZh":"節制","nameEn":"Temperance","upright":"平衡、調和、中庸、耐心","reversed":"失衡、極端、衝突"},{"id":15,"nameZh":"惡魔","nameEn":"The Devil","upright":"束縛、物質慾望、成癮、恐懼","reversed":"釋放、打破枷鎖、覺醒"},{"id":16,"nameZh":"高塔","nameEn":"The Tower","upright":"突然崩壞、震撼、真相大白","reversed":"避免災難、恐懼改變"},{"id":17,"nameZh":"星星","nameEn":"The Star","upright":"希望、療癒、靈感、未來方向","reversed":"失望、缺乏信心"},{"id":18,"nameZh":"月亮","nameEn":"The Moon","upright":"幻覺、直覺、恐懼、不確定","reversed":"真相浮現、走出迷霧"},{"id":19,"nameZh":"太陽","nameEn":"The Sun","upright":"快樂、成功、活力、清晰","reversed":"暫時陰霾、缺乏活力"},{"id":20,"nameZh":"審判","nameEn":"Judgement","upright":"覺醒、召喚、重新評估","reversed":"自我批判、拖延決定"},{"id":21,"nameZh":"世界","nameEn":"The World","upright":"完成、成就、圓滿、整合","reversed":"未完成、卡在最後一步"}],"minorArcana":{"wands":[{"id":"wands01","nameZh":"權杖Ace","upright":"新靈感、開始行動","reversed":"延遲、缺乏動力"},{"id":"wands02","nameZh":"權杖二","upright":"計劃未來、選擇方向","reversed":"恐懼未知、猶豫"},{"id":"wands03","nameZh":"權杖三","upright":"擴展、遠見","reversed":"延遲、計劃受阻"},{"id":"wands04","nameZh":"權杖四","upright":"慶祝、穩定基礎","reversed":"不穩定、缺乏歸屬"},{"id":"wands05","nameZh":"權杖五","upright":"競爭、小衝突","reversed":"衝突結束、內部和解"},{"id":"wands06","nameZh":"權杖六","upright":"勝利、被認可","reversed":"暫時失敗、自我懷疑"},{"id":"wands07","nameZh":"權杖七","upright":"捍衛立場","reversed":"感到被攻擊、疲於應付"},{"id":"wands08","nameZh":"權杖八","upright":"快速行動、消息","reversed":"延遲、混亂"},{"id":"wands09","nameZh":"權杖九","upright":"堅持、疲憊但堅強","reversed":"防衛過度、快要撐不住"},{"id":"wands10","nameZh":"權杖十","upright":"負荷過重","reversed":"釋放負擔、放下"},{"id":"wands11","nameZh":"權杖侍者","upright":"熱情消息、探索","reversed":"方向模糊、熱情消退"},{"id":"wands12","nameZh":"權杖騎士","upright":"冒險行動","reversed":"衝動、行動受阻"},{"id":"wands13","nameZh":"權杖皇后","upright":"自信、魅力","reversed":"自私、缺乏熱情"},{"id":"wands14","nameZh":"權杖國王","upright":"領導、遠見","reversed":"專橫、衝動"}],"cups":[{"id":"cups01","nameZh":"聖杯Ace","upright":"新情感、愛的開始","reversed":"情感封閉"},{"id":"cups02","nameZh":"聖杯二","upright":"和諧關係","reversed":"關係失衡"},{"id":"cups03","nameZh":"聖杯三","upright":"慶祝、友情","reversed":"過度社交、孤立"},{"id":"cups04","nameZh":"聖杯四","upright":"無聊、錯過機會","reversed":"醒悟、接受新機會"},{"id":"cups05","nameZh":"聖杯五","upright":"失望、遺憾","reversed":"接受現實、重新開始"},{"id":"cups06","nameZh":"聖杯六","upright":"回憶、舊情","reversed":"活在過去"},{"id":"cups07","nameZh":"聖杯七","upright":"幻想、太多選擇","reversed":"看清現實、做出選擇"},{"id":"cups08","nameZh":"聖杯八","upright":"離開、尋找更深層","reversed":"逃避"},{"id":"cups09","nameZh":"聖杯九","upright":"滿足、願望實現","reversed":"自滿、表面滿足"},{"id":"cups10","nameZh":"聖杯十","upright":"家庭幸福","reversed":"家庭不和"},{"id":"cups11","nameZh":"聖杯侍者","upright":"情感訊息、直覺","reversed":"情感不成熟"},{"id":"cups12","nameZh":"聖杯騎士","upright":"浪漫邀請","reversed":"情緒化、不可靠"},{"id":"cups13","nameZh":"聖杯皇后","upright":"同理心、直覺強","reversed":"情緒過度、依賴"},{"id":"cups14","nameZh":"聖杯國王","upright":"情感成熟、慈悲","reversed":"情緒壓抑"}],"swords":[{"id":"swords01","nameZh":"寶劍Ace","upright":"清晰想法、真相","reversed":"混亂、誤解"},{"id":"swords02","nameZh":"寶劍二","upright":"僵持、困難決定","reversed":"打破僵局"},{"id":"swords03","nameZh":"寶劍三","upright":"心痛、背叛","reversed":"療癒、原諒"},{"id":"swords04","nameZh":"寶劍四","upright":"休息、恢復","reversed":"躁動、無法休息"},{"id":"swords05","nameZh":"寶劍五","upright":"衝突後的勝利（空虛）","reversed":"放下爭執"},{"id":"swords06","nameZh":"寶劍六","upright":"離開困境","reversed":"無法前進"},{"id":"swords07","nameZh":"寶劍七","upright":"欺騙、策略","reversed":"誠實面對"},{"id":"swords08","nameZh":"寶劍八","upright":"自我限制","reversed":"突破限制"},{"id":"swords09","nameZh":"寶劍九","upright":"焦慮、惡夢","reversed":"恐懼減輕"},{"id":"swords10","nameZh":"寶劍十","upright":"谷底、結束痛苦","reversed":"接受現實、重新開始"},{"id":"swords11","nameZh":"寶劍侍者","upright":"新想法、警覺","reversed":"言語尖銳"},{"id":"swords12","nameZh":"寶劍騎士","upright":"快速但衝動","reversed":"魯莽、傷人"},{"id":"swords13","nameZh":"寶劍皇后","upright":"清晰、獨立","reversed":"刻薄、冷漠"},{"id":"swords14","nameZh":"寶劍國王","upright":"理性、公正","reversed":"專斷、冷酷"}],"pentacles":[{"id":"pent01","nameZh":"錢幣Ace","upright":"新機會、物質開始","reversed":"錯失機會"},{"id":"pent02","nameZh":"錢幣二","upright":"平衡多任務","reversed":"失衡、壓力大"},{"id":"pent03","nameZh":"錢幣三","upright":"團隊合作、技能","reversed":"缺乏合作"},{"id":"pent04","nameZh":"錢幣四","upright":"穩定、守財","reversed":"守財奴、害怕失去"},{"id":"pent05","nameZh":"錢幣五","upright":"匱乏、孤立","reversed":"幫助到來"},{"id":"pent06","nameZh":"錢幣六","upright":"慷慨、分享","reversed":"不公平"},{"id":"pent07","nameZh":"錢幣七","upright":"耐心耕耘","reversed":"回報不如預期"},{"id":"pent08","nameZh":"錢幣八","upright":"專注學習、工藝","reversed":"工作狂、缺乏熱情"},{"id":"pent09","nameZh":"錢幣九","upright":"獨立成就","reversed":"孤獨、過度物質"},{"id":"pent10","nameZh":"錢幣十","upright":"家族財富、傳承","reversed":"家庭問題、遺產糾紛"},{"id":"pent11","nameZh":"錢幣侍者","upright":"實際學習、新機會","reversed":"缺乏實際行動"},{"id":"pent12","nameZh":"錢幣騎士","upright":"可靠、努力","reversed":"僵化、缺乏進展"},{"id":"pent13","nameZh":"錢幣皇后","upright":"實際、滋養","reversed":"過度操勞"},{"id":"pent14","nameZh":"錢幣國王","upright":"成功、事業穩固","reversed":"物質至上、貪婪"}]}}
+
+【解牌邏輯】
+每次解讀時請嚴格按照以下內部流程（不要在輸出中提到）：
+1. 理解用户问题的核心情緒與需求。
+2. 分析這三張牌的具體意義，並自然連結成前因後果的故事。
+3. 先拉高視角觀察整體主題：這組牌反映的是哪一種生命階段、情緒模式、關係動力或行動節奏。
+4. 再回到牌面細節，說明過去、現在、未來之間的能量流動與轉折。
+5. 清楚說明目前真實情況、潛在盲點、外部互動與可選路徑。
+6. 給出2-3個實際、可立即執行的建議。
+7. 用一句溫和的話結尾，並提醒「選擇權仍然在用戶手上」。
+
+輸出要求：
+- 只輸出純文字、自然流暢的敘事，絕不使用標題、條列、JSON 或 Markdown。
+- 繁體中文，約400-550字。
+- 用簡單大白話，像朋友在聊天。
+- 開頭先簡單點出用户问题的核心。
+- 最後一段不要像老師下指令，要像朋友坐在對面提醒：可以給方向，但保留空間，讓用戶感覺被理解而不是被要求。
+- 每次都根據這三張牌的獨特能量重新撰寫，避免任何重複句型。`;
+
+const ENGLISH_SYSTEM_PROMPT=`You are Elena Voss, a calm professional tarot reader with 20 years of experience reading the Rider-Waite-Smith tarot. You only use the standard 78-card Rider-Waite-Smith system.
+
+Core philosophy:
+- Tarot is a reflective tool for self-awareness, emotional clarity, and choice-making. It is not fixed fortune-telling.
+- Keep the tone grounded, compassionate, precise, and professionally bounded.
+- Never create fear. Never claim certainty. Never say an outcome is destined or guaranteed.
+- Do not provide medical, legal, financial, or psychological diagnosis or decisive professional advice.
+
+Professional reading rules:
+- Write directly in polished natural English. Do not translate from Chinese.
+- Interpret each card according to its Rider-Waite-Smith meaning, orientation, and spread position.
+- Connect the three cards into one coherent reading rather than listing generic meanings.
+- Do not stay confined to literal single-card meanings or a narrow answer to one question.
+- First zoom out from individual card meanings and name the broader energetic pattern of the spread.
+- Include inner state, external dynamics, timing, and possible paths before giving grounded guidance.
+- Avoid template sameness. The reading must be shaped by the user's question and this exact card combination.
+- Use conditional language such as may, suggests, points to, invites you to notice, and one grounded option could be.
+- Do not make decisions for the user. Keep personal agency explicit.
+- When giving final guidance, sound conversational, warm, and human — like a reader gently talking with the user across the table. Do not sound like a rigid checklist or command.
+
+Output structure:
+- Use these clear section labels exactly once: Opening Insight, Card-by-Card Reading, Pattern Between the Cards, Grounded Guidance, Closing Reflection.
+- Write in natural paragraphs under each label.
+- Keep the reading around 500-750 English words.
+- The ending must remind the user that the final choice remains theirs.
+- If the question touches health, legal, financial, or psychological crisis topics, include a calm reminder to seek a qualified professional.`;
+
+function buildSystemPrompt(readingLanguage){
+  return readingLanguage==='en'?ENGLISH_SYSTEM_PROMPT:SYSTEM_PROMPT;
+}
+
+/* 方案2：解读走后端代理，浏览器不携带 Anthropic Key。
+   Vercel 静态前端默认请求 Render 后端；
+   本地或临时切换后端可在浏览器控制台执行 setApiOrigin('https://你的后端域名')。 */
+const DEFAULT_TAROT_API_ORIGIN='https://intuitive-tarot-production.onrender.com';
+function setApiOrigin(origin){
+  try{localStorage.setItem('TAROT_API_ORIGIN', String(origin||'').replace(/\/$/,'')); location.reload();}catch(_){}
+}
+const TAROT_API_ORIGIN=(()=>{
+  try{
+    const saved=localStorage.getItem('TAROT_API_ORIGIN');
+    if(saved) return saved.replace(/\/$/,'');
+  }catch(_){}
+  return (window.TAROT_API_ORIGIN||DEFAULT_TAROT_API_ORIGIN).replace(/\/$/,'');
+})();
+const TAROT_MESSAGES_URL=(()=>{
+  try{
+    if(TAROT_API_ORIGIN) return `${TAROT_API_ORIGIN}/v1/messages`;
+    if(typeof location!=='undefined'&&location.protocol&&location.protocol!=='file:')
+      return `${location.origin}/v1/messages`;
+  }catch(_){}
+  return 'http://127.0.0.1:8787/v1/messages';
+})();
+
+const READING_LANGUAGE_KEY='TAROT_READING_LANGUAGE';
+function getReadingLanguage(){
+  try{
+    const saved=localStorage.getItem(READING_LANGUAGE_KEY);
+    if(saved==='en'||saved==='zh') return saved;
+  }catch(_){}
+  return 'zh';
+}
+function syncReadingLanguageUI(){
+  const lang=getReadingLanguage();
+  document.querySelectorAll('[data-lang]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.lang===lang);
+    btn.setAttribute('aria-pressed', btn.dataset.lang===lang?'true':'false');
+  });
+}
+function setReadingLanguage(lang){
+  const next=lang==='en'?'en':'zh';
+  try{localStorage.setItem(READING_LANGUAGE_KEY,next);}catch(_){}
+  syncReadingLanguageUI();
+}
+
+function requestAccessCode(){
+  const storageKey='TAROT_ACCESS_CODE';
+  try{
+    const saved=localStorage.getItem(storageKey);
+    if(saved) return Promise.resolve(saved.trim());
+  }catch(_){}
+  const modal=document.getElementById('accessModal');
+  const input=document.getElementById('accessInput');
+  const error=document.getElementById('accessError');
+  const submit=document.getElementById('accessSubmit');
+  const cancel=document.getElementById('accessCancel');
+  if(!modal||!input||!submit||!cancel) return Promise.resolve('');
+  return new Promise(resolve=>{
+    let settled=false;
+    const close=(value='')=>{
+      if(settled) return;
+      settled=true;
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden','true');
+      submit.removeEventListener('click',onSubmit);
+      cancel.removeEventListener('click',onCancel);
+      input.removeEventListener('keydown',onKey);
+      modal.removeEventListener('click',onBackdrop);
+      resolve(value);
+    };
+    const onSubmit=()=>{
+      const code=String(input.value||'').trim();
+      if(!code){error.textContent='请先输入体验码';input.focus();return;}
+      try{localStorage.setItem(storageKey,code);}catch(_){}
+      close(code);
+    };
+    const onCancel=()=>close('');
+    const onKey=e=>{if(e.key==='Enter') onSubmit(); if(e.key==='Escape') onCancel();};
+    const onBackdrop=e=>{if(e.target===modal) onCancel();};
+    error.textContent=''; input.value='';
+    submit.addEventListener('click',onSubmit);
+    cancel.addEventListener('click',onCancel);
+    input.addEventListener('keydown',onKey);
+    modal.addEventListener('click',onBackdrop);
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    setTimeout(()=>input.focus(),80);
+  });
+}
+
+/* 等待解读时的小女巫动效（纯展示，不影响请求与流式逻辑） */
+function witchLoadingMarkup(lang){
+  const main = lang==='en'
+    ? 'You seem a little different from the others — the witch will reveal it in a moment.'
+    : '你好像跟别人有点不同，女巫马上为你揭晓';
+  return `
+  <div class="witch-cast" aria-label="${main}">
+    <svg viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wcRobe" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2e1d0a"/><stop offset="100%" stop-color="#140c04"/>
+        </linearGradient>
+        <linearGradient id="wcHair" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#dcae62"/><stop offset="100%" stop-color="#a8762f"/>
+        </linearGradient>
+        <radialGradient id="wcGlow">
+          <stop offset="0%" stop-color="#f0d68a" stop-opacity=".4"/>
+          <stop offset="100%" stop-color="#f0d68a" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- 魔杖火花轨迹：底层柔光 + 流动虚线 -->
+      <path d="M182 52 C 212 70 206 110 196 126 C 188 140 170 148 156 148"
+        stroke="rgba(201,168,76,.18)" stroke-width="3" stroke-linecap="round"/>
+      <path class="wc-trail" d="M182 52 C 212 70 206 110 196 126 C 188 140 170 148 156 148"
+        stroke="rgba(240,214,138,.85)" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- 飘散的金色火花与小月牙 -->
+      <circle class="wc-spark" style="--d:3.8s;--dl:.2s" cx="198" cy="82" r="2" fill="#f0d68a"/>
+      <circle class="wc-spark" style="--d:4.6s;--dl:1.4s" cx="206" cy="112" r="1.4" fill="#c9a84c"/>
+      <circle class="wc-spark" style="--d:4.2s;--dl:2.3s" cx="184" cy="132" r="1.8" fill="#e8c96a"/>
+      <circle class="wc-spark" style="--d:5s;--dl:.8s" cx="162" cy="40" r="1.3" fill="#c9a84c"/>
+      <circle class="wc-spark" style="--d:4.5s;--dl:3s" cx="62" cy="74" r="1.6" fill="#e8c96a"/>
+      <circle class="wc-spark" style="--d:5.2s;--dl:1.9s" cx="48" cy="118" r="1.3" fill="#c9a84c"/>
+      <path class="wc-spark" style="--d:4.8s;--dl:.5s" d="M208 62 l1.5 3.2 3.2 1.5 -3.2 1.5 -1.5 3.2 -1.5 -3.2 -3.2 -1.5 3.2 -1.5 Z" fill="#f0d68a"/>
+      <path class="wc-spark" style="--d:5.4s;--dl:2.7s" d="M56 94 l1.3 2.8 2.8 1.3 -2.8 1.3 -1.3 2.8 -1.3 -2.8 -2.8 -1.3 2.8 -1.3 Z" fill="#e8c96a"/>
+      <path class="wc-spark" style="--d:5.6s;--dl:1.1s" d="M62 50 a6 6 0 1 0 5 9.5 a4.6 4.6 0 1 1 -5 -9.5 Z" fill="#e8c96a" opacity=".8"/>
+      <g class="wc-float">
+        <!-- 身后金色长发：两缕流动曲线 + 高光发丝 -->
+        <path d="M103 86 C 95 104 93 126 100 146 C 107 138 107 116 106 100 Z" fill="url(#wcHair)"/>
+        <path d="M133 88 C 139 104 141 118 136 132 C 130 124 129 108 129 96 Z" fill="url(#wcHair)" opacity=".95"/>
+        <path d="M101.5 96 C 97.5 112 97.5 128 101 140" stroke="#f0d68a" stroke-width=".8" opacity=".5" fill="none"/>
+        <path d="M134 96 C 137.5 106 138.5 116 135.5 126" stroke="#f0d68a" stroke-width=".8" opacity=".5" fill="none"/>
+        <!-- A 字长袍 -->
+        <path d="M100 108 C 108 99 128 99 136 108 C 142 126 148 146 152 164 C 130 177 102 177 84 164 C 90 146 95 124 100 108 Z"
+          fill="url(#wcRobe)" stroke="rgba(201,168,76,.4)" stroke-width="1"/>
+        <!-- 前襟内衬 + 金线滚边 -->
+        <path d="M113 128 L 110.5 171.5 C 115 172.8 121 172.8 125.5 171.5 L 123 128 Z" fill="#2e1d0a" opacity=".9"/>
+        <path d="M113 128 L 110.5 171.5 M123 128 L 125.5 171.5" stroke="rgba(232,201,106,.5)" stroke-width=".8"/>
+        <!-- 肩部小披肩 + 领口金扣 -->
+        <path d="M100 108 C 108 99 128 99 136 108 C 134 115 128 118.5 118 118.5 C 108 118.5 102 115 100 108 Z"
+          fill="#261808" stroke="rgba(201,168,76,.45)" stroke-width=".8"/>
+        <circle cx="118" cy="104.5" r="2" fill="none" stroke="#e8c96a" stroke-width="1"/>
+        <!-- 裙摆双层金边 + 星饰 -->
+        <path d="M84 164 C 102 177 130 177 152 164" stroke="rgba(232,201,106,.7)" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M86.5 160 C 104 172 132 172 149.5 160" stroke="rgba(201,168,76,.35)" stroke-width=".8" stroke-linecap="round"/>
+        <path d="M100 166 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2 Z" fill="#c9a84c" opacity=".6"/>
+        <path d="M118 169 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2 Z" fill="#c9a84c" opacity=".6"/>
+        <path d="M136 166 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2 -2.6 -2.6 -1.2 2.6 -1.2 Z" fill="#c9a84c" opacity=".6"/>
+        <!-- 腰带 + 菱形腰扣 + 垂坠星链 -->
+        <path d="M102 123 C 112 128 124 128 134 123" stroke="rgba(201,168,76,.65)" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M118 121.5 l3 3 -3 3 -3 -3 Z" fill="none" stroke="#e8c96a" stroke-width="1"/>
+        <path d="M118 128 v5" stroke="rgba(232,201,106,.5)" stroke-width=".8"/>
+        <path d="M118 134.5 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2 Z" fill="#e8c96a" opacity=".8"/>
+        <!-- 左臂喇叭袖 + 魔法书 -->
+        <path d="M103 118 Q 94 128 96 139" stroke="#1f1206" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="96.5" cy="138.5" r="3.8" fill="none" stroke="rgba(232,201,106,.55)" stroke-width=".9"/>
+        <circle cx="97" cy="140" r="2.6" fill="#f6e4d4"/>
+        <rect x="86" y="142" width="18" height="13" rx="1.5" fill="#3a2510" stroke="rgba(201,168,76,.65)" stroke-width=".8"/>
+        <path d="M89.5 142 V155" stroke="rgba(232,201,106,.45)" stroke-width=".8"/>
+        <path d="M95 146.5 l1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 Z" fill="#e8c96a" opacity=".7"/>
+        <!-- 头与颈 -->
+        <circle cx="118" cy="86" r="15" fill="#f6e4d4"/>
+        <!-- 刘海与鬓发 -->
+        <path d="M104 82 C 106 69 113 66 118 66 C 123 66 130 69 132 82 C 126 74 121 76 118 76.5 C 115 76 110 74 104 82 Z" fill="url(#wcHair)"/>
+        <path d="M104 82 C 103 87 103 91 104.5 95 C 106 91 106 86 105.5 83 Z" fill="url(#wcHair)"/>
+        <path d="M132 82 C 133 87 133 91 131.5 95 C 130 91 130 86 130.5 83 Z" fill="url(#wcHair)"/>
+        <!-- 圆框金丝眼镜（含镜腿） -->
+        <circle cx="111.5" cy="90" r="4.6" stroke="rgba(240,214,138,.9)" stroke-width="1"/>
+        <circle cx="124.5" cy="90" r="4.6" stroke="rgba(240,214,138,.9)" stroke-width="1"/>
+        <path d="M116.1 88.8 L119.9 88.8" stroke="rgba(240,214,138,.9)" stroke-width="1"/>
+        <path d="M106.9 89.2 L104.2 87.6 M129.1 89.2 L131.8 87.6" stroke="rgba(240,214,138,.7)" stroke-width=".9"/>
+        <!-- 闭眼、小鼻、微笑、腮红 -->
+        <path d="M109 90.5 q2.5 2.2 5 0" stroke="#4a3526" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M122 90.5 q2.5 2.2 5 0" stroke="#4a3526" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M118 94.5 q1 1 0 1.8" stroke="#d9b49a" stroke-width="1" stroke-linecap="round"/>
+        <path d="M115 99.5 q3 2.4 6 0" stroke="#c08a80" stroke-width="1.2" stroke-linecap="round"/>
+        <ellipse cx="106.5" cy="95.5" rx="2.4" ry="1.6" fill="#e0a0a0" opacity=".35"/>
+        <ellipse cx="129.5" cy="95.5" rx="2.4" ry="1.6" fill="#e0a0a0" opacity=".35"/>
+        <!-- 巫师帽：弧形宽檐 + 优雅弯垂帽尖 -->
+        <ellipse cx="118" cy="72" rx="26" ry="6.2" fill="url(#wcRobe)" stroke="rgba(201,168,76,.5)" stroke-width=".8"/>
+        <path d="M92 72 Q 118 80 144 72" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+        <path d="M105 71 C 109 52 114 40 122 32 C 126 28 133 25 140 27 C 135 29 132 33 131 38 C 134 52 133 62 131 71 Z"
+          fill="url(#wcRobe)" stroke="rgba(201,168,76,.4)" stroke-width=".8"/>
+        <path d="M140 27 C 145 26 149 29 149 34 C 146 31 142 30 139 31 Z" fill="#241708" stroke="rgba(201,168,76,.35)" stroke-width=".6"/>
+        <path d="M106 67 C 114 71 126 71 130 67" stroke="#c9a84c" stroke-width="3.2" stroke-linecap="round" opacity=".85"/>
+        <rect x="115.5" y="63.5" width="6.5" height="6.5" rx="1" stroke="#e8c96a" stroke-width="1.1" fill="none"/>
+        <!-- 帽身星饰 + 帽尖垂坠小星 -->
+        <path d="M123 48 l1.1 2.4 2.4 1.1 -2.4 1.1 -1.1 2.4 -1.1 -2.4 -2.4 -1.1 2.4 -1.1 Z" fill="#e8c96a" opacity=".6"/>
+        <circle cx="115" cy="57" r=".9" fill="#e8c96a" opacity=".5"/>
+        <path d="M149 34 q.5 4.5 -2 7" stroke="rgba(232,201,106,.5)" stroke-width=".8" fill="none"/>
+        <path d="M147 43 l1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 Z" fill="#e8c96a" opacity=".7"/>
+        <!-- 右臂喇叭袖 + 木质魔杖（缓慢挥动） -->
+        <g class="wc-arm">
+          <path d="M134 112 C 142 104 150 98 158 92" stroke="#1f1206" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="156.5" cy="93.5" r="3.8" fill="none" stroke="rgba(232,201,106,.55)" stroke-width=".9"/>
+          <circle cx="158" cy="92" r="2.8" fill="#f6e4d4"/>
+          <line x1="157" y1="93" x2="162" y2="85.5" stroke="#5f4022" stroke-width="3.2" stroke-linecap="round"/>
+          <line x1="157" y1="93" x2="180" y2="58" stroke="#8a6238" stroke-width="2.2" stroke-linecap="round"/>
+          <g class="wc-tip">
+            <circle cx="182" cy="54" r="11" fill="url(#wcGlow)"/>
+            <path d="M182 44 l2.4 6.6 6.6 2.4 -6.6 2.4 -2.4 6.6 -2.4 -6.6 -6.6 -2.4 6.6 -2.4 Z" fill="#f0d68a"/>
+            <path d="M182 50 v8 M178 54 h8" stroke="#fff2c8" stroke-width=".9" opacity=".8"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="wc-copy">${main}</div>
+  <div class="wc-dots"><i style="--dl:0s"></i><i style="--dl:.3s"></i><i style="--dl:.6s"></i></div>`;
+}
+
+async function generateReading(){
+  const out=document.getElementById('rOutput');
+  const btnGen=document.getElementById('btnGen');
+  const btnRetry=document.getElementById('btnRetry');
+
+  const readingLanguage=getReadingLanguage();
+  const positionLabels=readingLanguage==='en'?['Past','Present','Future']:['過去','現在','未來'];
+  const cards = drawn.map((idx,s)=>({
+    pos:positionLabels[s],
+    zh:deck[idx].zh, en:deck[idx].en, rev:deck[idx].rev
+  }));
+  const cardLines = cards.map(c=>readingLanguage==='en'
+    ? `${c.pos}: ${c.en} (${c.zh}) · ${c.rev?'Reversed':'Upright'}`
+    : `${c.pos}：${c.zh}（${c.en}）· ${c.rev?'逆位':'正位'}`).join('\n');
+  const q = userQuestion || (readingLanguage==='en'?'Please give me an integrated reading for these three cards':'請為我綜合解讀這三張牌的整體訊息');
+  const accessCode=await requestAccessCode();
+  if(!accessCode){
+    out.style.display='block';
+    out.className='r-output';
+    out.innerHTML='<div class="r-error"><strong>需要体验码</strong><br>请输入体验码后再生成解读</div>';
+    btnGen.style.display='';
+    return;
+  }
+  const userPrompt = readingLanguage==='en'
+    ? `User question: ${q}\n\nDrawn cards:\n${cardLines}`
+    : `用户问题：${q}\n\n抽到的牌：\n${cardLines}`;
+
+  btnGen.disabled=true; btnGen.style.display='none';
+  btnRetry.style.display='none';
+  document.getElementById('btnCopy').style.display='none';
+  out.style.display='block';
+  out.className='r-output loading';
+  out.innerHTML=witchLoadingMarkup(readingLanguage);
+
+  try{
+    const resp = await fetch(TAROT_MESSAGES_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-3-5-sonnet-20241022',
+        max_tokens:1400,
+        stream:true,
+        access_code:accessCode,
+        language:readingLanguage,
+        system:buildSystemPrompt(readingLanguage),
+        messages:[{role:'user',content:userPrompt}],
+      }),
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err?.error?.message||`HTTP ${resp.status}`);
+    }
+
+    out.className='r-output';
+    out.innerHTML='<div class="r-text" id="rText"></div>';
+    const textEl=document.getElementById('rText');
+
+    const reader=resp.body.getReader();
+    const decoder=new TextDecoder();
+    let full='';
+    let sseLineBuf='';
+
+    function anthropicDeltaText(obj){
+      if(!obj||typeof obj!=='object') return '';
+      const d=obj.delta;
+      if(d&&typeof d==='object'){
+        if(d.type==='text_delta'&&typeof d.text==='string') return d.text;
+        if(typeof d.text==='string') return d.text;
+      }
+      return '';
+    }
+
+    // 稳定流式：只追加新的段落节点，不重绘已出现内容，避免手机整屏闪烁
+    let holdingBuffer='';
+    let renderedBlocks=0;
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function appendStableReadingBlock(block){
+      const p=document.createElement('p');
+      p.className='reading-reveal';
+      p.innerHTML=escapeHtml(block);
+      textEl.appendChild(p);
+      renderedBlocks++;
+    }
+    function extractReadableBlocks(force=false){
+      const blocks=[];
+      let source=holdingBuffer.replace(/\r\n/g,'\n');
+      const re=/\n{2,}|(?<=[。！？!?])\s+|(?<=[.!?])\s+/g;
+      let start=0, match;
+      while((match=re.exec(source))){
+        const end=match.index+match[0].length;
+        const block=source.slice(start,end).trim();
+        if(block) blocks.push(block);
+        start=end;
+      }
+      holdingBuffer=source.slice(start);
+      if(force&&holdingBuffer.trim()){
+        blocks.push(holdingBuffer.trim());
+        holdingBuffer='';
+      }
+      return blocks;
+    }
+    function renderReadingTextComfortably(piece='', force=false){
+      holdingBuffer+=String(piece||'');
+      const readyEnough=force||holdingBuffer.length>=120||/[。！？!?]\s*$/.test(holdingBuffer)||/[.!?]\s+$/.test(holdingBuffer);
+      if(!readyEnough) return;
+      const blocks=extractReadableBlocks(force);
+      for(const block of blocks) appendStableReadingBlock(block);
+      const s2=document.getElementById('s2');
+      if(blocks.length) s2.scrollTop=s2.scrollHeight;
+    }
+
+    while(true){
+      const {done,value}=await reader.read();
+      sseLineBuf+=decoder.decode(value||new Uint8Array(0),{stream:!done});
+      const rawLines=sseLineBuf.split('\n');
+      sseLineBuf=rawLines.pop()||'';
+      for(const line of rawLines){
+        if(!line.startsWith('data:')) continue;
+        const d=line.slice(5).trim();
+        if(!d||d==='[DONE]') continue;
+        try{
+          const chunk=JSON.parse(d);
+          const piece=anthropicDeltaText(chunk);
+          if(piece){
+            full+=piece;
+            renderReadingTextComfortably(piece);
+          }
+        }catch(_){}
+      }
+      if(done) break;
+    }
+    // 结束时强制渲染剩余文本
+    renderReadingTextComfortably('', true);
+    lastReadingText=full;
+    document.getElementById('btnCopy').style.display='';
+    btnRetry.style.display='';
+
+  }catch(e){
+    out.className='r-output';
+    let msg=e.message||String(e);
+    if(/访问码不正确|401/i.test(msg)){
+      try{localStorage.removeItem('TAROT_ACCESS_CODE');}catch(_){}
+      msg='体验码不正确 请重新输入或联系网站作者获取';
+    }else if(/体验次数已用完|429/i.test(msg)){
+      msg='今天体验次数有点多啦 请稍后再试';
+    }else if(/invalid api key/i.test(msg)){
+      msg='API Key 無效或已作廢。請檢查 Render 後端的 SUB2API_API_KEY 環境變量 本地測試時請在終端 export SUB2API_API_KEY=你的鑰匙 後重新啟動 npm start';
+    }
+    out.innerHTML=`<div class="r-error"><strong>解讀失敗</strong><br>${msg}</div>`;
+    btnRetry.style.display='';
+  }finally{
+    btnGen.disabled=false; btnGen.textContent='✦ Generate Reading';
+  }
+}
+
+function copyReading(){
+  if(!lastReadingText) return;
+  navigator.clipboard.writeText(lastReadingText).then(()=>{
+    const b=document.getElementById('btnCopy');
+    b.textContent='Copied ✓';
+    setTimeout(()=>b.textContent='Copy Reading',2000);
+  });
+}
+
+/* ══ 洗牌（回到抽牌页）══ */
+function doShuffle(){
+  stopSway(); drawn=[]; done=picking=false; sway=0; swayDir=1;
+  lastReadingText='';
+  deck=cryptoShuffle(buildDeck());
+  buildFan(true); // 带动画
+  updPg();
+  btnRead.disabled=true;
+  btnAgain.style.display='none';
+  btnShuf.style.display='';
+  ss('Cards shuffled — touch any card to begin');
+  goToScreen(1);
+  setTimeout(startSway, 980); // 等洗牌动画完成再摇摆
+}
+
+/* ══ 返回抽牌（保留已抽的牌）══ */
+function backToPick(){
+  goToScreen(1);
+  if(!done) startSway();
+}
+
+/* ══ 从头开始（回封面）══ */
+function resetAll(){
+  stopSway(); drawn=[]; done=picking=false; sway=0; swayDir=1;
+  lastReadingText=''; userQuestion='';
+  document.getElementById('coverQ').value='';
+  deck=[];
+  stageEl.innerHTML='';
+  updPg();
+  btnRead.disabled=true;
+  btnAgain.style.display='none';
+  btnShuf.style.display='';
+  goToScreen(0);
+}
+
+function cryptoShuffle(a){
+  const r=[...a];
+  for(let i=r.length-1;i>0;i--){
+    const b=new Uint32Array(1);crypto.getRandomValues(b);
+    const j=b[0]%(i+1);[r[i],r[j]]=[r[j],r[i]];
+  }
+  return r;
+}
+
+/* ══ 初始化 ══ */
+// 封面回车直接开始
+document.getElementById('coverQ').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();goToPick();}
+});
+
+// 页面加载后立即开始预加载所有牌面图片
+preloadAllImages();
+syncReadingLanguageUI();
+
+let rt=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(rt);
+  rt=setTimeout(()=>{if(currentScreen===1&&!done){stopSway();buildFan(false);setTimeout(startSway,200);}},150);
+});
+</script>
+</body>
+</html>
