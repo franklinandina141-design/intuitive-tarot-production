@@ -560,9 +560,41 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   #s1 .cb-sym{animation:none;text-shadow:none;}
 }
 
+/* Homepage polish after removing remote fonts: use local elegant serif stacks. */
+.cover-title,
+.access-title,
+.access-sigil{
+  font-family:Didot,Bodoni 72,'Bodoni 72 Display','Iowan Old Style',Georgia,serif;
+  font-weight:400;
+}
+.cover-eyebrow,
+.cover-q-label,
+.btn,
+.reading-language,
+.language-btn,
+.pick-top h2,
+.pick-top p{
+  font-family:'Iowan Old Style','Times New Roman',Georgia,serif;
+}
+.cover-subtitle,
+.cover-byline,
+.cover-q,
+.disclaimer{
+  font-family:'Iowan Old Style',Georgia,serif;
+}
+body:not(.screen-pick) #s1 .pick-bot{
+  display:none!important;
+}
+@media (max-width:720px){
+  body.screen-pick #s1 .pick-bot{
+    display:flex!important;
+    position:fixed;
+  }
+}
+
 </style>
 </head>
-<body>
+<body class="screen-cover">
 
 <div class="reading-language" aria-label="Reading Language">
   <span>Reading Language</span>
@@ -924,6 +956,9 @@ const btnShuf   = document.getElementById('btnShuffle');
 
 function goToScreen(n){
   currentScreen=n;
+  document.body.classList.toggle('screen-cover', n===0);
+  document.body.classList.toggle('screen-pick', n===1);
+  document.body.classList.toggle('screen-reading', n===2);
   screensEl.style.transform=`translateX(-${n*100}vw)`;
 }
 function ss(t,c=''){stEl.className='st'+(c?' '+c:'');stEl.textContent=t;}
