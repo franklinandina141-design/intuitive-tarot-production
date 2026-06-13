@@ -579,11 +579,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   font-weight:400;
 }
 body:not(.screen-pick) #s1 .pick-bot{
-  display:none!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  transform:translateY(120%)!important;
 }
 @media (max-width:720px){
   body.screen-pick #s1 .pick-bot{
-    display:flex!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    transform:translateY(0)!important;
     position:fixed;
   }
 }
@@ -968,6 +972,7 @@ function goToPick(){
   deck=cryptoShuffle(buildDeck());
   buildFan(false);
   goToScreen(1);
+  setTimeout(()=>buildFan(false),120);
   setTimeout(startSway,400);
 }
 
@@ -1009,8 +1014,9 @@ function getLayout(){
   // stage-wrap 相对于 s1 屏幕的偏移
   const sTop  = pickTop.height + 12;
   const sBot  = VH - pickBot.top + 12;
-  const sH    = VH - sTop - sBot;
   const isMobile = VW <= MOBILE_DRAW_BREAKPOINT;
+  const rawSH = VH - sTop - sBot;
+  const sH    = Math.max(rawSH, stWrap.getBoundingClientRect().height || (isMobile ? 260 : 360));
   const mobileMaxCardHeight = Math.floor(sH*0.88);
   const desktopMaxCardHeight = Math.floor(sH*0.76);
   const mobileWidthFactor = 0.185;
