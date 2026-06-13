@@ -551,13 +551,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   #s1 .bts{width:100%;gap:8px;}
   #s1 .bts .btn{flex:1 1 0;min-width:0;padding:13px 10px;font-size:11px;}
   #btnRead{flex-basis:100%;font-size:12px;letter-spacing:.18em;}
-  #s1 #stage-wrap{filter:none;}
-  #s1 .card{will-change:auto;}
-  #s1 .card.shuffle-in,
-  #s1 .card.shuffle-out{animation:none!important;}
-  #s1 .cb,
-  #s1 .cf{box-shadow:0 4px 12px rgba(0,0,0,.46);}
-  #s1 .cb-sym{animation:none;text-shadow:none;}
 }
 
 /* Homepage polish after removing remote fonts: keep one light serif system. */
@@ -943,7 +936,7 @@ function mkSvg(s,c){
 /* ══ STATE ══ */
 const BSYMS=['✦','☽','✧','⊕','△','☿'];
 let deck=[],drawn=[],picking=false,done=false;
-let raf=null,sway=0,swayDir=1,arcPts=[],CW=0,CH=0,visibleDeckIndices=[];
+let raf=null,sway=0,swayDir=1,arcPts=[],CW=0,CH=0;
 let lastReadingText='',currentScreen=0,userQuestion='';
 
 const screensEl = document.getElementById('screens');
@@ -1048,19 +1041,6 @@ function calcArcPts(n,sH,VW,cw,ch,sTop,stageVisualCenterY){
   return pts;
 }
 
-function getVisibleDeckIndices(isMobile){
-  if(!isMobile) return deck.map((_,i)=>i);
-  const need=24;
-  const selected=new Set(drawn);
-  for(const idx of drawn) selected.add(idx);
-  for(let i=0;i<deck.length && selected.size<need;i++) selected.add(i);
-  return [...selected].slice(0,need);
-}
-
-function getDeckIndexFromNodeIndex(nodeIndex){
-  return visibleDeckIndices[nodeIndex] ?? nodeIndex;
-}
-
 /* ══ 构建扇形 ══ */
 function buildFan(animate){
   const wasAnimating = animate;
@@ -1085,22 +1065,19 @@ function buildFan(animate){
 function _buildFan(animate){
   stageEl.innerHTML='';
   stageEl.className='sel';
-  const {VW,VH,sTop,sBot,sH,cw,ch,isMobile,stageVisualCenterY}=getLayout();
+  const {VW,VH,sTop,sBot,sH,cw,ch,stageVisualCenterY}=getLayout();
   CW=cw; CH=ch;
-  visibleDeckIndices=getVisibleDeckIndices(isMobile);
-  arcPts=calcArcPts(visibleDeckIndices.length,sH,VW,CW,CH,sTop,stageVisualCenterY);
+  arcPts=calcArcPts(deck.length,sH,VW,CW,CH,sTop,stageVisualCenterY);
 
-  visibleDeckIndices.forEach((deckIdx,i)=>{
-    const c=deck[deckIdx];
+  deck.forEach((c,i)=>{
     const el=document.createElement('div');
     el.className='card';
     el.dataset.i=i;
-    el.dataset.deckIndex=deckIdx;
     const rz=arcPts[i].rot;
     el.style.setProperty('--base-rz', rz+'deg');
     el.style.cssText+=`;width:${CW}px;height:${CH}px;left:${arcPts[i].left}px;top:${arcPts[i].top-sTop}px;transform:rotateZ(${rz}deg);z-index:${i}`;
 
-    if(animate && !isMobile){
+    if(animate){
       const tx=(Math.random()-.5)*120;
       const ty=-(40+Math.random()*60);
       const rz3=(Math.random()-.5)*24;
@@ -1131,7 +1108,6 @@ function _buildFan(animate){
 /* ══ 摇摆 ══ */
 function startSway(){
   stopSway();
-  if(window.innerWidth<=MOBILE_DRAW_BREAKPOINT) return;
   const SPD=.008,MAX=2.8;
   let cards=[...stageEl.querySelectorAll('.card:not(.pk):not(.dm)')];
   function tick(){
@@ -1149,10 +1125,9 @@ function stopSway(){if(raf){cancelAnimationFrame(raf);raf=null;}}
 
 /* ══ 抽牌 ══ */
 function onPick(idx){
-  const deckIdx=getDeckIndexFromNodeIndex(idx);
-  if(picking||done||drawn.includes(deckIdx)||drawn.length>=3) return;
+  if(picking||done||drawn.includes(idx)||drawn.length>=3) return;
   picking=true;
-  const c=deck[deckIdx],slot=drawn.length;
+  const c=deck[idx],slot=drawn.length;
   const el=stageEl.querySelector(`[data-i="${idx}"]`);
   el.classList.add('spark','pk');
   setTimeout(()=>el.classList.remove('spark'),400);
@@ -1185,7 +1160,7 @@ function onPick(idx){
   setTimeout(()=>{
     el.style.opacity='0';
     el.style.pointerEvents='none';
-    drawn.push(deckIdx); updPg(); picking=false;
+    drawn.push(idx); updPg(); picking=false;
     // 恢复其他牌的摇摆
     if(drawn.length<3) startSway();
     if(drawn.length===3){
