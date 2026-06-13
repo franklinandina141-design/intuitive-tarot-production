@@ -894,7 +894,11 @@ function preloadAllImages(){
 function markImageLoaded(imgEl){
   imgEl.classList.add('loaded');
   const wrap=imgEl.closest('.img-wrap');
-  if(wrap) wrap.classList.add('loaded');
+  if(wrap){
+    wrap.classList.add('loaded');
+    const csv=wrap.querySelector('.csv');
+    if(csv) csv.style.display='none';
+  }
 }
 function tarotImgFallback(el){
   if(el.dataset.step==='1'){
@@ -1144,13 +1148,14 @@ function onPick(idx){
 
   // 翻牌 — 稍微延迟，飞到一半再翻
   setTimeout(()=>{
-    // 翻牌前只加载被选中的这一张，避免抽牌页一次性请求78张牌面图
+    // 翻牌前先显示本地 SVG 兜底，真实牌面慢也不会空白
     const img=el.querySelector('img');
+    const csv=el.querySelector('.csv');
+    if(csv) csv.style.display='flex';
     if(img && !img.src && img.dataset.src) img.src=img.dataset.src;
     el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
     el.classList.add('flipped');
     if(c.rev) el.classList.add('rev');
-    // 图片预触发加载
     if(img && !img.classList.contains('loaded')) img.src=img.src;
   },320);
 
@@ -1168,10 +1173,13 @@ function onPick(idx){
     if(drawn.length===3){
       done=true; stopSway();
       stageEl.querySelectorAll('.card:not(.pk)').forEach(e=>e.classList.add('dm'));
-      ss('Three cards drawn — your reading awaits','rdy');
+      ss('Three cards drawn — opening your reading','rdy');
       btnRead.disabled=false;
       btnAgain.style.display='';
       btnShuf.style.display='none';
+      setTimeout(()=>{
+        if(currentScreen===1 && done) goToReading();
+      },360);
     } else {
       ss(`${3-drawn.length} card${3-drawn.length>1?'s':''} remaining`);
     }
