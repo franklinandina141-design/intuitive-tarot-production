@@ -1165,7 +1165,8 @@ function buildReadingScreen(){
     slot.innerHTML=`
       <div class="r-card${c.rev?' rv':''}" style="width:${rw}px;height:${rh}px">
         <div class="img-wrap">
-          <img src="${c.img}" alt="${c.zh}" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
+          <div class="csv" style="display:flex">${c.fallback}</div>
+          <img data-src="${c.img}" alt="${c.zh}" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
             onload="markImageLoaded(this)"
             onerror="tarotReadingImgFallback(this)">
         </div>
@@ -1178,6 +1179,10 @@ function buildReadingScreen(){
       </div>`;
     rCards.appendChild(slot);
     setTimeout(()=>slot.classList.add('show'), i*140+60);
+    setTimeout(()=>{
+      const img=slot.querySelector('img[data-src]');
+      if(img && !img.src) img.src=img.dataset.src;
+    }, i*180+360);
   });
 
   // 显示问题
