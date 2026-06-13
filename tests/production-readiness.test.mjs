@@ -241,43 +241,30 @@ test('server ignores browser Anthropic model and always uses configured Sub2API 
   assert.ok(!server.includes('const model = process.env.SUB2API_MODEL || SUB2API_MODEL'), 'request conversion must use normalized model');
 });
 
-test('server protects public demo usage with access code and rate limiting', () => {
+test('server protects public demo usage with IP rate limiting only', () => {
   assertIncludesAll(server, [
-    'process.env.ACCESS_CODE',
     'RATE_LIMIT_MAX_PER_DAY',
     'RATE_LIMIT_WINDOW_MS',
-    'validateAccessCode',
     'peekRateLimit',
     'checkRateLimit(req);',
     'getClientIp',
-    'access_code',
-    '访问码不正确',
     '体验次数已用完'
-  ], 'public demo protection');
+  ], 'public demo rate limiting');
+  assert.ok(!server.includes('访问码不正确'), 'server should not require an access code');
 });
 
-test('frontend sends access code to backend without hardcoding the production code', () => {
-  assertIncludesAll(html, [
-    'TAROT_ACCESS_CODE',
-    'requestAccessCode',
-    'localStorage.setItem',
-    'access_code',
-    'Enter your private access code to begin'
-  ], 'frontend access code flow');
-  assert.ok(!html.includes('tarot2026'), 'production access code must not be hardcoded in HTML');
+test('frontend does not require an access code before reading generation', () => {
+  assert.ok(!html.includes('TAROT_ACCESS_CODE'), 'frontend should not store access codes');
+  assert.ok(!html.includes('requestAccessCode'), 'frontend should not ask for access codes');
+  assert.ok(!html.includes('access_code'), 'frontend should not send access codes');
+  assert.ok(!html.includes('Enter your private access code to begin'), 'access modal copy should be removed');
+  assert.ok(!html.includes('Access code'), 'access input should be removed');
 });
 
-test('frontend uses a branded access-code modal instead of native prompt', () => {
-  assertIncludesAll(html, [
-    'access-modal',
-    'access-card',
-    'Enter the Inner Circle',
-    '3 readings per network each day',
-    'requestAccessCode',
-    'accessInput',
-    'accessSubmit',
-    'aria-modal="true"'
-  ], 'branded access modal');
+test('frontend keeps public-demo flow modal-free', () => {
+  assert.ok(!html.includes('access-modal'), 'access modal DOM should be removed');
+  assert.ok(!html.includes('accessInput'), 'access input DOM should be removed');
+  assert.ok(!html.includes('accessSubmit'), 'access submit DOM should be removed');
   assert.ok(!html.includes("prompt('请输入体验码')"), 'frontend should not use native browser prompt for access code');
 });
 

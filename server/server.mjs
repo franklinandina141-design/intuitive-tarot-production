@@ -277,11 +277,6 @@ function proxySub2API(req, res) {
         return;
       }
 
-      if (!validateAccessCode(incoming)) {
-        sendJson(res, 401, { error: { message: '访问码不正确 请联系网站作者获取体验码' } });
-        return;
-      }
-
       const rateLimit = peekRateLimit(req);
       if (!rateLimit.allowed) {
         sendJson(res, 429, {
