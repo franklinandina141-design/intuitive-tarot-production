@@ -1010,12 +1010,12 @@ function getLayout(){
   const isMobile = VW <= MOBILE_DRAW_BREAKPOINT;
   const rawSH = VH - sTop - sBot;
   const sH    = Math.max(rawSH, stWrap.getBoundingClientRect().height || (isMobile ? 260 : 360));
-  const mobileMaxCardHeight = Math.floor(sH*0.88);
+  const mobileMaxCardHeight = Math.floor(sH*0.86);
   const desktopMaxCardHeight = Math.floor(sH*0.76);
-  const mobileWidthFactor = 0.185;
+  const mobileWidthFactor = 0.23;
   const desktopWidthFactor = 0.13;
   const ch    = isMobile
-    ? Math.min(mobileMaxCardHeight, 168, Math.floor(VW*mobileWidthFactor/0.618))
+    ? Math.min(mobileMaxCardHeight, 188, Math.floor(VW*mobileWidthFactor/0.618))
     : Math.min(desktopMaxCardHeight, 134, Math.floor(VW*desktopWidthFactor));
   const cw    = Math.round(ch*0.618);
   const mobileCenterScale = isMobile ? 1.16 : 1.08;
@@ -1093,7 +1093,7 @@ function _buildFan(animate){
       <div class="cb"><div class="cb-sym">${BSYMS[i%BSYMS.length]}</div></div>
       <div class="cf">
         <div class="img-wrap">
-          <img src="${c.img}" alt="${c.zh}" loading="lazy" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
+          <img data-src="${c.img}" alt="${c.zh}" loading="lazy" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
             onload="markImageLoaded(this)"
             onerror="tarotImgFallback(this)">
           <div class="csv" style="display:none">${mkSvg(c.s,c.c)}</div>
@@ -1144,11 +1144,13 @@ function onPick(idx){
 
   // 翻牌 — 稍微延迟，飞到一半再翻
   setTimeout(()=>{
+    // 翻牌前只加载被选中的这一张，避免抽牌页一次性请求78张牌面图
+    const img=el.querySelector('img');
+    if(img && !img.src && img.dataset.src) img.src=img.dataset.src;
     el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
     el.classList.add('flipped');
     if(c.rev) el.classList.add('rev');
     // 图片预触发加载
-    const img=el.querySelector('img');
     if(img && !img.classList.contains('loaded')) img.src=img.src;
   },320);
 
