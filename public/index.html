@@ -238,11 +238,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   position:absolute;inset:0;
 }
 .cf img.loaded{opacity:1;}
-.cf .csv{
-  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(160deg,#1e1508,#2a1c0a);
+.cf .svg-fallback-img{
+  width:100%;height:100%;object-fit:cover;display:none;
   position:absolute;inset:0;
+  background:linear-gradient(160deg,#1e1508,#2a1c0a);
 }
+.cf .svg-fallback-img.show{display:block;}
 .cf .lbl{
   font-family:'Cinzel',serif;font-size:clamp(5.5px,0.7vw,7px);letter-spacing:.05em;color:var(--ink);
   text-align:center;padding:4px 3px 5px;line-height:1.35;
@@ -251,7 +252,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
 .cf .ori{font-size:clamp(4.5px,0.6vw,6px);letter-spacing:.09em;color:var(--gold-dim);display:block;margin-top:1px;text-transform:uppercase;}
 
 .card.flipped .ci{transform:rotateY(180deg);}
-.card.rev .cf img,.card.rev .cf .csv{transform:rotate(180deg);}
+.card.rev .cf img,.card.rev .cf .svg-fallback-img{transform:rotate(180deg);}
 
 /* hover 发光 */
 #stage.sel .card:not(.pk):not(.dm):hover .cb{
@@ -331,8 +332,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
   opacity:0;
   animation:none;
 }
-.r-card img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .5s ease;}
-.r-card img.loaded{opacity:1;}
+.r-card img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .5s ease;}
+.r-card img.real-card-img{opacity:0;}
+.r-card img.real-card-img.loaded{opacity:1;}
+.r-card img.svg-fallback-img{opacity:1;position:absolute;inset:0;}
+.r-card .img-wrap.loaded img.svg-fallback-img{display:none;}
 .r-card.rv img{transform:rotate(180deg);}
 
 /* 位置标 + 金光边框（中间牌突出） */
@@ -855,15 +859,15 @@ function markImageLoaded(imgEl){
   const wrap=imgEl.closest('.img-wrap');
   if(wrap){
     wrap.classList.add('loaded');
-    const csv=wrap.querySelector('.csv');
-    if(csv) csv.style.display='none';
+    const fallbackImg=wrap.querySelector('.svg-fallback-img');
+    if(fallbackImg) fallbackImg.classList.remove('show');
   }
 }
 function tarotImgFallback(el){
   if(el.dataset.step==='1'){
     el.style.display='none';
-    const csv=el.nextElementSibling;
-    if(csv) csv.style.display='flex';
+    const fallbackImg=el.parentElement?.querySelector('.svg-fallback-img');
+    if(fallbackImg) fallbackImg.classList.add('show');
     return;
   }
   el.dataset.step='1';
@@ -1059,7 +1063,7 @@ function _buildFan(animate){
           <img data-src="${c.img}" alt="${c.zh}" loading="lazy" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
             onload="markImageLoaded(this)"
             onerror="tarotImgFallback(this)">
-          <div class="csv" style="display:none">${mkSvg(c.s,c.c)}</div>
+          <img class="svg-fallback-img" src="${c.fallback}" alt="${c.zh} fallback" aria-hidden="true">
         </div>
         <div class="lbl">${c.zh}<span class="ori">${c.rev?'逆位':'正位'}</span></div>
       </div></div>`;
@@ -1109,8 +1113,8 @@ function onPick(idx){
   setTimeout(()=>{
     // 翻牌前先显示本地 SVG 兜底，真实牌面慢也不会空白
     const img=el.querySelector('img');
-    const csv=el.querySelector('.csv');
-    if(csv) csv.style.display='flex';
+    const fallbackImg=el.querySelector('.svg-fallback-img');
+    if(fallbackImg) fallbackImg.classList.add('show');
     if(img && !img.src && img.dataset.src) img.src=img.dataset.src;
     el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
     el.classList.add('flipped');
@@ -1165,8 +1169,8 @@ function buildReadingScreen(){
     slot.innerHTML=`
       <div class="r-card${c.rev?' rv':''}" style="width:${rw}px;height:${rh}px">
         <div class="img-wrap">
-          <div class="csv" style="display:flex">${c.fallback}</div>
-          <img data-src="${c.img}" alt="${c.zh}" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
+          <img class="svg-fallback-img" src="${c.fallback}" alt="${c.zh} fallback" aria-hidden="true">
+          <img class="real-card-img" data-src="${c.img}" alt="${c.zh}" referrerpolicy="no-referrer" data-fb="${encodeURIComponent(c.fallback)}"
             onload="markImageLoaded(this)"
             onerror="tarotReadingImgFallback(this)">
         </div>

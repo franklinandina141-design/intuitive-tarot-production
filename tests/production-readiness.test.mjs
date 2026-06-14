@@ -45,8 +45,11 @@ test('all tarot images have real RWS source and robust fallback handlers', () =>
     'tarotReadingImgFallback',
     'decodeURIComponent(fb)',
     'markImageLoaded(el)',
-    'markImageLoaded(this)'
+    'markImageLoaded(this)',
+    'svg-fallback-img',
+    'class="real-card-img"'
   ], 'image fallback');
+  assert.ok(!html.includes('<div class="csv"'), 'fallback SVG data URLs must not be rendered as text divs');
 });
 
 test('professional prompt forbids template sameness and absolute advice', () => {
