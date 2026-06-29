@@ -243,9 +243,13 @@
 </style>
 </head>
 <body>
+  <!-- WeChat 等会从页面抓取真实 <img> 作为分享缩略图(忽略 og 标签),放一张离屏的封面图供其抓取 -->
+  <img src="og-image.png" width="600" height="315" alt="Say it · 英文发音查询" style="position:fixed;left:-99999px;top:0;pointer-events:none;" aria-hidden="true" />
   <canvas id="stars"></canvas>
   <div class="nebula"></div>
-  <video id="bgVideo" muted autoplay playsinline preload="auto"
+  <video id="bgVideo" muted autoplay loop playsinline webkit-playsinline="true"
+    x5-playsinline="true" x5-video-player-type="h5" x5-video-player-fullscreen="false"
+    preload="auto" disablepictureinpicture
     src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"></video>
   <div class="veil"></div>
 
@@ -350,11 +354,20 @@
   /* ============ optional cosmic video over starfield ============ */
   (function(){
     const v=document.getElementById('bgVideo'); if(!v) return;
-    function reveal(){ v.play().catch(()=>{}); v.style.opacity='.55'; }
+    const SHOW='.55';
+    function reveal(){ v.play().catch(()=>{}); v.style.opacity=SHOW; }
     ['canplay','loadeddata','playing'].forEach(ev=>v.addEventListener(ev,reveal));
-    v.addEventListener('timeupdate',()=>{ if(v.duration&&(v.duration-v.currentTime)<=0.55) v.style.opacity='0'; });
-    v.addEventListener('ended',()=>{ v.style.opacity='0'; setTimeout(()=>{v.currentTime=0;v.play().catch(()=>{});v.style.opacity='.55';},120); });
+    // works with native loop: dip to black near the seam, otherwise stay visible (incl. right after the loop restart)
+    v.addEventListener('timeupdate',()=>{
+      if(!v.duration) return;
+      v.style.opacity = (v.duration - v.currentTime) <= 0.5 ? '0' : SHOW;
+    });
     if(v.readyState>=2) reveal();
+    // mobile / WeChat: autoplay is often blocked until a user gesture — kick playback on the first tap
+    const kick=()=>{ v.play().then(reveal).catch(()=>{}); };
+    ['touchstart','pointerdown','click'].forEach(ev=>document.addEventListener(ev,kick,{once:true,passive:true}));
+    // resume if the tab/app comes back to foreground
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) v.play().catch(()=>{}); });
   })();
 
   /* ============ app ============ */
