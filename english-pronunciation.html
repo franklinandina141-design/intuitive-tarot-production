@@ -63,7 +63,8 @@
   }
 
   /* ---------- nav ---------- */
-  nav{position:relative;z-index:11;max-width:1100px;margin:0 auto;padding:22px 24px 0;
+  nav{position:relative;z-index:11;max-width:1100px;margin:0 auto;
+      padding:calc(22px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 0 calc(24px + env(safe-area-inset-left));
       display:flex;align-items:center;justify-content:space-between;}
   .brand{display:flex;align-items:center;gap:10px;}
   .brand svg{width:22px;height:22px;}
@@ -166,8 +167,19 @@
     font-size:12px;line-height:1.7;padding:0 22px 50px;}
 
   @media (max-width:560px){
+    /* mobile: keep a full-screen hero but top-align content (title no longer cut; cosmic figure fills the lower area instead of an empty void) */
+    .hero{min-height:calc(100svh - 78px);justify-content:flex-start;padding:6vh 20px 56px;}
+    .hero h1{font-size:clamp(52px,17vw,82px);}
+    .hero p{font-size:13px;letter-spacing:.24em;margin-top:18px;}
+    form{margin-top:26px;}
+    .chips-label{margin:26px 0 12px;}
+    .chips{gap:8px;}
+    .chip{padding:7px 14px;}
+    .chip .en{font-size:16px;}
+    .scroll-hint{display:none;}
     .card{padding:24px 20px;border-radius:26px;}
     .play{width:54px;height:54px;}.play-stack{width:100%;justify-content:flex-start;margin-top:8px;}
+    footer{padding-bottom:calc(40px + env(safe-area-inset-bottom));}
   }
 </style>
 </head>
