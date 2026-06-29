@@ -9,6 +9,23 @@
 <meta name="apple-mobile-web-app-title" content="Say it" />
 <meta name="theme-color" content="#03040a" />
 <title>Say it · 英文发音查询</title>
+<meta name="description" content="输入任意英文单词，听发音、看音标（IPA）、查中文释义。" />
+<!-- 分享卡片 (微信 / 社交平台) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Say it · 英文发音查询" />
+<meta property="og:description" content="输入任意英文单词，听发音、看音标、查中文释义。" />
+<meta property="og:image" content="https://franklinandina141-design.github.io/intuitive-tarot-production/og-image.png" />
+<meta property="og:url" content="https://franklinandina141-design.github.io/intuitive-tarot-production/english-pronunciation.html" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Say it · 英文发音查询" />
+<meta name="twitter:description" content="输入任意英文单词，听发音、看音标、查中文释义。" />
+<meta name="twitter:image" content="https://franklinandina141-design.github.io/intuitive-tarot-production/og-image.png" />
+<meta itemprop="image" content="https://franklinandina141-design.github.io/intuitive-tarot-production/og-image.png" />
+<link rel="image_src" href="https://franklinandina141-design.github.io/intuitive-tarot-production/og-image.png" />
+<!-- 图标 / 添加到主屏幕 -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet" />
@@ -74,6 +91,48 @@
   .accent-toggle button{font-family:var(--zh);font-size:13px;font-weight:500;color:var(--txt-60);
       background:transparent;border:none;cursor:pointer;padding:7px 16px;border-radius:999px;transition:all .25s;}
   .accent-toggle button.on{color:#000;background:#fff;}
+  .nav-right{display:flex;align-items:center;gap:10px;}
+  .icon-btn{width:42px;height:42px;border-radius:999px;display:grid;place-items:center;cursor:pointer;
+    color:var(--txt);background:none;transition:transform .15s;}
+  .icon-btn:active{transform:scale(.92);}
+  .icon-btn svg{width:19px;height:19px;}
+  .book-dot{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;
+    background:#9b8cff;box-shadow:0 0 8px #9b8cff;opacity:0;transition:opacity .3s;}
+  .book-dot.on{opacity:1;}
+
+  /* 单词本 panel */
+  .book-overlay{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.5);
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .35s;}
+  .book-overlay.on{opacity:1;pointer-events:auto;}
+  .book-panel{position:fixed;z-index:41;top:0;right:0;height:100%;width:min(380px,86vw);
+    border-radius:28px 0 0 28px;padding:26px 22px calc(26px + env(safe-area-inset-bottom));
+    transform:translateX(105%);transition:transform .42s cubic-bezier(.2,.7,.2,1);
+    display:flex;flex-direction:column;padding-top:calc(26px + env(safe-area-inset-top));}
+  .book-panel.on{transform:none;}
+  .book-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .book-title{font-family:var(--zh);font-weight:500;font-size:19px;letter-spacing:.06em;}
+  .book-close{background:none;border:none;color:var(--txt-60);font-size:30px;line-height:1;cursor:pointer;padding:0 4px;}
+  .book-close:hover{color:var(--txt);}
+  .book-tabs{display:flex;gap:6px;padding:5px;border-radius:999px;background:rgba(255,255,255,.04);margin-bottom:18px;}
+  .book-tab{flex:1;font-family:var(--zh);font-size:13px;color:var(--txt-60);background:none;border:none;
+    cursor:pointer;padding:8px 0;border-radius:999px;transition:all .25s;}
+  .book-tab.on{color:#000;background:#fff;}
+  .book-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;}
+  .book-item{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 6px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .2s;}
+  .book-item:hover{background:rgba(255,255,255,.03);}
+  .book-item .w{font-family:var(--serif);font-size:21px;color:var(--txt);}
+  .book-item .x{color:var(--txt-25);font-size:20px;padding:0 6px;cursor:pointer;transition:color .2s;}
+  .book-item .x:hover{color:var(--txt-60);}
+  .book-empty{text-align:center;color:var(--txt-25);font-family:var(--zh);font-size:14px;padding:40px 0;}
+
+  /* 收藏按钮(结果卡片) */
+  .fav{width:64px;height:64px;border-radius:999px;border:none;cursor:pointer;display:grid;place-items:center;
+    color:var(--txt-60);position:relative;transition:transform .15s,color .2s;}
+  .fav:active{transform:scale(.93);}.fav svg{width:24px;height:24px;fill:none;}
+  .fav.on{color:#ff7aa8;}.fav.on svg{fill:currentColor;}
+  .fav .lbl{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);font-family:var(--zh);
+    font-size:10px;color:var(--txt-40);white-space:nowrap;}
 
   /* ---------- hero (full cinematic screen) ---------- */
   .hero{position:relative;z-index:10;min-height:100vh;min-height:100svh;
@@ -195,11 +254,31 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
       <b>Say it</b>
     </div>
-    <div class="accent-toggle liquid-glass" id="accentToggle">
-      <button data-accent="us" class="on">美音</button>
-      <button data-accent="uk">英音</button>
+    <div class="nav-right">
+      <button class="icon-btn liquid-glass" id="bookBtn" aria-label="单词本">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5z"/><path d="M4 17h14"/></svg>
+        <span class="book-dot" id="bookDot"></span>
+      </button>
+      <div class="accent-toggle liquid-glass" id="accentToggle">
+        <button data-accent="us" class="on">美音</button>
+        <button data-accent="uk">英音</button>
+      </div>
     </div>
   </nav>
+
+  <!-- 单词本 -->
+  <div class="book-overlay" id="bookOverlay"></div>
+  <aside class="book-panel liquid-glass" id="bookPanel">
+    <div class="book-head">
+      <span class="book-title">单词本</span>
+      <button class="book-close" id="bookClose" aria-label="关闭">&times;</button>
+    </div>
+    <div class="book-tabs">
+      <button class="book-tab on" data-tab="fav">收藏</button>
+      <button class="book-tab" data-tab="hist">最近</button>
+    </div>
+    <div class="book-list" id="bookList"></div>
+  </aside>
 
   <section class="hero">
     <h1>Say it <em>right</em></h1>
@@ -288,6 +367,40 @@
     [...$('#accentToggle').children].forEach(x=>x.classList.toggle('on',x===b));
   });
 
+  /* ===== 单词本 (localStorage 历史 + 收藏) ===== */
+  const LS={get:k=>{try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}},
+            set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+  let hist=LS.get('sayit_hist'), favs=LS.get('sayit_favs'), bookTab='fav';
+  function addHistory(w){ w=w.toLowerCase(); hist=hist.filter(x=>x!==w); hist.unshift(w); hist=hist.slice(0,40); LS.set('sayit_hist',hist); updateBookDot(); }
+  function isFav(w){ return favs.includes((w||'').toLowerCase()); }
+  function toggleFav(w){ w=w.toLowerCase(); if(isFav(w)) favs=favs.filter(x=>x!==w); else favs.unshift(w);
+    LS.set('sayit_favs',favs); updateBookDot(); if($('#bookPanel').classList.contains('on')&&bookTab==='fav') renderBook(); return isFav(w); }
+  function updateBookDot(){ $('#bookDot').classList.toggle('on', favs.length>0); }
+  function openBook(){ $('#bookPanel').classList.add('on'); $('#bookOverlay').classList.add('on'); renderBook(); }
+  function closeBook(){ $('#bookPanel').classList.remove('on'); $('#bookOverlay').classList.remove('on'); }
+  function renderBook(){
+    const list=$('#bookList'), arr=bookTab==='fav'?favs:hist;
+    if(!arr.length){ list.innerHTML='<div class="book-empty">'+(bookTab==='fav'?'还没有收藏的单词<br>查词后点 ❤ 即可收藏':'还没有查询记录')+'</div>'; return; }
+    list.innerHTML='';
+    arr.forEach(w=>{
+      const it=document.createElement('div'); it.className='book-item';
+      it.innerHTML='<span class="w">'+esc(w)+'</span><span class="x" title="删除">&times;</span>';
+      it.querySelector('.w').onclick=()=>{ closeBook(); q.value=w; lookup(w); };
+      it.querySelector('.x').onclick=ev=>{ ev.stopPropagation();
+        if(bookTab==='fav'){ favs=favs.filter(x=>x!==w); LS.set('sayit_favs',favs); }
+        else { hist=hist.filter(x=>x!==w); LS.set('sayit_hist',hist); }
+        updateBookDot(); renderBook(); };
+      list.appendChild(it);
+    });
+  }
+  $('#bookBtn').onclick=openBook;
+  $('#bookClose').onclick=closeBook;
+  $('#bookOverlay').onclick=closeBook;
+  $('#bookPanel').querySelectorAll('.book-tab').forEach(t=>t.onclick=()=>{
+    bookTab=t.dataset.tab; $('#bookPanel').querySelectorAll('.book-tab').forEach(x=>x.classList.toggle('on',x===t)); renderBook();
+  });
+  updateBookDot();
+
   const samples=[['serendipity','机缘巧合'],['ephemeral','短暂的'],['nuance','细微差别'],
     ['colonel','上校'],['quinoa','藜麦'],['epitome','缩影'],['genre','类型'],['mischievous','顽皮的']];
   samples.forEach(([w,cn])=>{
@@ -322,6 +435,7 @@
     conjunction:'连词',interjection:'感叹词',exclamation:'感叹词',determiner:'限定词',article:'冠词',
     numeral:'数词',prefix:'前缀',suffix:'后缀',abbreviation:'缩写',phrase:'短语',idiom:'习语'};
   const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6a8 8 0 0 1 0 12"/></svg>';
+  const HEART='<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>';
   const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
   function scrollToResult(){ document.querySelector('.results-wrap').scrollIntoView({behavior:'smooth',block:'start'}); }
@@ -379,10 +493,18 @@
       '<div class="word">'+esc(display)+'</div>'+
       '<div class="word-zh loading" data-tr="'+esc(display)+'" data-gloss="1">…</div>'+
       (ipa?'<div class="phonetic">'+esc(ipa)+'</div>':'')+'</div>'+
-      '<div class="play-stack"><button class="play liquid-glass" id="playMain"><span style="position:absolute">'+ICON+'</span><span class="lbl">'+(pref?'真人录音':'合成发音')+'</span></button></div></div>'+
+      '<div class="play-stack">'+
+        '<button class="play liquid-glass" id="playMain"><span style="position:absolute">'+ICON+'</span><span class="lbl">'+(pref?'真人录音':'合成发音')+'</span></button>'+
+        '<button class="fav liquid-glass" id="favBtn"><span style="position:absolute">'+HEART+'</span><span class="lbl"></span></button>'+
+      '</div></div>'+
       '<div class="divider"></div>'+(body||'<p style="color:var(--txt-60);font-family:var(--zh)">暂无释义。</p>')+'</div></div>';
 
     $('#playMain').onclick=e=>{ const b=e.currentTarget; pref?playAudio(pref,b,display):speak(display,b); };
+    const favBtn=$('#favBtn');
+    favBtn.classList.toggle('on', isFav(display));
+    favBtn.querySelector('.lbl').textContent = isFav(display)?'已收藏':'收藏';
+    favBtn.onclick=()=>{ const on=toggleFav(display); favBtn.classList.toggle('on',on); favBtn.querySelector('.lbl').textContent=on?'已收藏':'收藏'; };
+    addHistory(display);
     out.querySelectorAll('.syn b').forEach(b=>{ b.onclick=()=>{ q.value=b.dataset.w; lookup(b.dataset.w); }; });
 
     out.querySelectorAll('[data-tr]').forEach(async el=>{

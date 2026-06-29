@@ -1,0 +1,14 @@
+{
+  "name": "Say it · 英文发音查询",
+  "short_name": "Say it",
+  "description": "输入任意英文单词，听发音、看音标、查中文释义。",
+  "start_url": "./english-pronunciation.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#03040a",
+  "theme_color": "#03040a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
