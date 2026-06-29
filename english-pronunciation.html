@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Say it" />
+<meta name="theme-color" content="#03040a" />
+<title>Say it · 英文发音查询</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --txt:#fff;
+    --txt-60:rgba(255,255,255,.6);
+    --txt-40:rgba(255,255,255,.4);
+    --txt-25:rgba(255,255,255,.25);
+    --serif:'Instrument Serif',Georgia,serif;
+    --zh:'Noto Serif SC','Songti SC',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Helvetica Neue',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%;background:#03040a;color:var(--txt);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  body{position:relative;overflow-x:hidden;}
+
+  /* ---------- always-on animated cosmic background ---------- */
+  #stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;}
+  /* nebula colour wash (pure CSS, always present) */
+  .nebula{
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(ellipse 55% 45% at 22% 18%, rgba(120,90,255,.30) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 82% 28%, rgba(255,120,170,.18) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 55% at 50% 100%, rgba(70,160,255,.22) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 40% at 90% 88%, rgba(255,170,90,.14) 0%, transparent 60%);
+    animation:drift 26s ease-in-out infinite alternate;
+  }
+  @keyframes drift{from{transform:translate3d(-2%,-1%,0) scale(1.05);}to{transform:translate3d(2%,2%,0) scale(1.12);}}
+  /* optional external cosmic video, fades in over the canvas when it loads */
+  #bgVideo{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;opacity:0;transition:opacity .8s ease;}
+  /* readability veil */
+  .veil{position:fixed;inset:0;z-index:3;pointer-events:none;
+    background:linear-gradient(180deg, rgba(3,4,10,.25) 0%, rgba(3,4,10,.45) 45%, rgba(3,4,10,.82) 100%);}
+
+  /* ---------- liquid glass ---------- */
+  .liquid-glass{
+    background:rgba(255,255,255,.02);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.10);
+    position:relative;overflow:hidden;
+  }
+  .liquid-glass::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;padding:1.4px;
+    background:linear-gradient(180deg,
+      rgba(255,255,255,.45) 0%, rgba(255,255,255,.15) 20%,
+      rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+      rgba(255,255,255,.15) 80%, rgba(255,255,255,.45) 100%);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;
+  }
+
+  /* ---------- nav ---------- */
+  nav{position:relative;z-index:11;max-width:1100px;margin:0 auto;padding:22px 24px 0;
+      display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand svg{width:22px;height:22px;}
+  .brand b{font-weight:600;font-size:18px;}
+  .brand b em{font-family:var(--zh);font-weight:500;font-style:normal;font-size:15px;color:var(--txt-60);margin-left:3px;}
+  .accent-toggle{display:flex;gap:5px;padding:5px;border-radius:999px;}
+  .accent-toggle button{font-family:var(--zh);font-size:13px;font-weight:500;color:var(--txt-60);
+      background:transparent;border:none;cursor:pointer;padding:7px 16px;border-radius:999px;transition:all .25s;}
+  .accent-toggle button.on{color:#000;background:#fff;}
+
+  /* ---------- hero (full cinematic screen) ---------- */
+  .hero{position:relative;z-index:10;min-height:100vh;min-height:100svh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:0 22px 64px;}
+  .hero h1{font-family:var(--serif);font-weight:400;line-height:.96;letter-spacing:-.01em;
+    font-size:clamp(64px,15vw,150px);text-shadow:0 4px 60px rgba(0,0,0,.5);}
+  .hero h1 em{font-style:italic;}
+  /* subtle staggered entrance */
+  @keyframes heroIn{from{opacity:0;transform:translateY(16px);filter:blur(7px);}to{opacity:1;transform:none;filter:blur(0);}}
+  .hero h1{animation:heroIn 1.2s cubic-bezier(.2,.7,.2,1) both;}
+  .hero p{animation:heroIn 1s .18s cubic-bezier(.2,.7,.2,1) both;}
+  .hero form{animation:heroIn 1s .34s cubic-bezier(.2,.7,.2,1) both;}
+  .hero .chips-label{animation:heroIn 1s .5s cubic-bezier(.2,.7,.2,1) both;}
+  .hero .chips{animation:heroIn 1s .6s cubic-bezier(.2,.7,.2,1) both;}
+  @media (prefers-reduced-motion:reduce){.hero h1,.hero p,.hero form,.hero .chips-label,.hero .chips{animation:none;}}
+  .zh-title{font-family:var(--zh);font-weight:500;font-size:clamp(22px,5.5vw,34px);
+    letter-spacing:.14em;margin-top:18px;text-shadow:0 2px 30px rgba(0,0,0,.6);}
+  .hero p{font-family:var(--zh);color:var(--txt-40);font-size:14px;line-height:1.8;
+    max-width:440px;margin:26px auto 0;letter-spacing:.32em;font-weight:400;
+    padding-left:.32em;}
+
+  form{width:100%;max-width:560px;margin:34px auto 0;}
+  .search{display:flex;align-items:center;gap:10px;border-radius:999px;padding:9px 9px 9px 26px;
+    transition:box-shadow .45s ease, background .45s ease;}
+  .search:hover{box-shadow:inset 0 1px 1px rgba(255,255,255,.14), 0 0 44px rgba(255,255,255,.05);}
+  .search:focus-within{background:rgba(255,255,255,.04);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.20), 0 0 0 1px rgba(255,255,255,.10),
+      0 0 70px rgba(150,120,255,.20), 0 0 30px rgba(255,255,255,.06);}
+  .search input{flex:1;background:transparent;border:none;outline:none;color:var(--txt);
+    font-family:var(--serif);font-size:26px;min-width:0;}
+  .search input::placeholder{color:var(--txt-40);font-family:var(--zh);font-size:18px;}
+  .go{flex:none;width:50px;height:50px;border-radius:999px;border:none;cursor:pointer;background:#fff;color:#000;
+    display:grid;place-items:center;transition:transform .15s;}
+  .go:active{transform:scale(.92);}
+  .go svg{width:22px;height:22px;}
+
+  .chips-label{font-family:var(--zh);font-size:12px;letter-spacing:.24em;color:var(--txt-40);margin:30px 0 14px;}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:600px;margin:0 auto;}
+  .chip{cursor:pointer;padding:8px 17px;border-radius:999px;text-align:center;line-height:1.15;transition:all .2s;}
+  .chip .en{display:block;font-family:var(--serif);font-size:18px;color:var(--txt-60);}
+  .chip .cn{display:block;font-family:var(--zh);font-size:10.5px;color:var(--txt-25);margin-top:1px;}
+  .chip:hover .en{color:var(--txt);}.chip:hover .cn{color:var(--txt-40);}
+
+  .scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+    font-size:18px;color:var(--txt-25);animation:bob 2.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+
+  /* ---------- results ---------- */
+  .results-wrap{position:relative;z-index:10;max-width:620px;margin:0 auto;padding:0 22px 90px;}
+  .result{opacity:0;transform:translateY(28px);}
+  .result.show{animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;}
+  @keyframes rise{to{opacity:1;transform:none;}}
+  .card{border-radius:32px;padding:32px 28px;}
+
+  .word-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+  .word{font-family:var(--serif);font-size:clamp(44px,9vw,66px);line-height:1.02;letter-spacing:-.01em;}
+  .word-zh{font-family:var(--zh);font-weight:500;font-size:22px;margin-top:4px;letter-spacing:.04em;}
+  .phonetic{font-family:var(--serif);font-style:italic;color:var(--txt-60);font-size:27px;margin-top:8px;}
+  .play-stack{display:flex;gap:10px;flex:none;}
+  .play{width:64px;height:64px;border-radius:999px;border:none;cursor:pointer;display:grid;place-items:center;
+    color:var(--txt);position:relative;transition:transform .15s;}
+  .play:active{transform:scale(.93);}.play svg{width:25px;height:25px;}
+  .play .lbl{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);font-family:var(--zh);
+    font-size:10px;color:var(--txt-40);white-space:nowrap;}
+  .play.playing{animation:pulse 1s ease infinite;}
+  @keyframes pulse{0%,100%{box-shadow:inset 0 1px 1px rgba(255,255,255,.1),0 0 0 0 rgba(255,255,255,.25);}50%{box-shadow:inset 0 1px 1px rgba(255,255,255,.1),0 0 0 9px rgba(255,255,255,0);}}
+
+  .divider{height:1px;background:rgba(255,255,255,.1);margin:26px 0;}
+  .pos{font-family:var(--zh);font-weight:500;font-size:17px;margin-bottom:12px;display:flex;align-items:baseline;gap:8px;}
+  .pos em{font-family:var(--serif);font-style:italic;color:var(--txt-40);font-size:16px;}
+  .defs{display:flex;flex-direction:column;gap:16px;}
+  .def-num{display:flex;gap:13px;}
+  .def-num>span{color:var(--txt-25);font-size:13px;padding-top:3px;min-width:16px;}
+  .def-cn{font-family:var(--zh);font-size:16px;line-height:1.65;}
+  .def-cn.loading{color:var(--txt-25);}
+  .def-en{color:var(--txt-40);font-size:13.5px;line-height:1.55;margin-top:4px;}
+  .example{color:var(--txt-40);font-style:italic;font-family:var(--serif);font-size:16px;margin-top:6px;display:block;}
+  .example-cn{color:var(--txt-25);font-family:var(--zh);font-size:13px;margin-top:2px;display:block;}
+  .syn{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .syn .k{color:var(--txt-40);font-family:var(--zh);font-size:12px;letter-spacing:.1em;margin-right:4px;}
+  .syn b{font-weight:400;font-family:var(--serif);font-size:16px;color:var(--txt-60);cursor:pointer;
+    padding:3px 13px;border-radius:999px;transition:color .2s;}
+  .syn b:hover{color:var(--txt);}
+
+  .state{text-align:center;color:var(--txt-40);font-family:var(--zh);font-size:17px;letter-spacing:.05em;padding:10px 0;}
+  .spinner{width:30px;height:30px;margin:0 auto 16px;border-radius:50%;border:2px solid rgba(255,255,255,.15);
+    border-top-color:rgba(255,255,255,.7);animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  footer{position:relative;z-index:10;text-align:center;color:var(--txt-25);font-family:var(--zh);
+    font-size:12px;line-height:1.7;padding:0 22px 50px;}
+
+  @media (max-width:560px){
+    .card{padding:24px 20px;border-radius:26px;}
+    .play{width:54px;height:54px;}.play-stack{width:100%;justify-content:flex-start;margin-top:8px;}
+  }
+</style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <div class="nebula"></div>
+  <video id="bgVideo" muted autoplay playsinline preload="auto"
+    src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"></video>
+  <div class="veil"></div>
+
+  <nav>
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+      <b>Say it</b>
+    </div>
+    <div class="accent-toggle liquid-glass" id="accentToggle">
+      <button data-accent="us" class="on">美音</button>
+      <button data-accent="uk">英音</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Say it <em>right</em></h1>
+    <p>听发音 · 看音标 · 查释义</p>
+    <form id="form" autocomplete="off">
+      <div class="search liquid-glass">
+        <input id="q" type="text" placeholder="输入一个英文单词…" spellcheck="false" autocapitalize="none" />
+        <button class="go" type="submit" aria-label="查询">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </form>
+    <div class="chips-label">试试这些</div>
+    <div class="chips" id="chips"></div>
+    <div class="scroll-hint" id="scrollHint">↓</div>
+  </section>
+
+  <div class="results-wrap"><div id="out"></div></div>
+
+  <footer>优先播放真人录音，没有时自动使用合成的 美音 / 英音<br/>中文释义由机器翻译生成，仅供参考</footer>
+
+<script>
+(function(){
+  /* ============ animated starfield ============ */
+  (function(){
+    const cvs=document.getElementById('stars'), ctx=cvs.getContext('2d');
+    let W,H,dpr=Math.min(2,window.devicePixelRatio||1),stars=[],shoot=null,t=0;
+    function resize(){
+      W=cvs.width=Math.floor(innerWidth*dpr); H=cvs.height=Math.floor(innerHeight*dpr);
+      cvs.style.width=innerWidth+'px'; cvs.style.height=innerHeight+'px';
+      const n=Math.round(innerWidth*innerHeight/6500);
+      stars=Array.from({length:n},()=>({
+        x:Math.random()*W, y:Math.random()*H, r:(Math.random()*1.3+.3)*dpr,
+        a:Math.random()*.6+.2, tw:Math.random()*.02+.004, ph:Math.random()*6.28,
+        vx:(Math.random()-.5)*.04*dpr, vy:(Math.random()-.5)*.04*dpr,
+        hue:Math.random()<.25?[190,255][Math.floor(Math.random()*2)]:0
+      }));
+    }
+    function spawnShoot(){
+      if(shoot||Math.random()>.012) return;
+      const fromLeft=Math.random()<.5;
+      shoot={x:fromLeft?0:W, y:Math.random()*H*.5, vx:(fromLeft?1:-1)*(7+Math.random()*4)*dpr,
+        vy:(2+Math.random()*2)*dpr, life:1};
+    }
+    function frame(){
+      t+=1; ctx.clearRect(0,0,W,H);
+      for(const s of stars){
+        s.ph+=s.tw; s.x+=s.vx; s.y+=s.vy;
+        if(s.x<0)s.x+=W; if(s.x>W)s.x-=W; if(s.y<0)s.y+=H; if(s.y>H)s.y-=H;
+        const a=s.a*(.5+.5*Math.sin(s.ph));
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28);
+        ctx.fillStyle = s.hue? 'hsla('+s.hue+',80%,80%,'+a+')' : 'rgba(255,255,255,'+a+')';
+        ctx.fill();
+      }
+      spawnShoot();
+      if(shoot){
+        const g=ctx.createLinearGradient(shoot.x,shoot.y,shoot.x-shoot.vx*6,shoot.y-shoot.vy*6);
+        g.addColorStop(0,'rgba(255,255,255,'+(.9*shoot.life)+')'); g.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.strokeStyle=g; ctx.lineWidth=1.6*dpr; ctx.beginPath();
+        ctx.moveTo(shoot.x,shoot.y); ctx.lineTo(shoot.x-shoot.vx*6,shoot.y-shoot.vy*6); ctx.stroke();
+        shoot.x+=shoot.vx; shoot.y+=shoot.vy; shoot.life-=.012;
+        if(shoot.life<=0||shoot.x<0||shoot.x>W) shoot=null;
+      }
+      requestAnimationFrame(frame);
+    }
+    window.addEventListener('resize',resize); resize(); frame();
+  })();
+
+  /* ============ optional cosmic video over starfield ============ */
+  (function(){
+    const v=document.getElementById('bgVideo'); if(!v) return;
+    function reveal(){ v.play().catch(()=>{}); v.style.opacity='.55'; }
+    ['canplay','loadeddata','playing'].forEach(ev=>v.addEventListener(ev,reveal));
+    v.addEventListener('timeupdate',()=>{ if(v.duration&&(v.duration-v.currentTime)<=0.55) v.style.opacity='0'; });
+    v.addEventListener('ended',()=>{ v.style.opacity='0'; setTimeout(()=>{v.currentTime=0;v.play().catch(()=>{});v.style.opacity='.55';},120); });
+    if(v.readyState>=2) reveal();
+  })();
+
+  /* ============ app ============ */
+  const $=s=>document.querySelector(s);
+  const out=$('#out'), form=$('#form'), q=$('#q'), chips=$('#chips'), hint=$('#scrollHint');
+  let accent='us', currentAudio=null;
+
+  $('#accentToggle').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return; accent=b.dataset.accent;
+    [...$('#accentToggle').children].forEach(x=>x.classList.toggle('on',x===b));
+  });
+
+  const samples=[['serendipity','机缘巧合'],['ephemeral','短暂的'],['nuance','细微差别'],
+    ['colonel','上校'],['quinoa','藜麦'],['epitome','缩影'],['genre','类型'],['mischievous','顽皮的']];
+  samples.forEach(([w,cn])=>{
+    const c=document.createElement('div'); c.className='chip';
+    c.innerHTML='<span class="en">'+w+'</span><span class="cn">'+cn+'</span>';
+    c.onclick=()=>{ q.value=w; lookup(w); }; chips.appendChild(c);
+  });
+
+  let voices=[];
+  function loadVoices(){ voices=window.speechSynthesis?speechSynthesis.getVoices():[]; }
+  if(window.speechSynthesis){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
+  function pickVoice(){ const lang=accent==='uk'?'en-GB':'en-US';
+    return voices.find(v=>v.lang===lang)||voices.find(v=>v.lang&&v.lang.startsWith('en')); }
+  function speak(word,btn){ if(!window.speechSynthesis) return; speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(word); const v=pickVoice(); if(v)u.voice=v;
+    u.lang=accent==='uk'?'en-GB':'en-US'; u.rate=.9;
+    if(btn){ markPlaying(btn,true); u.onend=u.onerror=()=>markPlaying(btn,false); }
+    speechSynthesis.speak(u); }
+  function playAudio(url,btn,fb){ if(currentAudio){currentAudio.pause();currentAudio=null;}
+    const a=new Audio(url); currentAudio=a; if(btn)markPlaying(btn,true);
+    a.onended=a.onpause=()=>{if(btn)markPlaying(btn,false);};
+    a.onerror=()=>{if(btn)markPlaying(btn,false);speak(fb,btn);};
+    a.play().catch(()=>{if(btn)markPlaying(btn,false);speak(fb,btn);}); }
+  function markPlaying(btn,on){ btn.classList.toggle('playing',on); }
+
+  const trCache={};
+  async function tr(text){ text=(text||'').trim(); if(!text)return ''; if(trCache[text])return trCache[text];
+    try{ const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q='+encodeURIComponent(text));
+      const j=await r.json(); const zh=j[0].map(x=>x[0]).join(''); trCache[text]=zh; return zh; }catch(e){ return ''; } }
+
+  const POS={noun:'名词',verb:'动词',adjective:'形容词',adverb:'副词',pronoun:'代词',preposition:'介词',
+    conjunction:'连词',interjection:'感叹词',exclamation:'感叹词',determiner:'限定词',article:'冠词',
+    numeral:'数词',prefix:'前缀',suffix:'后缀',abbreviation:'缩写',phrase:'短语',idiom:'习语'};
+  const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6a8 8 0 0 1 0 12"/></svg>';
+  const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  function scrollToResult(){ document.querySelector('.results-wrap').scrollIntoView({behavior:'smooth',block:'start'}); }
+
+  async function lookup(word){
+    word=word.trim().toLowerCase(); if(!word) return;
+    if(hint) hint.style.display='none';
+    out.innerHTML='<div class="state"><div class="spinner"></div>正在查询「'+esc(word)+'」…</div>';
+    setTimeout(scrollToResult,60);
+    try{
+      const res=await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(word));
+      if(!res.ok) throw 0;
+      render(word, await res.json());
+    }catch(e){
+      const an=accent==='uk'?'英音':'美音';
+      out.innerHTML='<div class="result show"><div class="card liquid-glass"><div class="word-row"><div>'+
+        '<div class="word">'+esc(word)+'</div><div class="phonetic">未找到词典释义</div></div>'+
+        '<div class="play-stack"><button class="play liquid-glass" id="fb"><span style="position:absolute">'+ICON+'</span><span class="lbl">合成发音</span></button></div></div>'+
+        '<div class="divider"></div><p style="color:var(--txt-60);font-family:var(--zh);font-size:15px;line-height:1.7">没有找到这个词的释义，但你仍然可以用合成的'+an+'语音听它的发音。</p></div></div>';
+      $('#fb').onclick=ev=>speak(word,ev.currentTarget);
+    }
+  }
+
+  function render(word,data){
+    const entry=data[0], display=entry.word||word;
+    let ipa='',usA='',ukA='',anyA='';
+    data.flatMap(d=>d.phonetics||[]).forEach(p=>{
+      if(p.text&&!ipa)ipa=p.text;
+      if(p.audio){ anyA=anyA||p.audio;
+        if(/-us\.|_us_|\/us\//i.test(p.audio))usA=p.audio;
+        if(/-uk\.|_uk_|\/uk\//i.test(p.audio)||/-gb\./i.test(p.audio))ukA=p.audio; }
+    });
+    if(!ipa)ipa=entry.phonetic||'';
+    const pref=accent==='uk'?(ukA||anyA):(usA||anyA);
+
+    let body='';
+    (entry.meanings||[]).slice(0,3).forEach(m=>{
+      const pz=POS[(m.partOfSpeech||'').toLowerCase()]||m.partOfSpeech;
+      body+='<div class="pos">'+esc(pz)+' <em>'+esc(m.partOfSpeech)+'</em></div><div class="defs">';
+      (m.definitions||[]).slice(0,3).forEach((d,i)=>{
+        body+='<div class="def-num"><span>'+(i+1)+'</span><div>'+
+          '<div class="def-cn loading" data-tr="'+esc(d.definition)+'">翻译中…</div>'+
+          '<div class="def-en">'+esc(d.definition)+'</div>'+
+          (d.example?'<span class="example">“'+esc(d.example)+'”</span><span class="example-cn loading" data-tr="'+esc(d.example)+'"></span>':'')+
+          '</div></div>';
+      });
+      body+='</div>';
+      const syn=(m.synonyms||[]).slice(0,5);
+      if(syn.length) body+='<div class="syn"><span class="k">近义词</span>'+syn.map(s=>'<b data-w="'+esc(s)+'">'+esc(s)+'</b>').join('')+'</div>';
+      body+='<div class="divider"></div>';
+    });
+    body=body.replace(/<div class="divider"><\/div>$/,'');
+
+    out.innerHTML='<div class="result show"><div class="card liquid-glass"><div class="word-row"><div>'+
+      '<div class="word">'+esc(display)+'</div>'+
+      '<div class="word-zh loading" data-tr="'+esc(display)+'" data-gloss="1">…</div>'+
+      (ipa?'<div class="phonetic">'+esc(ipa)+'</div>':'')+'</div>'+
+      '<div class="play-stack"><button class="play liquid-glass" id="playMain"><span style="position:absolute">'+ICON+'</span><span class="lbl">'+(pref?'真人录音':'合成发音')+'</span></button></div></div>'+
+      '<div class="divider"></div>'+(body||'<p style="color:var(--txt-60);font-family:var(--zh)">暂无释义。</p>')+'</div></div>';
+
+    $('#playMain').onclick=e=>{ const b=e.currentTarget; pref?playAudio(pref,b,display):speak(display,b); };
+    out.querySelectorAll('.syn b').forEach(b=>{ b.onclick=()=>{ q.value=b.dataset.w; lookup(b.dataset.w); }; });
+
+    out.querySelectorAll('[data-tr]').forEach(async el=>{
+      const zh=await tr(el.dataset.tr); el.classList.remove('loading');
+      if(!zh){ el.textContent = el.dataset.gloss?'':el.dataset.tr; return; }
+      el.textContent=zh;
+    });
+
+    if(pref) playAudio(pref,$('#playMain'),display);
+    else setTimeout(()=>speak(display,$('#playMain')),250);
+  }
+
+  form.addEventListener('submit',e=>{ e.preventDefault(); lookup(q.value); });
+})();
+</script>
+</body>
+</html>
