@@ -12,6 +12,7 @@ import http from 'node:http';
 import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,10 +35,56 @@ const ACCESS_CODE = (process.env.ACCESS_CODE || '').trim().replace(/^["']|["']$/
 const RATE_LIMIT_MAX_PER_DAY = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_DAY) || 3);
 const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 const rateLimitBuckets = new Map();
+
+/* ---- 一人一码 · 按码核销（用完作废，重启不丢次数）----
+   access-codes.json（入库,只存哈希）：{ "maxUses": 3, "hashes": ["<sha256(小写码)>", ...] }
+   .code-usage.json（不入库,运行时生成）：{ "<hash>": 已用次数 } */
+const CODES_FILE = path.join(__dirname, 'access-codes.json');
+const USAGE_FILE = path.join(__dirname, '.code-usage.json');
+let codeConfig = { maxUses: 3, hashes: [] };
+try { codeConfig = JSON.parse(fs.readFileSync(CODES_FILE, 'utf8')); } catch { /* 无文件=不启用码门槛 */ }
+const CODE_HASHES = new Set((codeConfig.hashes || []).map((h) => String(h).toLowerCase()));
+const CODE_MAX_USES = Math.max(1, Number(codeConfig.maxUses) || 3);
+const CODE_GATE_ON = CODE_HASHES.size > 0;
+let codeUsage = {};
+try { codeUsage = JSON.parse(fs.readFileSync(USAGE_FILE, 'utf8')) || {}; } catch { codeUsage = {}; }
+function persistUsage() {
+  try { fs.writeFileSync(USAGE_FILE, JSON.stringify(codeUsage)); }
+  catch (e) { console.error('[code-usage] 持久化失败:', e.message); }
+}
+function hashCode(code) {
+  return crypto.createHash('sha256').update(String(code || '').trim().toLowerCase()).digest('hex');
+}
+function codeStatus(code) {
+  if (!CODE_GATE_ON) return { gate: false, valid: true, remaining: Infinity };
+  const trimmed = String(code || '').trim();
+  const h = hashCode(trimmed);
+  if (!trimmed || !CODE_HASHES.has(h)) return { gate: true, valid: false, exhausted: false, remaining: 0, hash: h };
+  const remaining = Math.max(0, CODE_MAX_USES - (codeUsage[h] || 0));
+  return { gate: true, valid: remaining > 0, exhausted: remaining <= 0, remaining, hash: h };
+}
+function consumeCode(hash) {
+  codeUsage[hash] = (codeUsage[hash] || 0) + 1;
+  persistUsage();
+  return Math.max(0, CODE_MAX_USES - codeUsage[hash]);
+}
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+const CONTENT_TYPES = new Map([
+  ['.css', 'text/css; charset=utf-8'],
+  ['.html', 'text/html; charset=utf-8'],
+  ['.ico', 'image/x-icon'],
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
+  ['.js', 'text/javascript; charset=utf-8'],
+  ['.json', 'application/json; charset=utf-8'],
+  ['.png', 'image/png'],
+  ['.svg', 'image/svg+xml; charset=utf-8'],
+  ['.webp', 'image/webp'],
+]);
 
 function isOriginAllowed(origin = '') {
   return ALLOWED_ORIGINS.includes('*') || ALLOWED_ORIGINS.includes(origin);
@@ -127,6 +174,40 @@ function sendPublicHtml(res, fileName = DEFAULT_HTML_FILE, headOnly = false) {
 
 function sendHtml(res, headOnly = false) {
   sendPublicHtml(res, DEFAULT_HTML_FILE, headOnly);
+}
+
+function sendPublicStatic(req, res, urlPath) {
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(urlPath);
+  } catch (_) {
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Bad request');
+    return true;
+  }
+
+  const filePath = path.resolve(PUBLIC_DIR, `.${decodedPath}`);
+  if (!filePath.startsWith(`${PUBLIC_DIR}${path.sep}`)) return false;
+
+  fs.stat(filePath, (statErr, stat) => {
+    if (statErr || !stat.isFile()) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not found');
+      return;
+    }
+
+    const contentType = CONTENT_TYPES.get(path.extname(filePath).toLowerCase()) || 'application/octet-stream';
+    const cacheControl = /\.(?:jpg|jpeg|png|webp|svg|ico)$/i.test(filePath)
+      ? 'public, max-age=86400'
+      : 'no-store';
+    res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': cacheControl });
+    if (req.method === 'HEAD') {
+      res.end();
+      return;
+    }
+    fs.createReadStream(filePath).pipe(res);
+  });
+  return true;
 }
 
 function readRequestBody(req, onBody, onError) {
@@ -277,15 +358,31 @@ function proxySub2API(req, res) {
         return;
       }
 
-      const rateLimit = peekRateLimit(req);
-      if (!rateLimit.allowed) {
-        sendJson(res, 429, {
-          error: {
-            message: '体验次数已用完 请稍后再试',
-            resetAt: rateLimit.resetAt,
-          },
-        });
-        return;
+      // 门槛：启用一人一码时按码核销；否则回退到按 IP 每日限次
+      const submittedCode = String(incoming.access_code || incoming.accessCode || '').trim();
+      const cs = codeStatus(submittedCode);
+      if (cs.gate) {
+        if (!cs.valid) {
+          sendJson(res, 403, {
+            error: {
+              message: cs.exhausted ? '体验码次数已用完，如需继续请重新购买' : '请输入有效的体验码',
+              code: cs.exhausted ? 'code_exhausted' : 'invalid_code',
+              remaining: 0,
+            },
+          });
+          return;
+        }
+      } else {
+        const rateLimit = peekRateLimit(req);
+        if (!rateLimit.allowed) {
+          sendJson(res, 429, {
+            error: {
+              message: '体验次数已用完 请稍后再试',
+              resetAt: rateLimit.resetAt,
+            },
+          });
+          return;
+        }
       }
 
       const fallbackQueue = [SUB2API_MODEL, ...SUB2API_FALLBACK_MODELS].filter((model, index, models) => model && models.indexOf(model) === index);
@@ -314,7 +411,7 @@ function proxySub2API(req, res) {
                   res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upstreamStatus}` } }));
                   return;
                 }
-                checkRateLimit(req);
+                if (cs.gate) consumeCode(cs.hash); else checkRateLimit(req);
                 try {
                   const json = JSON.parse(raw || '{}');
                   const text = json?.choices?.[0]?.message?.content || '';
@@ -338,7 +435,7 @@ function proxySub2API(req, res) {
               upRes.pipe(res);
               return;
             }
-            checkRateLimit(req);
+            if (cs.gate) consumeCode(cs.hash); else checkRateLimit(req);
             normalizeOpenAIStreamToAnthropicSSE(upRes, res);
           },
           () => {
@@ -408,6 +505,30 @@ const server = http.createServer((req, res) => {
       hasApiKey: Boolean(SUB2API_API_KEY),
       allowedOrigins: ALLOWED_ORIGINS,
     });
+    return;
+  }
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && sendPublicStatic(req, res, urlPath)) {
+    return;
+  }
+
+  // 校验体验码 + 返回剩余次数（不消耗），供前端解读前的门槛使用
+  if (req.method === 'POST' && urlPath === '/v1/code/check') {
+    readRequestBody(
+      req,
+      (body) => {
+        let payload = {};
+        try { payload = JSON.parse(body.toString('utf8') || '{}'); } catch { /* ignore */ }
+        const cs = codeStatus(String(payload.access_code || payload.accessCode || '').trim());
+        sendJson(res, 200, {
+          gate: cs.gate,
+          valid: !!cs.valid,
+          exhausted: !!cs.exhausted,
+          remaining: cs.remaining === Infinity ? null : cs.remaining,
+        });
+      },
+      (error) => sendJson(res, 400, { error: { message: error.message } })
+    );
     return;
   }
 

@@ -6,3 +6,6 @@ node_modules/
 npm-debug.log*
 .vercel/
 .render/
+
+# 体验码用量(运行时生成,勿入库)
+server/.code-usage.json

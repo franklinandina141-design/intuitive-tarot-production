@@ -713,6 +713,42 @@ body:not(.screen-pick) #s1 .pick-bot{
 
 </div><!-- end #screens -->
 
+<!-- 体验码门槛（解读前） -->
+<style>
+  #codeGate{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+    padding:24px;background:rgba(8,5,2,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+  #codeGate.on{display:flex;}
+  .code-box{width:100%;max-width:400px;text-align:center;border-radius:22px;padding:34px 26px;
+    border:1px solid rgba(210,170,90,.28);background:linear-gradient(160deg,rgba(38,28,12,.96),rgba(18,12,5,.98));
+    box-shadow:0 30px 80px rgba(0,0,0,.6);}
+  .code-box .lock{font-size:30px;margin-bottom:12px;}
+  .code-box h3{font-family:'Cinzel','Noto Serif SC',serif;font-size:24px;font-weight:600;color:#f0d68a;letter-spacing:.02em;}
+  .code-box p{color:rgba(240,214,138,.62);font-size:13px;line-height:1.7;margin-top:10px;font-family:'Noto Serif SC',serif;}
+  .code-box input{width:100%;margin-top:20px;padding:14px 16px;border-radius:12px;text-align:center;
+    background:rgba(0,0,0,.35);border:1px solid rgba(210,170,90,.35);color:#f7eccf;font-size:18px;
+    letter-spacing:.12em;outline:none;font-family:'Cinzel',serif;text-transform:uppercase;}
+  .code-box input::placeholder{color:rgba(240,214,138,.35);letter-spacing:.06em;text-transform:none;}
+  .code-box .code-btn{width:100%;margin-top:16px;padding:14px;border-radius:12px;border:none;cursor:pointer;
+    background:linear-gradient(180deg,#e8c46a,#c79a3a);color:#231703;font-weight:700;font-size:15px;letter-spacing:.08em;
+    font-family:'Cinzel',serif;transition:transform .12s;}
+  .code-box .code-btn:active{transform:scale(.97);}
+  .code-box .code-msg{min-height:18px;margin-top:12px;font-size:13px;color:#ff9d9d;font-family:'Noto Serif SC',serif;}
+  .code-box .code-msg.ok{color:#9fe0b0;}
+  .code-box .code-cancel{margin-top:14px;background:none;border:none;color:rgba(240,214,138,.5);
+    font-size:12px;cursor:pointer;font-family:'Noto Serif SC',serif;text-decoration:underline;}
+</style>
+<div id="codeGate">
+  <div class="code-box">
+    <div class="lock">🔮</div>
+    <h3 id="codeTitle">输入体验码</h3>
+    <p id="codeHint">购买后你会收到一个体验码，可解读 3 次。<br>输入即可开启这次解读。</p>
+    <input id="codeInput" type="text" placeholder="体验码，如 TAROT-XXXXXXXX" spellcheck="false" autocapitalize="characters" autocomplete="off" />
+    <button class="code-btn" id="codeSubmit" type="button">解 锁 解 读</button>
+    <div class="code-msg" id="codeMsg"></div>
+    <button class="code-cancel" id="codeCancel" type="button">取消</button>
+  </div>
+</div>
+
 <script>
 /* ══ 图片：本地 SVG 生成，零网络依赖 ══ */
 const CSYM={
@@ -1448,6 +1484,70 @@ function witchLoadingMarkup(lang){
   <div class="wc-dots"><i style="--dl:0s"></i><i style="--dl:.3s"></i><i style="--dl:.6s"></i></div>`;
 }
 
+/* ══ 体验码门槛：一人一码，可解读 3 次，用完作废 ══ */
+const ACCESS_CODE_KEY='TAROT_ACCESS_CODE';
+function getStoredCode(){ try{return localStorage.getItem(ACCESS_CODE_KEY)||'';}catch(_){return '';} }
+function setStoredCode(v){ try{v?localStorage.setItem(ACCESS_CODE_KEY,v):localStorage.removeItem(ACCESS_CODE_KEY);}catch(_){} }
+async function checkCode(code){
+  try{
+    const r=await fetch(`${TAROT_API_ORIGIN}/v1/code/check`,{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({access_code:code||''})});
+    if(!r.ok) return {gate:true,valid:false};
+    return await r.json();
+  }catch(_){ return {gate:true,valid:false,offline:true}; }
+}
+// 返回 true 表示可以继续解读（无门槛或已持有有效码）；false 表示用户取消
+function ensureAccessCode(){
+  return new Promise(async resolve=>{
+    const first=await checkCode(getStoredCode());
+    if(first.offline){ resolve(true); return; }         // 校验接口不可达时不拦（避免误伤）
+    if(first.gate===false){ resolve(true); return; }    // 后端未启用码门槛
+    if(first.valid){ resolve(true); return; }           // 已有有效码
+    // 需要输入体验码
+    const gate=document.getElementById('codeGate');
+    const input=document.getElementById('codeInput');
+    const msg=document.getElementById('codeMsg');
+    const submit=document.getElementById('codeSubmit');
+    const cancel=document.getElementById('codeCancel');
+    const lang=getReadingLanguage();
+    document.getElementById('codeTitle').textContent=lang==='en'?'Enter your access code':'输入体验码';
+    document.getElementById('codeHint').innerHTML=lang==='en'
+      ? 'After purchase you receive a code good for 3 readings.<br>Enter it to unlock this reading.'
+      : '购买后你会收到一个体验码，可解读 3 次。<br>输入即可开启这次解读。';
+    submit.textContent=lang==='en'?'Unlock reading':'解 锁 解 读';
+    cancel.textContent=lang==='en'?'Cancel':'取消';
+    input.value=getStoredCode(); msg.textContent=''; msg.className='code-msg';
+    if(getStoredCode()){ // 之前的码失效/用完，提示原因
+      msg.textContent = (await checkCode(getStoredCode())).exhausted
+        ? (lang==='en'?'This code has been used up. Please buy again.':'该体验码 3 次已用完，如需继续请重新购买')
+        : (lang==='en'?'Code invalid, please re-enter.':'体验码无效，请重新输入');
+    }
+    gate.classList.add('on'); setTimeout(()=>input.focus(),200);
+    const cleanup=()=>{ gate.classList.remove('on'); submit.onclick=null; cancel.onclick=null; input.onkeydown=null; };
+    async function tryUnlock(){
+      const code=(input.value||'').trim();
+      if(!code){ return; }
+      submit.disabled=true; msg.className='code-msg'; msg.textContent=lang==='en'?'Checking…':'验证中…';
+      const st=await checkCode(code);
+      submit.disabled=false;
+      if(st.gate===false||st.valid){
+        setStoredCode(code);
+        msg.className='code-msg ok';
+        msg.textContent=(st.remaining!=null)?(lang==='en'?`Unlocked · ${st.remaining} readings left`:`已解锁 · 体验码还剩 ${st.remaining} 次`):'';
+        setTimeout(()=>{ cleanup(); resolve(true); },500);
+      }else{
+        msg.className='code-msg';
+        msg.textContent=st.exhausted
+          ? (lang==='en'?'This code has been used up. Please buy again.':'该体验码 3 次已用完，如需继续请重新购买')
+          : (lang==='en'?'Invalid code, please check and retry.':'体验码不正确，请检查后重试');
+      }
+    }
+    submit.onclick=tryUnlock;
+    input.onkeydown=e=>{ if(e.key==='Enter') tryUnlock(); };
+    cancel.onclick=()=>{ cleanup(); resolve(false); };
+  });
+}
+
 async function generateReading(){
   const out=document.getElementById('rOutput');
   const btnGen=document.getElementById('btnGen');
@@ -1467,6 +1567,10 @@ async function generateReading(){
     ? `User question: ${q}\n\nDrawn cards:\n${cardLines}`
     : `用户问题：${q}\n\n抽到的牌：\n${cardLines}`;
 
+  // 体验码门槛：无有效码则弹窗输入；用户取消则中止本次解读（保留 Generate 按钮）
+  const gateOk=await ensureAccessCode();
+  if(!gateOk) return;
+
   btnGen.disabled=true; btnGen.style.display='none';
   btnRetry.style.display='none';
   document.getElementById('btnCopy').style.display='none';
@@ -1484,12 +1588,14 @@ async function generateReading(){
         stream:true,
         language:readingLanguage,
         system:buildSystemPrompt(readingLanguage),
+        access_code:getStoredCode(),
         messages:[{role:'user',content:userPrompt}],
       }),
     });
 
     if(!resp.ok){
       const err=await resp.json().catch(()=>({}));
+      if(resp.status===403 && err?.error?.code==='invalid_code') setStoredCode('');
       throw new Error(err?.error?.message||`HTTP ${resp.status}`);
     }
 
@@ -1578,6 +1684,17 @@ async function generateReading(){
     lastReadingText=full;
     document.getElementById('btnCopy').style.display='';
     btnRetry.style.display='';
+    // 显示体验码剩余次数（仅在启用码门槛时）
+    (async()=>{ const st=await checkCode(getStoredCode());
+      if(st&&st.gate&&st.remaining!=null){
+        const el=document.getElementById('rText');
+        if(el){ const n=document.createElement('p');
+          n.style.cssText='margin-top:20px;color:rgba(240,214,138,.5);font-size:12px;text-align:center;letter-spacing:.05em';
+          n.textContent=getReadingLanguage()==='en'?`Access code · ${st.remaining} reading(s) left`:`体验码还剩 ${st.remaining} 次`;
+          el.appendChild(n);
+        }
+      }
+    })();
 
   }catch(e){
     out.className='r-output';
