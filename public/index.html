@@ -798,29 +798,15 @@ const SUITS=[
 const RZH=['A','二','三','四','五','六','七','八','九','十','侍者','騎士','皇后','國王'];
 const REN=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
 
-/* 維基共享資源 Rider–Waite–Smith 掃圖（公有领域常见收录）；失敗時用 cardSvg 備援 */
-const RWS_MAJOR_FILES=[
-  'RWS Tarot 00 Fool.jpg','RWS Tarot 01 Magician.jpg','RWS Tarot 02 High Priestess.jpg',
-  'RWS Tarot 03 Empress.jpg','RWS Tarot 04 Emperor.jpg','RWS Tarot 05 Hierophant.jpg',
-  'RWS Tarot 06 Lovers.jpg','RWS Tarot 07 Chariot.jpg','RWS Tarot 08 Strength.jpg',
-  'RWS Tarot 09 Hermit.jpg','RWS Tarot 10 Wheel of Fortune.jpg','RWS Tarot 11 Justice.jpg',
-  'RWS Tarot 12 Hanged Man.jpg','RWS Tarot 13 Death.jpg','RWS Tarot 14 Temperance.jpg',
-  'RWS Tarot 15 Devil.jpg','RWS Tarot 16 Tower.jpg','RWS Tarot 17 Star.jpg',
-  'RWS Tarot 18 Moon.jpg','RWS Tarot 19 Sun.jpg','RWS Tarot 20 Judgement.jpg','RWS Tarot 21 World.jpg'
-];
-const RWS_MINOR_PREFIX={wa:'Wands',cu:'Cups',sw:'Swords',pe:'Pents'};
-function rwsCommonsUrl(filename){
-  return 'https://commons.wikimedia.org/wiki/Special:FilePath/'+filename.replace(/ /g,'_');
-}
-function cardImageUrl(key){
-  if(key[0]==='m'){
-    const n=+key.slice(1);
-    return rwsCommonsUrl(RWS_MAJOR_FILES[n]||RWS_MAJOR_FILES[0]);
-  }
+/* 國內/手機版優先使用本地 Rider–Waite–Smith 牌圖；失敗時用 cardSvg 備援，避免 Wikimedia 在手機/微信環境下不穩定 */
+function localCardId(key){
+  if(key[0]==='m') return `ar${String(+key.slice(1)).padStart(2,'0')}`;
   const suit=key.slice(0,2);
   const num=+key.slice(2);
-  const pref=RWS_MINOR_PREFIX[suit]||'Wands';
-  return rwsCommonsUrl(`${pref}${String(num).padStart(2,'0')}.jpg`);
+  return `${suit}${num}`;
+}
+function cardImageUrl(key){
+  return `./assets/cards/${localCardId(key)}.jpg`;
 }
 
 function buildDeck(){
@@ -839,29 +825,41 @@ function buildDeck(){
   return d;
 }
 
-const preloadedImages=new Set();
-function preloadAllImages(){
-  // 预解码整副牌，降低首轮翻牌/解读页切换时的闪烁感
-  const allCards=buildDeck();
-  allCards.forEach(({img,fallback})=>{
-    [img,fallback].forEach(src=>{
-      if(!src||preloadedImages.has(src)) return;
-      preloadedImages.add(src);
-      const im=new Image();
-      im.decoding='async';
-      im.src=src;
-      if(im.decode) im.decode().catch(()=>{});
-    });
-  });
-}
+/* real card faces load on demand: phones only fetch picked and reading cards. */
 function markImageLoaded(imgEl){
   imgEl.classList.add('loaded');
+  if(imgEl.dataset.fallbackTimer){
+    clearTimeout(Number(imgEl.dataset.fallbackTimer));
+    delete imgEl.dataset.fallbackTimer;
+  }
   const wrap=imgEl.closest('.img-wrap');
   if(wrap){
     wrap.classList.add('loaded');
     const fallbackImg=wrap.querySelector('.svg-fallback-img');
     if(fallbackImg) fallbackImg.classList.remove('show');
   }
+}
+function forceSvgFallback(imgEl){
+  if(!imgEl) return;
+  const fb=imgEl.getAttribute('data-fb');
+  if(fb && !imgEl.classList.contains('loaded')){
+    imgEl.src=decodeURIComponent(fb);
+  }
+  markImageLoaded(imgEl);
+}
+function loadCardImage(imgEl){
+  if(!imgEl) return;
+  const fallbackImg=imgEl.parentElement?.querySelector('.svg-fallback-img');
+  if(fallbackImg && !imgEl.classList.contains('loaded')) fallbackImg.classList.add('show');
+  if(!imgEl.getAttribute('src') && imgEl.dataset.src){
+    imgEl.src=imgEl.dataset.src;
+  }
+  if(!imgEl.classList.contains('loaded') && !imgEl.dataset.fallbackTimer){
+    imgEl.dataset.fallbackTimer=String(setTimeout(()=>forceSvgFallback(imgEl),3500));
+  }
+}
+function loadVisibleCardImages(root=document){
+  root.querySelectorAll('img[data-src]').forEach(loadCardImage);
 }
 function tarotImgFallback(el){
   if(el.dataset.step==='1'){
@@ -1112,10 +1110,8 @@ function onPick(idx){
   // 翻牌 — 稍微延迟，飞到一半再翻
   setTimeout(()=>{
     // 翻牌前先显示本地 SVG 兜底，真实牌面慢也不会空白
-    const img=el.querySelector('img');
-    const fallbackImg=el.querySelector('.svg-fallback-img');
-    if(fallbackImg) fallbackImg.classList.add('show');
-    if(img && !img.src && img.dataset.src) img.src=img.dataset.src;
+    const img=el.querySelector('img[data-src], img');
+    loadCardImage(img);
     el.style.transform=`rotateZ(0deg) scale(${mobileCenterScale})`;
     el.classList.add('flipped');
     if(c.rev) el.classList.add('rev');
@@ -1185,7 +1181,7 @@ function buildReadingScreen(){
     setTimeout(()=>slot.classList.add('show'), i*140+60);
     setTimeout(()=>{
       const img=slot.querySelector('img[data-src]');
-      if(img && !img.src) img.src=img.dataset.src;
+      loadCardImage(img);
     }, i*180+360);
   });
 
@@ -1649,8 +1645,6 @@ document.getElementById('coverQ').addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();goToPick();}
 });
 
-// 页面加载后立即开始预加载所有牌面图片
-preloadAllImages();
 syncReadingLanguageUI();
 
 let rt=null;
