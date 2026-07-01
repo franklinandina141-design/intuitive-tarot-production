@@ -346,8 +346,8 @@
 <script>
 (function(){
   /* ============ access code gate ============ */
-  /* 有效激活码的 SHA-256(小写)。要改口令/加新码，把新的哈希填进下面数组即可。
-     当前默认激活码： sayit888  （大小写不敏感） */
+  /* 有效激活码的 SHA-256(小写)。店铺自动发货→用单一共享码发给所有买家。
+     要改码：把新码小写的 SHA-256 填进下面数组即可。当前激活码： sayit888  （大小写不敏感） */
   const CODES=['9dc950a4b6d18f405f1e01796b727dca6ed0f5756468787d409fca5f488873c8'];
   (function(){
     const gate=document.getElementById('gate'); if(!gate) return;
@@ -528,10 +528,23 @@
     }catch(e){
       const an=accent==='uk'?'英音':'美音';
       out.innerHTML='<div class="result show"><div class="card liquid-glass"><div class="word-row"><div>'+
-        '<div class="word">'+esc(word)+'</div><div class="phonetic">未找到词典释义</div></div>'+
-        '<div class="play-stack"><button class="play liquid-glass" id="fb"><span style="position:absolute">'+ICON+'</span><span class="lbl">合成发音</span></button></div></div>'+
-        '<div class="divider"></div><p style="color:var(--txt-60);font-family:var(--zh);font-size:15px;line-height:1.7">没有找到这个词的释义，但你仍然可以用合成的'+an+'语音听它的发音。</p></div></div>';
+        '<div class="word">'+esc(word)+'</div>'+
+        '<div class="word-zh loading" id="fbZh">翻译中…</div>'+
+        '<div class="phonetic">未找到词典释义</div></div>'+
+        '<div class="play-stack">'+
+          '<button class="play liquid-glass" id="fb"><span style="position:absolute">'+ICON+'</span><span class="lbl">合成发音</span></button>'+
+          '<button class="fav liquid-glass" id="fbFav"><span style="position:absolute">'+HEART+'</span><span class="lbl"></span></button>'+
+        '</div></div>'+
+        '<div class="divider"></div><p style="color:var(--txt-60);font-family:var(--zh);font-size:15px;line-height:1.7">词典里暂时没有它的详细释义，但仍可以用合成的'+an+'语音听发音。</p></div></div>';
       $('#fb').onclick=ev=>speak(word,ev.currentTarget);
+      const favBtn=$('#fbFav');
+      favBtn.classList.toggle('on', isFav(word));
+      favBtn.querySelector('.lbl').textContent = isFav(word)?'已收藏':'收藏';
+      favBtn.onclick=()=>{ const on=toggleFav(word); favBtn.classList.toggle('on',on); favBtn.querySelector('.lbl').textContent=on?'已收藏':'收藏'; };
+      addHistory(word);
+      const zh=await tr(word), zEl=$('#fbZh');
+      if(zEl){ zEl.classList.remove('loading');
+        if(zh&&zh.toLowerCase()!==word.toLowerCase()) zEl.textContent=zh; else zEl.style.display='none'; }
     }
   }
 
