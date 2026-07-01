@@ -1286,7 +1286,17 @@ const TAROT_API_ORIGIN=(()=>{
     const saved=localStorage.getItem('TAROT_API_ORIGIN');
     if(saved) return saved.replace(/\/$/,'');
   }catch(_){}
-  return (window.TAROT_API_ORIGIN||DEFAULT_TAROT_API_ORIGIN).replace(/\/$/,'');
+  if(typeof window!=='undefined'&&window.TAROT_API_ORIGIN)
+    return String(window.TAROT_API_ORIGIN).replace(/\/$/,'');
+  try{
+    // 自托管(server.mjs 同时提供前端+后端)→ 用同源本机后端，国内无需依赖 onrender；
+    // 纯静态托管(Vercel 等，无自带后端)→ 回退到远端 onrender。
+    if(typeof location!=='undefined'&&/^https?:$/.test(location.protocol)){
+      if(/(^|\.)vercel\.app$/i.test(location.hostname)) return DEFAULT_TAROT_API_ORIGIN.replace(/\/$/,'');
+      return location.origin.replace(/\/$/,'');
+    }
+  }catch(_){}
+  return DEFAULT_TAROT_API_ORIGIN.replace(/\/$/,'');
 })();
 const TAROT_MESSAGES_URL=(()=>{
   try{
