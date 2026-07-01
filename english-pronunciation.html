@@ -240,6 +240,28 @@
     .play{width:54px;height:54px;}.play-stack{width:100%;justify-content:flex-start;margin-top:8px;}
     footer{padding-bottom:calc(40px + env(safe-area-inset-bottom));}
   }
+
+  /* ---------- access code gate ---------- */
+  .gate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:0 26px;
+    background:rgba(3,4,10,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+    transition:opacity .5s ease;}
+  .gate.hide{opacity:0;pointer-events:none;}
+  .gate .lock{font-size:34px;margin-bottom:14px;opacity:.9;}
+  .gate h2{font-family:var(--serif);font-weight:400;font-size:clamp(34px,8vw,52px);line-height:1;}
+  .gate .sub{font-family:var(--zh);color:var(--txt-40);font-size:14px;letter-spacing:.14em;margin-top:14px;}
+  .gate form{width:100%;max-width:400px;margin-top:30px;}
+  .gate .code-row{display:flex;align-items:center;gap:10px;border-radius:999px;padding:9px 9px 9px 24px;}
+  .gate input{flex:1;background:transparent;border:none;outline:none;color:var(--txt);
+    font-family:var(--serif);font-size:22px;letter-spacing:.1em;min-width:0;}
+  .gate input::placeholder{color:var(--txt-40);font-family:var(--zh);font-size:16px;letter-spacing:0;}
+  .gate .unlock{flex:none;width:48px;height:48px;border-radius:999px;border:none;cursor:pointer;
+    background:#fff;color:#000;display:grid;place-items:center;transition:transform .15s;}
+  .gate .unlock:active{transform:scale(.92);}.gate .unlock svg{width:20px;height:20px;}
+  .gate .err{font-family:var(--zh);color:#ff7aa8;font-size:13px;margin-top:16px;min-height:18px;
+    opacity:0;transition:opacity .2s;}
+  .gate .err.on{opacity:1;}
+  .gate .hint{font-family:var(--zh);color:var(--txt-25);font-size:12px;line-height:1.7;margin-top:26px;max-width:340px;}
 </style>
 </head>
 <body>
@@ -252,6 +274,23 @@
     preload="auto" disablepictureinpicture
     src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"></video>
   <div class="veil"></div>
+
+  <!-- 激活码 / 口令访问页 -->
+  <div class="gate liquid-glass" id="gate">
+    <div class="lock">🔒</div>
+    <h2>Say it</h2>
+    <div class="sub">输入激活码解锁</div>
+    <form id="gateForm" autocomplete="off">
+      <div class="code-row liquid-glass">
+        <input id="gateInput" type="text" placeholder="请输入激活码…" spellcheck="false" autocapitalize="none" autocomplete="off" />
+        <button class="unlock" type="submit" aria-label="解锁">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </form>
+    <div class="err" id="gateErr"></div>
+    <div class="hint">购买后请查看商品「使用方法」获取激活码<br/>解锁一次后，本机将自动记住</div>
+  </div>
 
   <nav>
     <div class="brand">
@@ -306,6 +345,30 @@
 
 <script>
 (function(){
+  /* ============ access code gate ============ */
+  /* 有效激活码的 SHA-256(小写)。要改口令/加新码，把新的哈希填进下面数组即可。
+     当前默认激活码： sayit888  （大小写不敏感） */
+  const CODES=['9dc950a4b6d18f405f1e01796b727dca6ed0f5756468787d409fca5f488873c8'];
+  (function(){
+    const gate=document.getElementById('gate'); if(!gate) return;
+    const form=document.getElementById('gateForm'), input=document.getElementById('gateInput'), err=document.getElementById('gateErr');
+    async function sha256(str){
+      if(!(window.crypto&&crypto.subtle)) return str; // 极老浏览器兜底
+      const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    function unlock(){ gate.classList.add('hide'); document.body.style.overflow=''; setTimeout(()=>gate.remove(),600); }
+    if(localStorage.getItem('sayit_unlocked')==='1'){ unlock(); return; }
+    document.body.style.overflow='hidden';
+    setTimeout(()=>input.focus(),400);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const h=await sha256((input.value||'').trim().toLowerCase());
+      if(CODES.includes(h)){ localStorage.setItem('sayit_unlocked','1'); err.classList.remove('on'); unlock(); }
+      else{ err.textContent='激活码不正确，请重新输入'; err.classList.add('on'); input.select(); }
+    });
+  })();
+
   /* ============ animated starfield ============ */
   (function(){
     const cvs=document.getElementById('stars'), ctx=cvs.getContext('2d');
