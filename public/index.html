@@ -923,7 +923,7 @@ function loadCardImage(imgEl){
     imgEl.src=imgEl.dataset.src;
   }
   if(!imgEl.classList.contains('loaded') && !imgEl.dataset.fallbackTimer){
-    imgEl.dataset.fallbackTimer=String(setTimeout(()=>forceSvgFallback(imgEl),3500));
+    imgEl.dataset.fallbackTimer=String(setTimeout(()=>forceSvgFallback(imgEl),6000));
   }
 }
 function loadVisibleCardImages(root=document){

@@ -46,6 +46,10 @@ try { codeConfig = JSON.parse(fs.readFileSync(CODES_FILE, 'utf8')); } catch { /*
 const CODE_HASHES = new Set((codeConfig.hashes || []).map((h) => String(h).toLowerCase()));
 const CODE_MAX_USES = Math.max(1, Number(codeConfig.maxUses) || 3);
 const CODE_GATE_ON = CODE_HASHES.size > 0;
+// 自用测试码：始终有效、不限次、不计消耗（与售卖码分开）。默认 tarot666，可用 TEST_CODE 环境变量覆盖。
+const TEST_CODE_HASHES = new Set([
+  hashCode(process.env.TEST_CODE || 'tarot666'),
+]);
 let codeUsage = {};
 try { codeUsage = JSON.parse(fs.readFileSync(USAGE_FILE, 'utf8')) || {}; } catch { codeUsage = {}; }
 function persistUsage() {
@@ -59,6 +63,7 @@ function codeStatus(code) {
   if (!CODE_GATE_ON) return { gate: false, valid: true, remaining: Infinity };
   const trimmed = String(code || '').trim();
   const h = hashCode(trimmed);
+  if (TEST_CODE_HASHES.has(h)) return { gate: true, valid: true, exhausted: false, remaining: 999, hash: h, test: true };
   if (!trimmed || !CODE_HASHES.has(h)) return { gate: true, valid: false, exhausted: false, remaining: 0, hash: h };
   const remaining = Math.max(0, CODE_MAX_USES - (codeUsage[h] || 0));
   return { gate: true, valid: remaining > 0, exhausted: remaining <= 0, remaining, hash: h };
@@ -411,7 +416,7 @@ function proxySub2API(req, res) {
                   res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upstreamStatus}` } }));
                   return;
                 }
-                if (cs.gate) consumeCode(cs.hash); else checkRateLimit(req);
+                if (cs.gate) { if (!cs.test) consumeCode(cs.hash); } else checkRateLimit(req);
                 try {
                   const json = JSON.parse(raw || '{}');
                   const text = json?.choices?.[0]?.message?.content || '';
@@ -435,7 +440,7 @@ function proxySub2API(req, res) {
               upRes.pipe(res);
               return;
             }
-            if (cs.gate) consumeCode(cs.hash); else checkRateLimit(req);
+            if (cs.gate) { if (!cs.test) consumeCode(cs.hash); } else checkRateLimit(req);
             normalizeOpenAIStreamToAnthropicSSE(upRes, res);
           },
           () => {
