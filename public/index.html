@@ -177,6 +177,38 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);
 .card.shuffle-out{animation:shuffleOut .38s cubic-bezier(.4,0,1,1) both;}
 .card.shuffle-in{animation:shuffleIn .52s cubic-bezier(.2,.9,.3,1) both;}
 
+/* 展开牌阵时的灵性特效：金色光晕 + 流光扫过 */
+#stage.dealing::before{
+  content:'';position:absolute;left:50%;top:48%;width:130%;height:86%;
+  transform:translate(-50%,-50%);pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(232,201,106,.20),rgba(201,168,76,.06) 45%,transparent 66%);
+  animation:auraPulse 1.9s ease-out forwards;
+}
+@keyframes auraPulse{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.55);}
+  35%{opacity:1;}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.25);}
+}
+#stage.dealing::after{
+  content:'';position:absolute;inset:-4% -8%;pointer-events:none;z-index:70;
+  background:linear-gradient(108deg,transparent 42%,rgba(255,241,205,.13) 50%,transparent 58%);
+  background-size:260% 100%;
+  animation:fanSheen 1.7s cubic-bezier(.3,.6,.3,1) forwards;
+}
+@keyframes fanSheen{0%{background-position:190% 0;opacity:0;}18%{opacity:1;}100%{background-position:-130% 0;opacity:0;}}
+/* 星尘粒子 */
+.fan-spark{position:absolute;pointer-events:none;z-index:65;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,244,214,.95),rgba(232,201,106,.5) 45%,transparent 70%);
+  box-shadow:0 0 6px rgba(232,201,106,.7);opacity:0;animation:sparkFloat var(--sp-dur,2.4s) ease-out forwards;}
+@keyframes sparkFloat{
+  0%{opacity:0;transform:translateY(0) scale(.4);}
+  20%{opacity:1;}
+  100%{opacity:0;transform:translateY(var(--sp-rise,-60px)) translateX(var(--sp-drift,0px)) scale(1);}
+}
+@media (prefers-reduced-motion:reduce){
+  #stage.dealing::before,#stage.dealing::after,.fan-spark{animation:none;opacity:0;}
+}
+
 /* 飞向中央 */
 .card.fly{
   transition:
@@ -964,10 +996,10 @@ function goToPick(){
   const qd=document.getElementById('pickQDisplay');
   qd.textContent = userQuestion ? `"${userQuestion}"` : '';
   deck=cryptoShuffle(buildDeck());
-  buildFan(false);
   goToScreen(1);
-  setTimeout(()=>buildFan(false),120);
-  setTimeout(startSway,400);
+  // 等切到抽牌页、拿到正确布局尺寸后，依次扇形展开
+  setTimeout(()=>_buildFan(true),120);
+  setTimeout(startSway, deck.length*6 + 1100);
 }
 
 /* ══ 抽牌 → 解读 ══ */
@@ -1078,18 +1110,6 @@ function _buildFan(animate){
     el.style.setProperty('--base-rz', rz+'deg');
     el.style.cssText+=`;width:${CW}px;height:${CH}px;left:${arcPts[i].left}px;top:${arcPts[i].top-sTop}px;transform:rotateZ(${rz}deg);z-index:${i}`;
 
-    if(animate){
-      const tx=(Math.random()-.5)*120;
-      const ty=-(40+Math.random()*60);
-      const rz3=(Math.random()-.5)*24;
-      el.style.setProperty('--rz',rz+'deg');
-      el.style.setProperty('--rz3',rz3+'deg');
-      el.style.setProperty('--tx',tx+'px');
-      el.style.setProperty('--ty',ty+'px');
-      el.classList.add('shuffle-in');
-      el.style.animationDelay=(i*8)+'ms';
-    }
-
     el.innerHTML=`<div class="ci">
       <div class="cb"><div class="cb-sym">${BSYMS[i%BSYMS.length]}</div></div>
       <div class="cf">
@@ -1104,6 +1124,54 @@ function _buildFan(animate){
     el.addEventListener('click',()=>onPick(i));
     stageEl.appendChild(el);
   });
+
+  if(animate) dealInFan();
+}
+
+/* 依次扇形展开：所有牌先叠在中心，再一张张滑到弧线位置 */
+function dealInFan(){
+  const cards=[...stageEl.querySelectorAll('.card')];
+  if(!cards.length||!arcPts.length) return;
+  const mid=Math.floor(cards.length/2);
+  const cx=arcPts[mid].left, cy=arcPts[mid].top;
+  cards.forEach((el,i)=>{
+    const dx=cx-arcPts[i].left, dy=cy-arcPts[i].top;
+    el.style.transition='none';
+    el.style.transform=`translate(${dx}px,${dy}px) rotateZ(0deg) scale(.6)`;
+    el.style.opacity='0';
+  });
+  void stageEl.offsetWidth; // 强制重排，确保从叠牌状态开始动画
+  stageEl.classList.add('dealing');
+  cards.forEach((el,i)=>{
+    const rz=arcPts[i].rot, d=Math.round(i*6);
+    el.style.transition=`transform .62s cubic-bezier(.18,.75,.24,1) ${d}ms, opacity .4s ease ${d}ms`;
+    el.style.transform=`rotateZ(${rz}deg)`;
+    el.style.opacity='1';
+  });
+  spawnFanSparks();
+  setTimeout(()=>{
+    stageEl.classList.remove('dealing');
+    cards.forEach(el=>{ el.style.transition=''; });
+  }, cards.length*6+750);
+}
+
+/* 展开时飘起的金色星尘 */
+function spawnFanSparks(){
+  try{ if(matchMedia('(prefers-reduced-motion:reduce)').matches) return; }catch(_){}
+  const W=stageEl.offsetWidth||360, H=stageEl.offsetHeight||420;
+  for(let n=0;n<16;n++){
+    const s=document.createElement('div'); s.className='fan-spark';
+    const sz=(2+Math.random()*4).toFixed(1);
+    s.style.width=s.style.height=sz+'px';
+    s.style.left=(Math.random()*W)+'px';
+    s.style.top=(H*0.34+Math.random()*H*0.5)+'px';
+    s.style.setProperty('--sp-rise',-(45+Math.random()*95)+'px');
+    s.style.setProperty('--sp-drift',((Math.random()-.5)*54)+'px');
+    s.style.setProperty('--sp-dur',(1.8+Math.random()*1.6)+'s');
+    s.style.animationDelay=(Math.random()*0.55).toFixed(2)+'s';
+    stageEl.appendChild(s);
+    setTimeout(()=>s.remove(),3800);
+  }
 }
 
 /* ══ 摇摆 ══ */
