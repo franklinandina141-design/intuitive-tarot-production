@@ -4,7 +4,7 @@
 
 An AI-powered tarot reading web application that combines real Rider Waite Smith tarot imagery, user questions, and OpenAI-compatible language model interpretation into a polished web experience.
 
-The project includes a static frontend deployed on Vercel, a Node.js backend deployed on Render, server-side API key protection, access-code based demo control, and per-IP daily rate limiting for safer public sharing.
+The project includes a static frontend deployed on Vercel, a Node.js backend deployed on Render, server-side API key protection, and per-IP daily rate limiting for safer public sharing.
 
 ## Live Demo
 
@@ -12,7 +12,7 @@ The project includes a static frontend deployed on Vercel, a Node.js backend dep
 - Reading app: https://intuitive-tarot-demo-2.vercel.app/index.html
 - Repository: https://github.com/franklinandina141-design/intuitive-tarot-production
 
-> Public demo access is intentionally limited. The demo uses an access code and allows only a small number of readings per IP per day to prevent uncontrolled API usage.
+> Public demo access is intentionally limited to a small number of readings per IP per day to prevent uncontrolled API usage, without adding an access-code prompt to the user flow.
 
 ## Screenshot Gallery
 
@@ -36,9 +36,7 @@ The reading interface uses a darker ceremonial style, encouraging users to enter
 
 ### Public Demo Protection
 
-The public demo includes a custom access-code modal and daily rate limiting to reduce uncontrolled API consumption while keeping the project shareable.
-
-![Access code modal](assets/access-modal-preview.jpg)
+The public demo uses backend per-IP daily rate limiting to reduce uncontrolled API consumption while keeping the experience easy to share.
 
 ## Overview
 
@@ -51,8 +49,6 @@ The goal is not to make absolute predictions or replace professional advice. Ins
 - AI-assisted tarot interpretation based on user questions and drawn cards
 - Real tarot card image display with fallback handling
 - Polished landing page and interactive reading page
-- Custom branded access-code modal for public demo control
-- Server-side access-code validation
 - Per-IP daily rate limiting for cost protection
 - Node.js backend proxy for OpenAI-compatible chat completions
 - API keys stored only in backend environment variables
@@ -152,7 +148,6 @@ SUB2API_API_KEY=your_provider_api_key
 SUB2API_BASE_URL=https://api.yksa.uk/v1
 SUB2API_MODEL=gpt-5.5
 SUB2API_FALLBACK_MODELS=gpt-5,gpt5
-ACCESS_CODE=your_private_demo_access_code
 RATE_LIMIT_MAX_PER_DAY=3
 ALLOWED_ORIGINS=*
 ```
@@ -162,8 +157,7 @@ Security notes:
 - Do not put real API keys in frontend files.
 - Do not commit `.env` files to GitHub.
 - Keep `SUB2API_API_KEY` only in Render environment variables.
-- Keep `ACCESS_CODE` only in Render environment variables.
-- The public demo is protected by both an access code and per-IP daily rate limiting.
+- The public demo is protected by backend per-IP daily rate limiting.
 - The browser calls the project backend only; the backend calls the model provider.
 
 ## Local Development
@@ -201,8 +195,7 @@ Current checks cover:
 - Unwanted feedback and tone-switch modules remain absent
 - Backend proxies OpenAI-compatible chat completions
 - Backend enforces the configured model instead of trusting the browser
-- Public demo access code and per-IP daily limit exist
-- Branded access-code modal exists instead of a native browser prompt
+- Public demo has no access-code prompt and retains a per-IP daily limit
 - Local network access configuration is supported
 
 ## Product Highlights
@@ -210,7 +203,7 @@ Current checks cover:
 - Complete path from local development to public deployment
 - Frontend and backend deployed separately using Vercel and Render
 - Backend proxy protects provider API keys from browser exposure
-- Access-code and daily rate-limit controls reduce public demo API cost risk
+- Daily rate-limit controls reduce public demo API cost risk
 - Realistic portfolio-ready AI application with both UX and deployment considerations
 - Automated tests cover key production safety assumptions
 

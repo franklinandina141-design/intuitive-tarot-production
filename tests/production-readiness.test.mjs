@@ -36,10 +36,11 @@ test('browser code keeps provider key private and defaults Vercel frontend to de
   ], 'frontend backend origin config');
 });
 
-test('all tarot images have real RWS source and robust fallback handlers', () => {
+test('all tarot images use local RWS assets and robust SVG fallback handlers', () => {
   assertIncludesAll(html, [
-    'Special:FilePath',
-    'RWS Tarot 00 Fool.jpg',
+    './assets/cards/',
+    'function cardImageUrl',
+    'function forceSvgFallback',
     'data-fb',
     'tarotImgFallback',
     'tarotReadingImgFallback',
