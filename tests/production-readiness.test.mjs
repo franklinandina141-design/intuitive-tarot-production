@@ -216,7 +216,7 @@ test('server proxies to Sub2API OpenAI-compatible chat completions and supports 
     'process.env.SUB2API_API_KEY',
     'https://api.yksa.uk/v1',
     '/chat/completions',
-    'gpt-5.5',
+    'gpt-5.6-sol',
     'SUB2API_FALLBACK_MODELS',
     'gpt5',
     'Content-Length',
@@ -236,8 +236,9 @@ test('server proxies to Sub2API OpenAI-compatible chat completions and supports 
 
 test('server ignores browser Anthropic model and always uses configured Sub2API model', () => {
   assertIncludesAll(server, [
-    "process.env.SUB2API_MODEL || 'gpt-5.5'",
-    "configuredSub2ApiModel === 'gpt-5.2' ? 'gpt-5.5'",
+    "process.env.SUB2API_MODEL || 'gpt-5.6-sol'",
+    "['gpt-5.2', 'gpt-5.5', 'gpt5'].includes(configuredSub2ApiModel)",
+    "? 'gpt-5.6-sol'",
     'function convertAnthropicMessagesToOpenAI(payload, model = SUB2API_MODEL)',
     'model,',
   ], 'configured Sub2API model');

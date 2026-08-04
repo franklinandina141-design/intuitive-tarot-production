@@ -23,9 +23,13 @@ const HTML_PATH = path.join(PUBLIC_DIR, DEFAULT_HTML_FILE);
 const PORT = Number(process.env.PORT) || 8787;
 const HOST = process.env.HOST || '127.0.0.1';
 const SUB2API_BASE_URL = (process.env.SUB2API_BASE_URL || 'https://api.yksa.uk/v1').replace(/\/$/, '');
-const configuredSub2ApiModel = (process.env.SUB2API_MODEL || 'gpt-5.5').trim();
-const SUB2API_MODEL = configuredSub2ApiModel === 'gpt-5.2' ? 'gpt-5.5' : configuredSub2ApiModel;
-const SUB2API_FALLBACK_MODELS = (process.env.SUB2API_FALLBACK_MODELS || process.env.SUB2API_FALLBACK_MODEL || 'gpt5')
+const configuredSub2ApiModel = (process.env.SUB2API_MODEL || 'gpt-5.6-sol').trim();
+// Render may retain an older dashboard env value. Normalize legacy values so
+// the production reading route consistently uses the requested Sol model.
+const SUB2API_MODEL = ['gpt-5.2', 'gpt-5.5', 'gpt5'].includes(configuredSub2ApiModel)
+  ? 'gpt-5.6-sol'
+  : configuredSub2ApiModel;
+const SUB2API_FALLBACK_MODELS = (process.env.SUB2API_FALLBACK_MODELS || process.env.SUB2API_FALLBACK_MODEL || 'gpt-5.5,gpt5')
   .split(',')
   .map((model) => model.trim())
   .filter(Boolean);
