@@ -1,0 +1,5 @@
+<view class="page">
+ <image class="room" src="/assets/room.jpg" mode="widthFix" bindload="roomLoaded" binderror="roomFailed"/><view class="shade"/>
+ <view class="brand">
+  <text class="moon">☽</text><text>INTUITIVE TAROT</text>
+  <view class="credits-chip"><text wx:if="{{credits !== null}}">剩余 {{credits}} 次</text><text wx:elif="{{creditsLoading}}">次数同步中…</text><text wx:else>剩余 — 次</text></view>

@@ -1,0 +1,7 @@
+@import "styles/fonts.wxss";
+page{background:#101719;color:#e8ddc5;font-family:WenKai,"Kaiti SC",serif;font-size:32rpx;line-height:1.7}
+view,button,textarea{box-sizing:border-box}button{font:inherit;color:inherit;border:0;background:transparent;border-radius:0;margin:0;padding:12rpx 20rpx;min-height:88rpx}button::after{border:0}button[disabled]{color:#998b72;opacity:.55}
+.quiet{color:#d2bd8c}.error{color:#ab352b;font-size:28rpx}.subtle{font-size:26rpx;color:#bbae94}.reversed{transform:rotate(180deg)}
+
+/* Use the bundled fine ink face for fixed interface copy on iOS and Android. */
+button,textarea{font-family:TarotInk,"Songti SC",serif;font-weight:300}

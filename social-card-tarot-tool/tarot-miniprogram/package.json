@@ -1,0 +1,9 @@
+{
+  "name": "intuitive-growth-miniprogram",
+  "private": true,
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.cjs"
+  }
+}

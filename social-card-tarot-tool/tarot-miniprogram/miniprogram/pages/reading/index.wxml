@@ -1,0 +1,4 @@
+<view class="reading-page">
+ <view class="reading-bar">
+  <text>☽ 直觉塔罗</text>
+  <view class="credits-chip"><text wx:if="{{credits !== null}}">剩余 {{credits}} 次</text><text wx:elif="{{creditsLoading}}">次数同步中…</text><text wx:else>剩余 — 次</text></view>

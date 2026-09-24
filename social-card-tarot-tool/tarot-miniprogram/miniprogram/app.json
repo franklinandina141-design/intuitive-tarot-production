@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/table/index",
+    "pages/reading/index",
+    "pages/legal/privacy/index",
+    "pages/legal/terms/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "女巫的牌桌",
+    "navigationBarBackgroundColor": "#101719",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#101719",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "networkTimeout": {
+    "request": 60000
+  },
+  "sitemapLocation": "sitemap.json"
+}

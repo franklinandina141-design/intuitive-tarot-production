@@ -1,0 +1,37 @@
+{
+  "description": "女巫的牌桌 · 自我成长体验版",
+  "miniprogramRoot": "miniprogram/",
+  "compileType": "miniprogram",
+  "appid": "wxbec1426de4c61bad",
+  "projectname": "intuitive-growth-cards",
+  "setting": {
+    "es6": true,
+    "minified": true,
+    "urlCheck": false,
+    "minifyWXML": true
+  },
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "file",
+        "value": "assets/reading-parchment-clean.jpg"
+      },
+      {
+        "type": "file",
+        "value": "assets/reading-quill.webp"
+      },
+      {
+        "type": "file",
+        "value": "assets/back.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/quill.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/OFL-Yozai.txt"
+      }
+    ]
+  }
+}

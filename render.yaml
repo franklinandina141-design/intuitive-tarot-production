@@ -1,3 +1,9 @@
+# Render Blueprint for 女巫的牌桌 API
+# Free plan sleeps after idle. Use keepalive (Grok Bot routine or scripts/keepalive.mjs)
+# every ~10 min against GET /health. Upgrade to paid always-on only when WeChat pay goes live.
+#
+# Postgres: after first deploy, Addons → PostgreSQL, then set DATABASE_URL
+# (or link the addon). Migration: server/pay/sql/001_init.sql runs on boot.
 services:
   - type: web
     name: intuitive-tarot-api
@@ -20,3 +26,7 @@ services:
         sync: false
       - key: RATE_LIMIT_MAX_PER_DAY
         value: '100'
+      # Set in dashboard (do not commit secrets):
+      # DATABASE_URL, PAY_DEV_MODE, WECHAT_APPID, WECHAT_SECRET,
+      # WECHAT_MCH_ID, WECHAT_API_V3_KEY, WECHAT_MCH_SERIAL_NO,
+      # WECHAT_MCH_PRIVATE_KEY, WECHAT_NOTIFY_URL

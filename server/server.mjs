@@ -13,6 +13,10 @@ import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createStore } from './pay/store.mjs';
+import { createPayApi } from './pay/routes.mjs';
+import { isPayDevMode } from './pay/wechat.mjs';
+import { isReadingFollowUp, planMessageCredits } from './pay/message-credits.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -37,6 +41,16 @@ const SUB2API_API_KEY = (process.env.SUB2API_API_KEY || '').trim().replace(/^["'
 const RATE_LIMIT_MAX_PER_DAY = Math.max(1, Number(process.env.RATE_LIMIT_MAX_PER_DAY) || 100);
 const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 const rateLimitBuckets = new Map();
+
+// Pay / credits ledger: Postgres when DATABASE_URL is set, else JSON file
+// (Render free disk is ephemeral — attach Render Postgres + DATABASE_URL before real money).
+const payStore = createStore();
+const payApi = createPayApi(payStore);
+if (typeof payStore.ensureReady === 'function') {
+  payStore.ensureReady().catch((err) => {
+    console.error('Pay store (Postgres) schema init failed:', err.message || err);
+  });
+}
 
 const READING_SYSTEM_PROMPT = `你是一位说话直接的塔罗陪跑者：像靠谱朋友，用大白话帮用户把眼前这档事想清楚。牌是讨论工具，不是神谕。
 
@@ -88,7 +102,7 @@ function setCommonHeaders(req, res) {
   res.setHeader('Access-Control-Allow-Origin', resolveCorsOrigin(req));
   res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Session-Token, X-Reading-Follow-Up');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
@@ -315,8 +329,9 @@ function requestSub2API(openaiPayload, onResponse, onError) {
   upstream.end();
 }
 
-function proxySub2API(req, res) {
+function proxySub2API(req, res, creditCtx = null, preReadBody = null) {
   if (!SUB2API_API_KEY || SUB2API_API_KEY === 'YOUR_SUB2API_API_KEY_HERE') {
+    if (creditCtx?.refund) creditCtx.refund('missing_api_key');
     sendJson(res, 500, {
       error: {
         message: '服务器未设置 SUB2API_API_KEY。在终端执行：export SUB2API_API_KEY=你的key 然后重新 npm start',
@@ -325,19 +340,28 @@ function proxySub2API(req, res) {
     return;
   }
 
-  readRequestBody(
-    req,
-    (body) => {
+  const refundOnce = (() => {
+    let done = false;
+    return (reason) => {
+      if (!creditCtx?.refund || done) return;
+      done = true;
+      Promise.resolve(creditCtx.refund(reason)).catch(() => {});
+    };
+  })();
+
+  const handleBody = (body) => {
       let incoming;
       try {
         incoming = JSON.parse(body.toString('utf8') || '{}');
       } catch {
+        refundOnce('invalid_json');
         sendJson(res, 400, { error: { message: 'Invalid JSON body' } });
         return;
       }
 
       const rateLimit = peekRateLimit(req);
       if (!rateLimit.allowed) {
+        refundOnce('rate_limited');
         sendJson(res, 429, {
           error: {
             message: '当前公开体验次数已用完，请稍后再试',
@@ -369,6 +393,7 @@ function proxySub2API(req, res) {
                   return;
                 }
                 if (upstreamStatus >= 400) {
+                  refundOnce(`upstream_${upstreamStatus}`);
                   res.writeHead(upstreamStatus, { 'Content-Type': 'application/json; charset=utf-8' });
                   res.end(raw || JSON.stringify({ error: { message: `Upstream HTTP ${upstreamStatus}` } }));
                   return;
@@ -382,6 +407,7 @@ function proxySub2API(req, res) {
                   res.write('data: [DONE]\n\n');
                   res.end();
                 } catch {
+                  refundOnce('invalid_upstream_json');
                   sendJson(res, 502, { error: { message: 'Invalid upstream response' } });
                 }
               });
@@ -393,6 +419,7 @@ function proxySub2API(req, res) {
               return;
             }
             if (upstreamStatus >= 400) {
+              refundOnce(`upstream_stream_${upstreamStatus}`);
               res.writeHead(upstreamStatus, { 'Content-Type': contentType || 'application/json; charset=utf-8' });
               upRes.pipe(res);
               return;
@@ -405,14 +432,91 @@ function proxySub2API(req, res) {
               tryUpstream(nextModelIndex);
               return;
             }
+            refundOnce('upstream_request_failed');
             if (!res.headersSent) sendJson(res, 502, { error: { message: 'Upstream request failed' } });
           }
         );
       };
 
       tryUpstream();
+  };
+
+  if (preReadBody != null) {
+    handleBody(preReadBody);
+    return;
+  }
+
+  readRequestBody(
+    req,
+    handleBody,
+    (error) => {
+      refundOnce('body_error');
+      sendJson(res, 400, { error: { message: error.message } });
+    }
+  );
+}
+
+/**
+ * Optional credits for /v1/messages.
+ * - Valid session + follow-up flag (header X-Reading-Follow-Up or metadata.followUp) → skip deduct
+ *   (one follow-up included per reading session; abuse bounded by daily rate limit).
+ * - Valid session + normal message → deduct 1, refund on hard fail.
+ * - No session + REQUIRE_CREDITS_FOR_MESSAGES=1 → 401.
+ * - No session otherwise → anonymous (H5 public path).
+ */
+async function proxySub2APIWithOptionalCredits(req, res) {
+  const token = payApi.bearerToken(req);
+  const sess = token ? await payApi.resolveSession(payStore, token) : null;
+
+  readRequestBody(
+    req,
+    async (bodyBuf) => {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(bodyBuf.toString('utf8') || '{}');
+      } catch {
+        // Invalid JSON: still plan credits (no follow-up), proxy will 400 after optional deduct.
+        parsed = null;
+      }
+
+      const plan = planMessageCredits({
+        sess,
+        requireCredits: payApi.requireCreditsEnv(),
+        req,
+        parsedBody: parsed,
+      });
+
+      if (plan.action === 'unauthorized') {
+        sendJson(res, 401, { error: { message: 'Session required when REQUIRE_CREDITS_FOR_MESSAGES=1' } });
+        return;
+      }
+
+      if (plan.action === 'anonymous' || plan.action === 'skip_deduct') {
+        // skip_deduct: authenticated follow-up — do not charge again.
+        proxySub2API(req, res, null, bodyBuf);
+        return;
+      }
+
+      // plan.action === 'deduct'
+      const deducted = await payApi.deductCreditForOpenid(sess.openid, 1);
+      if (!deducted.ok) {
+        sendJson(res, deducted.status || 402, { error: deducted.error });
+        return;
+      }
+
+      proxySub2API(
+        req,
+        res,
+        {
+          openid: sess.openid,
+          refund: () => payApi.refundCreditForOpenid(sess.openid, 1),
+        },
+        bodyBuf
+      );
     },
-    (error) => sendJson(res, 400, { error: { message: error.message } })
+    (error) => {
+      sendJson(res, 400, { error: { message: error.message } });
+    }
   );
 }
 
@@ -425,6 +529,17 @@ const server = http.createServer((req, res) => {
   }
 
   const urlPath = (req.url || '').split('?')[0];
+
+  // Pay / auth / credits routes (async). Falls through when unmatched.
+  payApi.tryHandle(req, res, sendJson).then((handled) => {
+    if (handled) return;
+    continueAfterPay(req, res, urlPath);
+  }).catch((err) => {
+    if (!res.headersSent) sendJson(res, 500, { error: { message: err.message || 'Internal error' } });
+  });
+});
+
+function continueAfterPay(req, res, urlPath) {
 
   if ((req.method === 'GET' || req.method === 'HEAD') && (urlPath === '/' || urlPath === '/index.html')) {
     sendHtml(res, req.method === 'HEAD');
@@ -470,13 +585,13 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === 'POST' && urlPath === '/v1/messages') {
-    proxySub2API(req, res);
+    proxySub2APIWithOptionalCredits(req, res);
     return;
   }
 
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Not found');
-});
+}
 
 server.listen(PORT, HOST, () => {
   const shownHost = HOST === '0.0.0.0' ? 'localhost / 本机局域网IP' : HOST;
@@ -486,4 +601,13 @@ server.listen(PORT, HOST, () => {
     console.log('局域网访问示例：在手机浏览器打开 http://你的电脑局域网IP:' + PORT + '/');
   }
   console.log(SUB2API_API_KEY ? '已检测到 SUB2API_API_KEY，可生成 AI 解读。' : '未检测到 SUB2API_API_KEY，只能浏览页面，不能生成 AI 解读。');
+  console.log(isPayDevMode() ? 'PAY_DEV_MODE=1：微信登录/支付走 mock（code=dev）。' : 'PAY_DEV_MODE 未开启：需配置 WECHAT_* 才能登录/支付。');
+  const backend = payStore.backend || 'json';
+  if (backend === 'postgres') {
+    console.log(`额度账本：Postgres（${payStore.ledgerPath}）`);
+  } else {
+    console.log(`额度账本：JSON ${payStore.ledgerPath}（Render 磁盘临时；设 DATABASE_URL 启用 Postgres）`);
+  }
 });
+
+export { payStore, payApi, server, isReadingFollowUp, planMessageCredits };

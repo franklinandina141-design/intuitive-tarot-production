@@ -1,0 +1,25 @@
+.reading-page{min-height:100vh;background:#13110e;padding-bottom:50rpx}.reading-bar{display:flex;position:sticky;top:0;z-index:3;align-items:center;justify-content:space-between;padding:0 34rpx;color:#d7c596;background:#15110df5;border-bottom:1rpx solid #d3ba8030;font-size:27rpx}.reading-bar button{font-size:23rpx;color:#c6bcaa}.cards{display:flex;justify-content:center;gap:24rpx;padding:30rpx 44rpx 35rpx}.card{width:31%;text-align:center;font-size:23rpx;color:#e0d6c5}.face{display:block;width:100%;height:330rpx;margin-bottom:12rpx}.orientation{display:block;font-size:19rpx;color:#ada792;margin-top:5rpx}.paper{position:relative;margin:0 20rpx;min-height:520rpx;opacity:0}.paper-ready{opacity:1}.paper-image{position:absolute;inset:0;width:100%;height:100%}.paper-content{position:relative;min-height:520rpx;margin:0 40rpx;padding:65rpx 0 120rpx;color:#503b2b}.question{display:block;font-size:32rpx;color:#694733;border-bottom:1rpx solid #8e69433a;padding-bottom:25rpx;margin-bottom:30rpx;line-height:1.85}.body{display:block;font-size:33rpx;line-height:1.95;margin-bottom:30rpx}.waiting-text{font-size:32rpx;line-height:1.8;min-height:150rpx;color:#765039}.ink-char{opacity:0}.ink-visible{opacity:1}.line-break{display:block}.quill{position:absolute;width:58px;height:87px;transform-origin:15% 96%;pointer-events:none}.cancel{font-size:22rpx;text-align:left;padding:15rpx 0;min-height:70rpx;color:#765039}.boundary{font-size:21rpx;line-height:1.7;color:#896e52}.consent{font-size:27rpx;line-height:1.85}.consent button,.error button{font-size:27rpx;color:#704732;padding:16rpx 0}.content{animation:ink-appear .65s ease-out}.paper-failed{background:#ead4a9;border-radius:12rpx}.paper-failed .paper-image{display:none}.paper-loading{display:block;text-align:center;color:#b4a78b;font-size:27rpx}.error{font-size:28rpx;color:#873e2e}@keyframes ink-appear{from{opacity:0}to{opacity:1}}
+
+.quill-rest{display:block;width:100rpx;height:150rpx;margin:-12rpx 0 20rpx auto}.quill{z-index:2}.waiting-text{font-family:TarotInk,"Songti SC",serif;font-weight:300}.ink-char{display:inline-block;white-space:pre}.reading-bar button{flex:none;width:auto;margin:0 0 0 auto}
+
+.pay-soft{margin-top:28rpx;padding-top:24rpx;border-top:1rpx solid #8e69433a}.pay-soft-line{display:block;font-size:28rpx;line-height:1.85;color:#694733;margin-bottom:10rpx}
+
+.pay-exhausted .pay-btn{display:block;margin:18rpx 0 0;padding:18rpx 24rpx;font-size:28rpx;color:#704732;background:#f3e4c8a8;border-radius:12rpx;text-align:center}
+.pay-exhausted .pay-btn-primary{background:#e8c98aa8;font-weight:600}
+.pay-exhausted .pay-fine{display:block;margin-top:16rpx;font-size:20rpx;color:#896e52;line-height:1.6}
+.pay-exhausted .pay-msg{display:block;margin-top:12rpx;font-size:26rpx;color:#694733;line-height:1.7}
+
+.reading-bar .credits-chip{margin-left:auto;margin-right:12rpx;padding:6rpx 16rpx;border:1rpx solid #d3ba8030;border-radius:999rpx;font-size:20rpx;color:#d7c596}
+.legal-links{margin-top:12rpx;font-size:22rpx;color:#896e52}
+.legal-links text{padding:4rpx 8rpx}
+.legal-sep{opacity:.5}
+.follow-up-box{margin-top:24rpx;padding-top:18rpx;border-top:1rpx solid #8e69433a}
+.follow-btn{display:block;margin:0;padding:16rpx 20rpx;font-size:28rpx;color:#704732;background:#f3e4c8a8;border-radius:12rpx;text-align:center}
+.follow-hint{display:block;margin-top:10rpx;font-size:22rpx;color:#896e52;line-height:1.6}
+.follow-up-form{margin-top:18rpx}
+.follow-input{width:100%;min-height:120rpx;padding:16rpx;box-sizing:border-box;font-size:28rpx;line-height:1.7;color:#503b2b;background:#f7ecd8aa;border-radius:10rpx}
+.follow-actions{display:flex;gap:16rpx;margin-top:12rpx}
+.follow-actions button{flex:1;font-size:26rpx;color:#704732;padding:14rpx 0}
+.follow-error{display:block;margin-top:10rpx;font-size:24rpx;color:#873e2e}
+.follow-up-result{margin-top:24rpx;padding-top:18rpx;border-top:1rpx dashed #8e69433a}
+.follow-label{display:block;font-size:24rpx;color:#694733;margin-bottom:12rpx;letter-spacing:2rpx}
