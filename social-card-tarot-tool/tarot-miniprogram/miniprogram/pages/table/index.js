@@ -9,6 +9,7 @@ Page({
   data: {
     question: '',
     deck: [],
+    fanDeck: [],
     selected: [],
     slots: [null, null, null],
     pickerOpen: false,

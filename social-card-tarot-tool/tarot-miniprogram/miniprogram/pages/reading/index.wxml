@@ -1,4 +1,102 @@
 <view class="reading-page">
- <view class="reading-bar">
-  <text>☽ 直觉塔罗</text>
-  <view class="credits-chip"><text wx:if="{{credits !== null}}">剩余 {{credits}} 次</text><text wx:elif="{{creditsLoading}}">次数同步中…</text><text wx:else>剩余 — 次</text></view>
+  <view class="reading-bar">
+    <text>☽ 直觉塔罗</text>
+    <view class="credits-chip">
+      <text wx:if="{{credits !== null}}">剩余 {{credits}} 次</text>
+      <text wx:elif="{{creditsLoading}}">次数同步中…</text>
+      <text wx:else>剩余 — 次</text>
+    </view>
+    <button bindtap="back">返回牌桌 ↗︎</button>
+  </view>
+
+  <view class="cards">
+    <view class="card" wx:for="{{cards}}" wx:key="id">
+      <image class="face {{item.reversed ? 'reversed' : ''}}" src="/assets/cards/{{item.id}}.jpg" mode="aspectFit"/>
+      <text>{{item.name}}</text>
+      <text class="orientation">{{item.reversed ? '逆位' : '正位'}}</text>
+    </view>
+  </view>
+
+  <view class="paper {{paperReady ? 'paper-ready' : ''}} {{paperFailed ? 'paper-failed' : ''}}">
+    <image class="paper-image" src="/assets/paper.jpg" mode="scaleToFill" bindload="paperLoaded" binderror="paperError"/>
+    <view class="paper-content">
+      <text class="question">{{question}}</text>
+
+      <image wx:if="{{!waiting}}" class="quill-rest" src="/assets/quill.webp" mode="aspectFit"/>
+
+      <view wx:if="{{consentNeeded}}" class="consent">
+        <text>开始后，你的问题与三张牌会发送至解读服务，生成 AI 辅助的自我探索内容。请勿输入身份证、联系方式等敏感信息。问题仅保留在本次会话内；内容仅供娱乐与自我觉察，不构成决策建议，也不替代专业意见。</text>
+        <button bindtap="agree">同意并开始解读 ↗︎</button>
+        <button bindtap="back">返回牌桌</button>
+      </view>
+
+      <view class="waiting-text" wx:if="{{waiting}}">
+        <block wx:for="{{chars}}" wx:key="index">
+          <view class="line-break" wx:if="{{item.breakBefore}}"></view>
+          <text class="ink-char {{item.visible ? 'ink-visible' : ''}}">{{item.char}}</text>
+        </block>
+      </view>
+      <button class="cancel" wx:if="{{waiting}}" bindtap="cancel">取消</button>
+
+      <image class="quill" wx:if="{{penVisible}}" src="/assets/quill.webp" mode="aspectFit" style="{{penStyle}}"/>
+
+      <view wx:if="{{result}}" class="content">
+        <text class="body">{{result.summary}}</text>
+        <text class="body" wx:for="{{result.cards}}" wx:key="id">{{item.text}}</text>
+        <text class="body" wx:for="{{result.advice}}" wx:key="*this">{{item}}</text>
+        <text class="boundary">{{disclaimer}}</text>
+        <view class="legal-links">
+          <text bindtap="openPrivacy">隐私说明</text>
+          <text class="legal-sep">·</text>
+          <text bindtap="openTerms">使用条款</text>
+        </view>
+      </view>
+
+      <view wx:if="{{result && !error && followUpAllowed && !followUpUsed}}" class="follow-up-box">
+        <button class="follow-btn" bindtap="openFollowUp" disabled="{{followUpLoading}}">追问一次（本次含）</button>
+        <text class="follow-hint">同一组牌可追问一次，不再扣次</text>
+      </view>
+
+      <view wx:if="{{followUpOpen}}" class="follow-up-form">
+        <textarea class="follow-input" value="{{followUpQuestion}}" maxlength="500" placeholder="就刚才的解读再问一句" bindinput="onFollowUpInput"></textarea>
+        <view class="follow-actions">
+          <button bindtap="submitFollowUp" disabled="{{followUpLoading}}">{{followUpLoading ? '追问中…' : '发送追问'}}</button>
+          <button bindtap="cancelFollowUp" disabled="{{followUpLoading}}">取消</button>
+        </view>
+        <text wx:if="{{followUpError}}" class="follow-error">{{followUpError}}</text>
+      </view>
+
+      <view wx:if="{{followUpResult}}" class="follow-up-result">
+        <text class="follow-label">追问回复</text>
+        <text class="body">{{followUpResult.summary}}</text>
+        <text class="body" wx:for="{{followUpResult.cards}}" wx:key="id">{{item.text}}</text>
+        <text class="body" wx:for="{{followUpResult.advice}}" wx:key="*this">{{item}}</text>
+        <text class="boundary">追问已用完 · 本次不含多轮对话</text>
+      </view>
+
+      <view wx:if="{{result && !error && followUpUsed && !followUpResult}}" class="follow-up-box">
+        <text class="follow-hint">本次追问已使用</text>
+      </view>
+
+      <view wx:if="{{result && !error && !exhausted}}" class="pay-soft">
+        <text class="pay-soft-line" wx:for="{{paySoft.lines}}" wx:key="*this">{{item}}</text>
+      </view>
+
+      <view wx:if="{{result && !error && exhausted}}" class="pay-soft pay-exhausted">
+        <text class="pay-soft-line" wx:for="{{payExhausted.lines}}" wx:key="*this">{{item}}</text>
+        <button class="pay-btn pay-btn-primary" data-product-id="pack_5" bindtap="buy" disabled="{{paying}}">{{payExhausted.primaryButton}}</button>
+        <button class="pay-btn" data-product-id="single_1" bindtap="buy" disabled="{{paying}}">{{payExhausted.secondaryButton}}</button>
+        <text class="pay-fine">{{payExhausted.finePrint}}</text>
+        <text wx:if="{{payMessage}}" class="pay-msg">{{payMessage}}</text>
+      </view>
+
+      <view class="error" wx:if="{{error}}">
+        <text>{{error}}</text>
+        <button bindtap="retry">重新尝试 ↗︎</button>
+        <button bindtap="back">返回牌桌</button>
+      </view>
+    </view>
+  </view>
+
+  <text class="paper-loading" wx:if="{{!paperReady}}">正在铺开手稿…</text>
+</view>

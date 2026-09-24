@@ -1,5 +1,116 @@
 <view class="page">
- <image class="room" src="/assets/room.jpg" mode="widthFix" bindload="roomLoaded" binderror="roomFailed"/><view class="shade"/>
- <view class="brand">
-  <text class="moon">☽</text><text>INTUITIVE TAROT</text>
-  <view class="credits-chip"><text wx:if="{{credits !== null}}">剩余 {{credits}} 次</text><text wx:elif="{{creditsLoading}}">次数同步中…</text><text wx:else>剩余 — 次</text></view>
+  <image class="room" src="/assets/room.jpg" mode="widthFix" bindload="roomLoaded" binderror="roomFailed"/>
+  <view class="shade"></view>
+
+  <view class="brand">
+    <text class="moon">☽</text>
+    <text>INTUITIVE TAROT</text>
+    <view class="credits-chip">
+      <text wx:if="{{credits !== null}}">剩余 {{credits}} 次</text>
+      <text wx:elif="{{creditsLoading}}">次数同步中…</text>
+      <text wx:else>剩余 — 次</text>
+    </view>
+    <button class="help" bindtap="help" aria-label="使用说明">?</button>
+  </view>
+
+  <view class="spread-row" aria-label="选择牌阵">
+    <text class="spread-label">牌阵</text>
+    <view
+      wx:for="{{spreads}}"
+      wx:key="id"
+      class="spread-chip {{spreadId === item.id ? 'active' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="pickSpread"
+    >{{item.label}}</view>
+  </view>
+
+  <view class="fan {{spreadReady ? 'spread-ready' : ''}}" bindtap="openPicker" aria-label="完整78张牌，打开滑动选牌">
+    <image
+      wx:for="{{fanDeck}}"
+      wx:key="id"
+      class="fan-card {{item.chosen ? 'chosen' : ''}}"
+      style="{{item.fanStyle}}"
+      src="/assets/back.png"
+      mode="aspectFit"
+    />
+  </view>
+
+  <view class="selected" wx:if="{{selected.length}}">
+    <view class="selected-card" wx:for="{{selected}}" wx:key="id">
+      <image class="card-face {{item.reversed ? 'reversed' : ''}}" src="/assets/cards/{{item.id}}.jpg" mode="aspectFit"/>
+      <text>{{item.name}}</text>
+      <text class="orientation">{{item.reversed ? '逆位' : '正位'}} · {{spreadPositions[index]}}</text>
+    </view>
+  </view>
+
+  <view class="table-controls">
+    <view class="question-wrap">
+      <image class="question-quill" src="/assets/quill.webp" mode="aspectFit"/>
+      <textarea
+        class="question"
+        value="{{question}}"
+        maxlength="500"
+        placeholder="静下心来输入你的问题并抽取牌"
+        placeholder-class="question-placeholder"
+        bindinput="onQuestion"
+      ></textarea>
+      <view class="ink-line"><text>♢</text></view>
+    </view>
+    <view class="actions">
+      <button wx:if="{{selected.length === 3}}" bindtap="startReading">查看解读 ↗︎</button>
+      <button wx:else bindtap="openPicker">选择第{{selected.length + 1}}张牌 ↗︎</button>
+      <button class="shuffle" bindtap="shuffle">↻ 重新洗牌</button>
+    </view>
+    <text class="notice disclaimer">{{disclaimer}}</text>
+    <view class="legal-links">
+      <text bindtap="openPrivacy">隐私说明</text>
+      <text class="legal-sep">·</text>
+      <text bindtap="openTerms">使用条款</text>
+    </view>
+  </view>
+
+  <view class="picker-mask" wx:if="{{pickerOpen}}" bindtap="closePicker"></view>
+  <view class="picker" wx:if="{{pickerOpen}}">
+    <view class="picker-heading">
+      <text>选择第{{selected.length + 1}}张牌</text>
+      <button bindtap="closePicker" aria-label="收起选牌">×</button>
+    </view>
+    <text class="picker-hint">左右滑动，轻触选牌 · 完整78张 · {{spreadPositions[selected.length] || ''}}</text>
+    <scroll-view
+      class="deck"
+      scroll-x="true"
+      scroll-left="{{scrollLeft}}"
+      show-scrollbar="{{false}}"
+      bindscroll="scrollDeck"
+      bindtouchstart="touchStart"
+      bindtouchmove="touchMove"
+    >
+      <view class="deck-row" style="width:{{trackWidth}}px">
+        <view
+          wx:for="{{deck}}"
+          wx:key="id"
+          class="picker-card {{item.chosen ? 'chosen' : ''}}"
+          style="{{item.pickerStyle}}"
+          data-index="{{index}}"
+          bindtap="choose"
+        >
+          <image wx:if="{{item.loaded}}" src="/assets/back.png" mode="aspectFit"/>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="picker-selected">
+      <view class="picker-slot" wx:for="{{slots}}" wx:key="index">
+        <image wx:if="{{item}}" class="{{item.reversed ? 'reversed' : ''}}" src="/assets/cards/{{item.id}}.jpg" mode="aspectFit"/>
+        <text wx:else>☽</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="loader" wx:if="{{loading}}">
+    <view class="witch">
+      <image src="/assets/witch-body.png"/>
+      <image class="witch-wand" src="/assets/witch-wand.png"/>
+    </view>
+    <text>小女巫正在唤醒牌桌…</text>
+  </view>
+</view>
