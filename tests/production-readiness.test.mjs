@@ -15,10 +15,15 @@ function assertIncludesAll(text, snippets, label) {
 
 test('production HTML has visible ethics and decision-boundary disclaimer', () => {
   assertIncludesAll(html, [
-    '塔羅解讀僅供自我覺察與娛樂參考',
-    '不能替代醫療、法律、財務或心理專業建議',
-    '最終選擇權仍然在你手上'
+    '塔罗解读仅供自我觉察与娱乐参考',
+    '不能替代医疗、法律、财务或心理专业建议',
+    '最终选择权仍然在你手上'
   ], 'disclaimer');
+});
+
+test('cover does not show the removed English deck label', () => {
+  const visibleMarkup = html.split(/<body[^>]*>/i)[1].split('<script>')[0];
+  assert.ok(!/Rider\s*[·-]?\s*Waite|Rider Waite Smith/i.test(visibleMarkup), 'removed English deck label must stay absent from the cover');
 });
 
 test('browser code keeps provider key private and defaults Vercel frontend to deployed Render backend', () => {
@@ -50,6 +55,7 @@ test('all tarot images use local RWS assets and robust SVG fallback handlers', (
     'svg-fallback-img',
     'class="real-card-img"'
   ], 'image fallback');
+  assert.ok(!html.includes('https://commons.wikimedia.org/wiki/Special:FilePath'), 'production app must not depend on Wikimedia card images at runtime');
   assert.ok(!html.includes('<div class="csv"'), 'fallback SVG data URLs must not be rendered as text divs');
 });
 
@@ -70,8 +76,8 @@ test('reading output uses stable appended paragraph reveal and broader conversat
     'holdingBuffer',
     'reading-reveal',
     '呈現方式必須像一份完整的專業塔羅諮詢報告',
-    '不要只局限在單張牌義或單一問題答案',
-    '從整體能量、內在狀態、外部互動、時間節奏與可選路徑去解讀',
+    '先回答用户问的事，再说明牌面依据',
+    '每个抽象词后面都要跟一个现实中的行为、对话或判断标准',
     '最後給建議時要像面對面聊天',
     '不要用生硬的條列式命令',
     'zoom out from individual card meanings',
@@ -118,7 +124,7 @@ test('removed unwanted UX remains absent: feedback panel and tone switch', () =>
   }
 });
 
-test('server serves landing page and landing HTML contains simplified punctuation-free tarot product content', () => {
+test('server serves a simplified-Chinese landing page with local tarot imagery', () => {
   const landingPath = path.join(root, 'public/landing.html');
   assert.ok(fs.existsSync(landingPath), 'public/landing.html should exist');
   const landing = fs.readFileSync(landingPath, 'utf8');
@@ -127,25 +133,24 @@ test('server serves landing page and landing HTML contains simplified punctuatio
     "sendPublicHtml(res, 'landing.html'",
   ], 'landing route');
   assertIncludesAll(landing, [
-    'AI Assisted Tarot Reading',
-    'A softer way',
-    'to read within',
-    'Start the Reading',
+    'RIDER · WAITE · SMITH · 78 张牌',
+    '温柔地看见',
+    '你心里的答案',
+    '开始抽牌',
     'spiritual-tarot-art',
     'tarot-gallery',
     'gallery-card side-card',
     'data-fb',
     'tarotLandingImgFallback',
-    'RWS Tarot 09 Hermit.jpg',
-    'RWS Tarot 01 Magician.jpg',
-    'RWS Tarot 02 High Priestess.jpg',
-    'RWS Tarot 06 Lovers.jpg',
-    'Wikimedia Commons',
+    './assets/cards/ar09.jpg',
+    './assets/cards/ar01.jpg',
+    './assets/cards/ar02.jpg',
+    './assets/cards/ar06.jpg',
     'botanical-pattern-layer',
     'daisy-motif',
     'clover-motif'
   ], 'landing content');
-  const landingImageCount = (landing.match(/Special:FilePath\/RWS%20Tarot%20/g) || []).length;
+  const landingImageCount = (landing.match(/\.\/assets\/cards\/ar0[1269]\.jpg/g) || []).length;
   assert.ok(landingImageCount >= 4, `Landing should stack several tarot cards visually, found ${landingImageCount}`);
   const removedLandingTerms = ['今日适合问', '我现在真正需要面对的是什么', 'floating-note', '塔罗牌图案', 'RWS Tarot 18 Moon.jpg', 'The Moon', '三步完成一次完整解读', '为什么选择这个工具', '使用流程清晰', '少一点文字', '多一点灵性图像', '让阅读先变得舒服', '月光静心', '日光盛放', '四叶草呼吸', '适合关系与情绪', '适合行动与成长', '适合选择与转念', '先安放内在感受', '看见可用的力量', '把焦虑慢慢放下', 'healing-visual-card', 'moon-ritual-visual', 'sun-bloom-visual', 'clover-breath-visual', '真实牌图  柔和光感  安静解读', '真实牌图', '柔和光感', '安静解读', 'visual-poem', 'RWS Tarot 17 Star.jpg', 'RWS Tarot 14 Temperance.jpg', 'RWS Tarot 19 Sun.jpg', '星星牌', '节制牌', '太阳牌', '雏菊日光牌组', '进入正式占卜', 'AI 辅助塔罗解读'];
   for (const term of removedLandingTerms) {
@@ -211,6 +216,50 @@ test('mobile experience has premium tarot app layout treatments across cover dra
   ], 'mobile premium tarot layout');
 });
 
+test('mobile card faces load on demand instead of preloading the whole deck', () => {
+  assert.ok(!html.includes('loadVisibleCardImages(stageEl)'), 'draw screen must not load all 78 face images at once');
+  assert.ok(!html.includes('preloadAllImages();'), 'initial page load must not preload the whole deck on phones');
+  assertIncludesAll(html, [
+    'real card faces load on demand',
+    'loadCardImage(img)',
+    'forceSvgFallback(imgEl)'
+  ], 'mobile on-demand card image loading');
+});
+
+test('reading cards request real faces immediately and clarifier status matches its state', () => {
+  assertIncludesAll(html, [
+    'class="real-card-img" src="${c.img}"',
+    'loading="eager" decoding="async"',
+    '正在为这次追问抽取澄清牌',
+    'clarifier-reveal',
+    'clarifierHalo',
+    'clarifierLoadingMarkup',
+    'clarifier-vortex',
+    'clarifier-star',
+    'result.innerHTML=clarifierLoadingMarkup()',
+    'prefers-reduced-motion:reduce'
+  ], 'reading card timing');
+});
+
+test('server hardens /health and forces reading system prompt over client system', () => {
+  assertIncludesAll(server, [
+    'READING_SYSTEM_PROMPT',
+    "service: 'intuitive-tarot'",
+    'ts: Date.now()',
+    'content: READING_SYSTEM_PROMPT',
+    '你是一位说话直接的塔罗陪跑者',
+    'advice 只能 1 条。',
+  ], 'hardened health and forced prompt');
+  const healthStart = server.indexOf("urlPath === '/health'");
+  const healthChunk = server.slice(healthStart, healthStart + 350);
+  assert.ok(!healthChunk.includes('hasApiKey'), 'health must not expose hasApiKey');
+  assert.ok(!healthChunk.includes('baseUrl'), 'health must not expose baseUrl');
+  assert.ok(!healthChunk.includes('SUB2API_MODEL'), 'health must not expose model');
+  assert.ok(!healthChunk.includes('allowedOrigins'), 'health must not expose allowedOrigins');
+  assert.ok(server.includes("messages.push({ role: 'system', content: READING_SYSTEM_PROMPT })"), 'must force server system');
+  assert.ok(!/if \(payload\.system\)/.test(server), 'must not branch on client system');
+});
+
 test('server proxies to Sub2API OpenAI-compatible chat completions and supports Vercel CORS', () => {
   assertIncludesAll(server, [
     'process.env.SUB2API_API_KEY',
@@ -246,34 +295,46 @@ test('server ignores browser Anthropic model and always uses configured Sub2API 
   assert.ok(!server.includes('const model = process.env.SUB2API_MODEL || SUB2API_MODEL'), 'request conversion must use normalized model');
 });
 
-test('server protects public demo usage with IP rate limiting only', () => {
+test('server protects the open demo with IP rate limiting only', () => {
   assertIncludesAll(server, [
     'RATE_LIMIT_MAX_PER_DAY',
     'RATE_LIMIT_WINDOW_MS',
     'peekRateLimit',
     'checkRateLimit(req);',
     'getClientIp',
-    '体验次数已用完'
+    '当前公开体验次数已用完'
   ], 'public demo rate limiting');
-  assert.ok(!server.includes('访问码不正确'), 'server should not require an access code');
+  assert.ok(!server.includes('codeStatus'), 'server should not keep access-code gate logic');
+  assert.ok(!server.includes('access_code'), 'server should not require access codes');
 });
 
-test('frontend does not require an access code before reading generation', () => {
+test('frontend keeps reading generation open without an access-code gate', () => {
   assert.ok(!html.includes('TAROT_ACCESS_CODE'), 'frontend should not store access codes');
-  assert.ok(!html.includes('requestAccessCode'), 'frontend should not ask for access codes');
+  assert.ok(!html.includes('ensureAccessCode'), 'frontend should not ask for access codes');
   assert.ok(!html.includes('access_code'), 'frontend should not send access codes');
-  assert.ok(!html.includes('Enter your private access code to begin'), 'access modal copy should be removed');
-  assert.ok(!html.includes('Access code'), 'access input should be removed');
+  assert.ok(!html.includes('PURCHASE_CONFIG'), 'frontend should not show purchase links before monetization is ready');
 });
 
-test('frontend keeps public-demo flow modal-free', () => {
-  assert.ok(!html.includes('access-modal'), 'access modal DOM should be removed');
-  assert.ok(!html.includes('accessInput'), 'access input DOM should be removed');
-  assert.ok(!html.includes('accessSubmit'), 'access submit DOM should be removed');
+test('frontend keeps the open demo flow free of native prompts', () => {
+  assert.ok(!html.includes('codeGate'), 'access modal DOM should be removed');
   assert.ok(!html.includes("prompt('请输入体验码')"), 'frontend should not use native browser prompt for access code');
+});
+
+test('frontend includes professional spreads and clarifier follow-up', () => {
+  assertIncludesAll(html, ['const SPREADS=', 'readerBrief', 'data-spread="relationship"', 'data-spread="work"', 'followup-panel', 'generateFollowUp', '简体中文', '删掉不承担信息的副词'], 'spread and follow-up UX');
 });
 
 test('server can be exposed to phone on local network by configuring HOST', () => {
   assert.ok(server.includes("process.env.HOST"), 'server should support HOST env var');
   assert.ok(server.includes("0.0.0.0"), 'server should document/listen on 0.0.0.0 for LAN access');
+});
+
+test('server serves bundled tarot card assets for local phone testing', () => {
+  assertIncludesAll(server, [
+    'CONTENT_TYPES',
+    'sendPublicStatic',
+    "['.jpg', 'image/jpeg']",
+    'fs.createReadStream(filePath).pipe(res)',
+    "'public, max-age=86400'"
+  ], 'local card asset serving');
 });

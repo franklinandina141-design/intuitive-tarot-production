@@ -18,3 +18,5 @@ services:
         value: '*'
       - key: SUB2API_API_KEY
         sync: false
+      - key: RATE_LIMIT_MAX_PER_DAY
+        value: '100'
